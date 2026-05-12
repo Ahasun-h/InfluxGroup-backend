@@ -2,7 +2,13 @@
   "permissions": {
     "allow": [
       "Bash(npm run *)",
-      "Bash(npm install *)"
+      "Bash(php artisan *)",
+      "Bash(grep -E \"^d|\\\\.js$|\\\\.vue$|\\\\.html$\")",
+      "Bash(where php *)",
+      "Bash(C:\\\\Users\\\\habib\\\\.config\\\\herd\\\\bin\\\\php.bat artisan *)",
+      "Bash(\"C:\\\\Users\\\\habib\\\\.config\\\\herd\\\\bin\\\\php.bat\" artisan *)",
+      "Bash(npm install *)",
+      "Bash(./vendor/bin/sail php *)"
     ]
   }
 }

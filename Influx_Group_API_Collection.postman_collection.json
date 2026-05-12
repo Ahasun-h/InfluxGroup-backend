@@ -1,0 +1,2587 @@
+{
+    "info": {
+        "name": "Influx Group API",
+        "description": "Complete API collection for Influx Group Energy & Infrastructure Website",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_postman_id": "influx-group-api-v1",
+        "version": {
+            "major": 1,
+            "minor": 0,
+            "patch": 0
+        }
+    },
+    "item": [
+        {
+            "name": "Products API",
+            "item": [
+                {
+                    "name": "Get All Products",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/products",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products"
+                            ],
+                            "query": [
+                                {
+                                    "key": "category",
+                                    "value": "transformers",
+                                    "description": "Filter by category (all, transformers, switchgear, renewables, automation)",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "1",
+                                    "description": "Page number",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10",
+                                    "description": "Items per page",
+                                    "disabled": true
+                                }
+                            ]
+                        },
+                        "description": "Retrieve all products with optional category filtering"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/products",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "products"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"prod-001\",\n      \"name\": \"Power Transformer 250 MVA\",\n      \"category\": \"transformers\",\n      \"description\": \"High-efficiency power transformer for industrial applications\",\n      \"specifications\": {\n        \"capacity\": \"250 MVA\",\n        \"voltage\": \"230/66 kV\",\n        \"frequency\": \"50 Hz\",\n        \"cooling\": \"ONAF\"\n      },\n      \"features\": [\n        \"Low losses design\",\n        \"Enhanced thermal performance\",\n        \"Advanced protection systems\"\n      ],\n      \"image\": \"/images/products/transformer-250mva.jpg\",\n      \"brochure\": \"/downloads/brochures/transformer-250mva.pdf\",\n      \"createdAt\": \"2026-01-15T10:00:00Z\",\n      \"updatedAt\": \"2026-01-15T10:00:00Z\"\n    }\n  ],\n  \"pagination\": {\n    \"total\": 45,\n    \"page\": 1,\n    \"limit\": 10,\n    \"totalPages\": 5\n  }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Product by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/products/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "prod-001"
+                                }
+                            ]
+                        },
+                        "description": "Retrieve detailed information for a specific product"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Product Categories",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/products/categories",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products",
+                                "categories"
+                            ]
+                        },
+                        "description": "Get all product categories with counts"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/products/categories",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "products",
+                                        "categories"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"transformers\",\n      \"name\": \"Transformers\",\n      \"icon\": \"zap\",\n      \"count\": 45,\n      \"description\": \"Power and distribution transformers\"\n    },\n    {\n      \"id\": \"switchgear\",\n      \"name\": \"Switchgear\",\n      \"icon\": \"settings\",\n      \"count\": 120,\n      \"description\": \"GIS and AIS switchgear systems\"\n    },\n    {\n      \"id\": \"renewables\",\n      \"name\": \"Renewables\",\n      \"icon\": \"wind\",\n      \"count\": 25,\n      \"description\": \"Solar and wind energy solutions\"\n    },\n    {\n      \"id\": \"automation\",\n      \"name\": \"Automation\",\n      \"icon\": \"cpu\",\n      \"count\": 80,\n      \"description\": \"PLC and SCADA systems\"\n    }\n  ]\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Create Product",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Distribution Transformer 100 KVA\",\n  \"category\": \"transformers\",\n  \"description\": \"Compact distribution transformer for residential and commercial use\",\n  \"specifications\": {\n    \"capacity\": \"100 KVA\",\n    \"voltage\": \"11/0.4 kV\",\n    \"frequency\": \"50 Hz\",\n    \"cooling\": \"ONAN\"\n  },\n  \"features\": [\n    \"Low maintenance design\",\n    \"Compact footprint\",\n    \"High efficiency\"\n  ],\n  \"brochure\": \"\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/products",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products"
+                            ]
+                        },
+                        "description": "Create a new product (Admin only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Product",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Power Transformer 250 MVA\",\n  \"description\": \"Updated description\",\n  \"features\": [\n    \"Low losses design\",\n    \"Enhanced thermal performance\",\n    \"Advanced protection systems\",\n    \"New feature added\"\n  ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/products/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "prod-001"
+                                }
+                            ]
+                        },
+                        "description": "Update product details (Admin only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Product",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/products/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "products",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "prod-001"
+                                }
+                            ]
+                        },
+                        "description": "Delete a product (Admin only)"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Product management endpoints"
+        },
+        {
+            "name": "Projects API",
+            "item": [
+                {
+                    "name": "Get All Projects",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/projects",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "projects"
+                            ],
+                            "query": [
+                                {
+                                    "key": "category",
+                                    "value": "power",
+                                    "description": "Filter by category (all, power, transmission, renewable, industrial)",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "completed",
+                                    "description": "Filter by status (ongoing, completed, planned)",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "1",
+                                    "disabled": true
+                                }
+                            ]
+                        },
+                        "description": "Retrieve all projects with filtering"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/projects",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "projects"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"proj-001\",\n      \"title\": \"Matarbari Ultra Mega Power Project\",\n      \"location\": \"Matarbari, Cox's Bazar\",\n      \"capacity\": \"1200 MW\",\n      \"type\": \"Coal-fired Power Plant\",\n      \"category\": \"power\",\n      \"status\": \"ongoing\",\n      \"completion\": \"75%\",\n      \"client\": \"Bangladesh Power Development Board\",\n      \"value\": \"$4.5 Billion\",\n      \"startDate\": \"2020-01-15\",\n      \"expectedCompletion\": \"2026-12-31\",\n      \"image\": \"/images/projects/matarbari.jpg\",\n      \"images\": [\n        \"/images/projects/matarbari-1.jpg\",\n        \"/images/projects/matarbari-2.jpg\"\n      ],\n      \"scope\": [\n        \"EPC Contracting\",\n        \"Transformer Installation\",\n        \"Switchgear Systems\",\n        \"Transmission Integration\"\n      ],\n      \"highlights\": [\n        \"Largest power project in Bangladesh\",\n        \"Ultra-supercritical technology\",\n        \"1500MW generation capacity\"\n      ],\n      \"stats\": {\n        \"transformers\": 12,\n        \"switchgear\": 45,\n        \"workforce\": 2500\n      },\n      \"createdAt\": \"2026-01-10T10:00:00Z\"\n    },\n    {\n      \"id\": \"proj-002\",\n      \"title\": \"Mongla 50MW Solar Park\",\n      \"location\": \"Mongla, Bagerhat\",\n      \"capacity\": \"50 MW\",\n      \"type\": \"Solar Power Plant\",\n      \"category\": \"renewable\",\n      \"status\": \"completed\",\n      \"completion\": \"100%\",\n      \"client\": \"Bangladesh Solar Energy Ltd\",\n      \"value\": \"$65 Million\",\n      \"startDate\": \"2022-03-01\",\n      \"expectedCompletion\": \"2023-06-30\",\n      \"image\": \"/images/projects/mongla-solar.jpg\",\n      \"scope\": [\n        \"EPC Contracting\",\n        \"Solar Inverter Systems\",\n        \"Grid Integration\"\n      ],\n      \"highlights\": [\n        \"First utility-scale solar project in region\",\n        \"Carbon offset of 50,000 tons/year\",\n        \"Created 200 local jobs\"\n      ],\n      \"createdAt\": \"2026-01-12T10:00:00Z\"\n    }\n  ],\n  \"pagination\": {\n    \"total\": 25,\n    \"page\": 1,\n    \"limit\": 10,\n    \"totalPages\": 3\n  }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Featured Projects",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/projects/featured",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "projects",
+                                "featured"
+                            ],
+                            "query": [
+                                {
+                                    "key": "limit",
+                                    "value": "4",
+                                    "description": "Number of featured projects to return"
+                                }
+                            ]
+                        },
+                        "description": "Get featured projects for homepage"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Project by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/projects/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "projects",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "proj-001"
+                                }
+                            ]
+                        },
+                        "description": "Retrieve detailed project information"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Project",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Padma Bridge Power Grid Integration\",\n  \"location\": \"Munshiganj, Bangladesh\",\n  \"capacity\": \"500 MW\",\n  \"type\": \"Transmission Project\",\n  \"category\": \"transmission\",\n  \"status\": \"ongoing\",\n  \"client\": \"Power Grid Company of Bangladesh\",\n  \"value\": \"$250 Million\",\n  \"startDate\": \"2024-01-01\",\n  \"expectedCompletion\": \"2025-12-31\",\n  \"scope\": [\n    \"Transmission Line Construction\",\n    \"Substation Setup\",\n    \"Grid Integration\"\n  ],\n  \"highlights\": [\n    \"Critical infrastructure project\",\n    \"Advanced monitoring systems\"\n  ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/projects",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "projects"
+                            ]
+                        },
+                        "description": "Create a new project (Admin only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Project",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"status\": \"completed\",\n  \"completion\": \"100%\",\n  \"highlights\": [\n    \"Completed ahead of schedule\",\n    \"Under budget delivery\"\n  ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/projects/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "projects",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "proj-002"
+                                }
+                            ]
+                        },
+                        "description": "Update project details (Admin only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Project",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/projects/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "projects",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "proj-002"
+                                }
+                            ]
+                        },
+                        "description": "Delete a project (Admin only)"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Project management endpoints"
+        },
+        {
+            "name": "Services API",
+            "item": [
+                {
+                    "name": "Get All Services",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/services",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "services"
+                            ]
+                        },
+                        "description": "Retrieve all services offered by Influx Group"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/services",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "services"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"serv-001\",\n      \"title\": \"EPC Contracting\",\n      \"icon\": \"cog\",\n      \"description\": \"Turnkey Engineering, Procurement, and Construction services for power and infrastructure projects\",\n      \"longDescription\": \"Comprehensive EPC solutions from concept to commissioning\",\n      \"features\": [\n        \"Project Planning & Design\",\n        \"Procurement Management\",\n        \"Construction & Installation\",\n        \"Commissioning & Handover\"\n      ],\n      \"process\": [\n        {\n          \"step\": 1,\n          \"title\": \"Consultation\",\n          \"description\": \"Initial requirement analysis and feasibility study\"\n        },\n        {\n          \"step\": 2,\n          \"title\": \"Design\",\n          \"description\": \"Detailed engineering design and planning\"\n        },\n        {\n          \"step\": 3,\n          \"title\": \"Implementation\",\n          \"description\": \"Construction and installation with quality control\"\n        },\n        {\n          \"step\": 4,\n          \"title\": \"Support\",\n          \"description\": \"Ongoing maintenance and technical support\"\n        }\n      ],\n      \"image\": \"/images/services/epc-contracting.jpg\",\n      \"createdAt\": \"2026-01-01T10:00:00Z\"\n    },\n    {\n      \"id\": \"serv-002\",\n      \"title\": \"Maintenance Services\",\n      \"icon\": \"wrench\",\n      \"description\": \"Comprehensive maintenance solutions for power systems and industrial equipment\",\n      \"features\": [\n        \"Preventive Maintenance\",\n        \"Emergency Repairs\",\n        \"Equipment Testing\",\n        \"Spare Parts Supply\"\n      ],\n      \"image\": \"/images/services/maintenance.jpg\",\n      \"createdAt\": \"2026-01-01T10:00:00Z\"\n    },\n    {\n      \"id\": \"serv-003\",\n      \"title\": \"Technical Training\",\n      \"icon\": \"users\",\n      \"description\": \"Professional training programs for engineers and technicians\",\n      \"features\": [\n        \"On-site Training\",\n        \"Certification Programs\",\n        \"Safety Training\",\n        \"Equipment Operation\"\n      ],\n      \"image\": \"/images/services/training.jpg\",\n      \"createdAt\": \"2026-01-01T10:00:00Z\"\n    },\n    {\n      \"id\": \"serv-004\",\n      \"title\": \"Testing & Commissioning\",\n      \"icon\": \"zap\",\n      \"description\": \"Comprehensive testing and commissioning services for electrical systems\",\n      \"features\": [\n        \"Type Testing\",\n        \"Routine Testing\",\n        \"Commissioning\",\n        \"Performance Verification\"\n      ],\n      \"image\": \"/images/services/testing.jpg\",\n      \"createdAt\": \"2026-01-01T10:00:00Z\"\n    }\n  ]\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Service by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/services/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "services",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "serv-001"
+                                }
+                            ]
+                        },
+                        "description": "Retrieve detailed service information"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Service management endpoints"
+        },
+        {
+            "name": "Solutions API",
+            "item": [
+                {
+                    "name": "Get All Solutions",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/solutions",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "solutions"
+                            ]
+                        },
+                        "description": "Retrieve all industry solutions"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/solutions",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "solutions"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"sol-001\",\n      \"title\": \"EPC Solutions\",\n      \"icon\": \"zap\",\n      \"description\": \"Complete turnkey solutions for power generation and transmission projects\",\n      \"longDescription\": \"From initial survey to final commissioning, we handle every aspect of your power project\",\n      \"features\": [\n        \"Project Management\",\n        \"Engineering Design\",\n        \"Procurement Excellence\",\n        \"Construction Expertise\",\n        \"Quality Assurance\"\n      ],\n      \"applications\": [\n        \"Power Plants\",\n        \"Substations\",\n        \"Transmission Lines\",\n        \"Distribution Networks\"\n      ],\n      \"image\": \"/images/solutions/epc.jpg\",\n      \"caseStudy\": \"/solutions/epc-case-study\"\n    },\n    {\n      \"id\": \"sol-002\",\n      \"title\": \"MEP Solutions\",\n      \"icon\": \"building-2\",\n      \"description\": \"Mechanical, Electrical, and Plumbing solutions for commercial and industrial buildings\",\n      \"features\": [\n        \"Electrical Design\",\n        \"HVAC Systems\",\n        \"Plumbing Solutions\",\n        \"Fire Safety Systems\",\n        \"Building Automation\"\n      ],\n      \"applications\": [\n        \"Commercial Buildings\",\n        \"Industrial Facilities\",\n        \"Healthcare Facilities\",\n        \"Educational Institutions\"\n      ],\n      \"image\": \"/images/solutions/mep.jpg\",\n      \"caseStudy\": \"/solutions/mep-case-study\"\n    },\n    {\n      \"id\": \"sol-003\",\n      \"title\": \"Industrial Solutions\",\n      \"icon\": \"factory\",\n      \"description\": \"Comprehensive electrical and automation solutions for industrial facilities\",\n      \"features\": [\n        \"Power Distribution\",\n        \"Motor Control Centers\",\n        \"Automation Systems\",\n        \"Energy Management\"\n      ],\n      \"applications\": [\n        \"Textile Industry\",\n        \"Pharmaceuticals\",\n        \"Food Processing\",\n        \"Heavy Industries\"\n      ],\n      \"image\": \"/images/solutions/industrial.jpg\"\n    },\n    {\n      \"id\": \"sol-004\",\n      \"title\": \"Maintenance Solutions\",\n      \"icon\": \"wrench\",\n      \"description\": \"Planned and preventive maintenance programs for optimal equipment performance\",\n      \"features\": [\n        \"Preventive Maintenance\",\n        \"Predictive Maintenance\",\n        \"Emergency Services\",\n        \"Spare Parts Management\"\n      ],\n      \"applications\": [\n        \"Power Plants\",\n        \"Industrial Plants\",\n        \"Commercial Buildings\",\n        \"Infrastructure Projects\"\n      ],\n      \"image\": \"/images/solutions/maintenance.jpg\"\n    }\n  ]\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Industries Served",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/solutions/industries",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "solutions",
+                                "industries"
+                            ]
+                        },
+                        "description": "Get all industries served by Influx Group"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/solutions/industries",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "solutions",
+                                        "industries"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"power-generation\",\n      \"name\": \"Power Generation\",\n      \"icon\": \"zap\",\n      \"description\": \"Power plants and renewable energy\"\n    },\n    {\n      \"id\": \"textile\",\n      \"name\": \"Textile\",\n      \"icon\": \"shirt\",\n      \"description\": \"Textile manufacturing facilities\"\n    },\n    {\n      \"id\": \"pharmaceuticals\",\n      \"name\": \"Pharmaceuticals\",\n      \"icon\": \"pill\",\n      \"description\": \"Pharmaceutical production plants\"\n    },\n    {\n      \"id\": \"construction\",\n      \"name\": \"Construction\",\n      \"icon\": \"hard-hat\",\n      \"description\": \"Construction and real estate\"\n    },\n    {\n      \"id\": \"food-processing\",\n      \"name\": \"Food Processing\",\n      \"icon\": \"utensils\",\n      \"description\": \"Food and beverage industry\"\n    },\n    {\n      \"id\": \"telecom\",\n      \"name\": \"Telecom\",\n      \"icon\": \"signal\",\n      \"description\": \"Telecommunications infrastructure\"\n    }\n  ]\n}"
+                        }
+                    ]
+                }
+            ],
+            "description": "Solutions and industry endpoints"
+        },
+        {
+            "name": "News API",
+            "item": [
+                {
+                    "name": "Get All News",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/news",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "news"
+                            ],
+                            "query": [
+                                {
+                                    "key": "category",
+                                    "value": "project-milestones",
+                                    "description": "Filter by category",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "1",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10",
+                                    "disabled": true
+                                }
+                            ]
+                        },
+                        "description": "Retrieve all news articles"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/news",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "news"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"news-001\",\n      \"title\": \"Influx Group Completes Mongla 50MW Solar Park\",\n      \"category\": \"project-milestones\",\n      \"categoryLabel\": \"Project Milestones\",\n      \"excerpt\": \"Successfully commissioned Bangladesh's first utility-scale solar park, marking a significant milestone in renewable energy development.\",\n      \"content\": \"<p>Detailed article content here...</p>\",\n      \"image\": \"/images/news/mongla-solar-completion.jpg\",\n      \"author\": {\n        \"name\": \"Rahim Uddin\",\n        \"role\": \"PR Manager\",\n        \"photo\": \"/images/authors/rahim.jpg\"\n      },\n      \"publishedDate\": \"2026-04-15T10:00:00Z\",\n      \"readTime\": \"5 min read\",\n      \"featured\": true,\n      \"tags\": [\"renewable\", \"solar\", \"milestone\"],\n      \"createdAt\": \"2026-04-15T10:00:00Z\"\n    },\n    {\n      \"id\": \"news-002\",\n      \"title\": \"Strategic Partnership with ADB Announced\",\n      \"category\": \"partnerships\",\n      \"categoryLabel\": \"Partnerships\",\n      \"excerpt\": \"Influx Group signs MOU with Asian Development Bank for regional infrastructure development.\",\n      \"content\": \"<p>Full article content...</p>\",\n      \"image\": \"/images/news/adb-partnership.jpg\",\n      \"author\": {\n        \"name\": \"Sarah Chen\",\n        \"role\": \" Communications Director\",\n        \"photo\": \"/images/authors/sarah.jpg\"\n      },\n      \"publishedDate\": \"2026-04-10T14:30:00Z\",\n      \"readTime\": \"4 min read\",\n      \"featured\": false,\n      \"tags\": [\"partnership\", \"adb\", \"infrastructure\"],\n      \"createdAt\": \"2026-04-10T14:30:00Z\"\n    }\n  ],\n  \"pagination\": {\n    \"total\": 45,\n    \"page\": 1,\n    \"limit\": 10,\n    \"totalPages\": 5\n  }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Featured News",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/news/featured",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "news",
+                                "featured"
+                            ],
+                            "query": [
+                                {
+                                    "key": "limit",
+                                    "value": "3"
+                                }
+                            ]
+                        },
+                        "description": "Get featured news articles for homepage"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get News by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/news/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "news",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "news-001"
+                                }
+                            ]
+                        },
+                        "description": "Retrieve detailed news article"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get News Categories",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/news/categories",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "news",
+                                "categories"
+                            ]
+                        },
+                        "description": "Get all news categories"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/news/categories",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "news",
+                                        "categories"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"project-milestones\",\n      \"name\": \"Project Milestones\",\n      \"count\": 15\n    },\n    {\n      \"id\": \"partnerships\",\n      \"name\": \"Partnerships\",\n      \"count\": 8\n    },\n    {\n      \"id\": \"renewable-energy\",\n      \"name\": \"Renewable Energy\",\n      \"count\": 12\n    },\n    {\n      \"id\": \"certifications\",\n      \"name\": \"Certifications\",\n      \"count\": 5\n    },\n    {\n      \"id\": \"events\",\n      \"name\": \"Events\",\n      \"count\": 3\n    },\n    {\n      \"id\": \"company-updates\",\n      \"name\": \"Company Updates\",\n      \"count\": 10\n    }\n  ]\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Create News Article",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Influx Group Wins Infrastructure Award 2026\",\n  \"category\": \"company-updates\",\n  \"excerpt\": \"Recognized for excellence in power infrastructure development\",\n  \"content\": \"<p>Full article content with HTML formatting...</p>\",\n  \"featured\": true,\n  \"tags\": [\"award\", \"infrastructure\", \"excellence\"]\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/news",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "news"
+                            ]
+                        },
+                        "description": "Create news article (Admin only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update News Article",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Updated Title\",\n  \"content\": \"<p>Updated content...</p>\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/news/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "news",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "news-001"
+                                }
+                            ]
+                        },
+                        "description": "Update news article (Admin only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete News Article",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/news/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "news",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "news-001"
+                                }
+                            ]
+                        },
+                        "description": "Delete news article (Admin only)"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "News and articles management"
+        },
+        {
+            "name": "Gallery API",
+            "item": [
+                {
+                    "name": "Get Gallery Media",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/gallery",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "gallery"
+                            ],
+                            "query": [
+                                {
+                                    "key": "type",
+                                    "value": "photo",
+                                    "description": "Filter by type (all, photo, video)",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "category",
+                                    "value": "power-projects",
+                                    "description": "Filter by category",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "1",
+                                    "disabled": true
+                                }
+                            ]
+                        },
+                        "description": "Retrieve gallery photos and videos"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/gallery",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "gallery"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"gallery-001\",\n      \"type\": \"photo\",\n      \"title\": \"Matarbari Power Plant Construction\",\n      \"category\": \"power-projects\",\n      \"categoryLabel\": \"Power Projects\",\n      \"url\": \"/images/gallery/matarbari-construction.jpg\",\n      \"thumbnail\": \"/images/gallery/thumbs/matarbari-construction-thumb.jpg\",\n      \"caption\": \"Aerial view of construction progress at Matarbari Ultra Mega Power Project\",\n      \"alt\": \"Matarbari Power Plant Construction Site\",\n      \"project\": \"Matarbari Ultra Mega Power Project\",\n      \"projectId\": \"proj-001\",\n      \"date\": \"2026-03-15T10:00:00Z\",\n      \"featured\": true,\n      \"order\": 1\n    },\n    {\n      \"id\": \"gallery-002\",\n      \"type\": \"video\",\n      \"title\": \"Mongla Solar Park Overview\",\n      \"category\": \"renewable-energy\",\n      \"categoryLabel\": \"Renewable Energy\",\n      \"url\": \"/videos/gallery/mongla-solar-overview.mp4\",\n      \"thumbnail\": \"/images/gallery/thumbs/mongla-solar-video-thumb.jpg\",\n      \"caption\": \"Drone footage of the completed 50MW solar park\",\n      \"duration\": \"3:45\",\n      \"project\": \"Mongla 50MW Solar Park\",\n      \"projectId\": \"proj-002\",\n      \"date\": \"2026-02-20T10:00:00Z\",\n      \"featured\": true,\n      \"order\": 2\n    }\n  ],\n  \"pagination\": {\n    \"total\": 85,\n    \"page\": 1,\n    \"limit\": 20,\n    \"totalPages\": 5\n  }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Gallery Categories",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/gallery/categories",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "gallery",
+                                "categories"
+                            ]
+                        },
+                        "description": "Get gallery categories"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/gallery/categories",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "gallery",
+                                        "categories"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"power-projects\",\n      \"name\": \"Power Projects\",\n      \"count\": 25,\n      \"type\": \"photo\"\n    },\n    {\n      \"id\": \"renewable-energy\",\n      \"name\": \"Renewable Energy\",\n      \"count\": 20,\n      \"type\": \"photo\"\n    },\n    {\n      \"id\": \"manufacturing\",\n      \"name\": \"Manufacturing\",\n      \"count\": 15,\n      \"type\": \"photo\"\n    },\n    {\n      \"id\": \"transmission\",\n      \"name\": \"Transmission\",\n      \"count\": 18,\n      \"type\": \"photo\"\n    },\n    {\n      \"id\": \"corporate\",\n      \"name\": \"Corporate\",\n      \"count\": 12,\n      \"type\": \"photo\"\n    }\n  ]\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Upload Media",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "file",
+                                    "type": "file",
+                                    "src": "/path/to/file.jpg"
+                                },
+                                {
+                                    "key": "type",
+                                    "value": "photo",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "category",
+                                    "value": "power-projects",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "title",
+                                    "value": "Power Plant Installation",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "caption",
+                                    "value": "Installation of main transformer at Matarbari\",\                  "type": "text"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/gallery/upload",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "gallery",
+                                "upload"
+                            ]
+                        },
+                        "description": "Upload media to gallery (Admin only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Media",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/gallery/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "gallery",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "gallery-001"
+                                }
+                            ]
+                        },
+                        "description": "Delete media from gallery (Admin only)"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Gallery media management"
+        },
+        {
+            "name": "Contact API",
+            "item": [
+                {
+                    "name": "Submit Contact Form",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phone\": \"+880 1712-345678\",\n  \"subject\": \"Product Inquiry - Power Transformer\",\n  \"message\": \"I am interested in your 250 MVA power transformer. Please provide technical specifications and quotation.\",\n  \"recaptchaToken\": \"optional_recaptcha_token\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/contact/submit",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "contact",
+                                "submit"
+                            ]
+                        },
+                        "description": "Submit contact form"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phone\": \"+880 1712-345678\",\n  \"subject\": \"Product Inquiry - Power Transformer\",\n  \"message\": \"I am interested in your 250 MVA power transformer. Please provide technical specifications and quotation.\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/contact/submit",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "contact",
+                                        "submit"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"message\": \"Thank you for contacting us. We will get back to you within 24 hours.\",\n  \"data\": {\n    \"submissionId\": \"sub-20260506-001\",\n    \"submittedAt\": \"2026-05-06T10:30:00Z\"\n  }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Request Quote",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Md. Karim\",\n  \"company\": \"ABC Textile Mills Ltd\",\n  \"email\": \"karim@abctextile.com\",\n  \"phone\": \"+880 1812-456789\",\n  \"product\": \"Power Transformer 250 MVA\",\n  \"quantity\": 2,\n  \"requirements\": \"We need two 250 MVA transformers for our new facility. Delivery required within 6 months.\",\n  \"budget\": \"Not specified\",\n  \"timeline\": \"6 months\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/contact/quote",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "contact",
+                                "quote"
+                            ]
+                        },
+                        "description": "Submit product/service quote request"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"name\": \"Md. Karim\",\n  \"company\": \"ABC Textile Mills Ltd\",\n  \"email\": \"karim@abctextile.com\",\n  \"phone\": \"+880 1812-456789\",\n  \"product\": \"Power Transformer 250 MVA\",\n  \"quantity\": 2,\n  \"requirements\": \"We need two 250 MVA transformers for our new facility. Delivery required within 6 months.\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/contact/quote",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "contact",
+                                        "quote"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"message\": \"Your quote request has been submitted. Our sales team will contact you within 48 hours with a detailed quotation.\",\n  \"data\": {\n    \"quoteId\": \"quote-20260506-001\",\n    \"referenceNumber\": \"INFLX-QT-20260506-001\",\n    \"submittedAt\": \"2026-05-06T10:30:00Z\",\n    \"expectedResponse\": \"48 hours\"\n  }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Office Locations",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/contact/offices",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "contact",
+                                "offices"
+                            ]
+                        },
+                        "description": "Get all office locations"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/contact/offices",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "contact",
+                                        "offices"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"office-dhaka\",\n      \"city\": \"Dhaka\",\n      \"type\": \"Corporate Headquarters\",\n      \"address\": \"Level 12, Energy Plaza, Tejgaon Industrial Area\",\n      \"area\": \"Tejgaon I/A\",\n      \"city\": \"Dhaka 1208\",\n      \"country\": \"Bangladesh\",\n      \"phone\": \"+880 2 987 6543\",\n      \"email\": \"dhaka@influxgroup.com\",\n      \"hours\": {\n        \"sunday\": \"9:00 AM - 6:00 PM\",\n        \"monday\": \"9:00 AM - 6:00 PM\",\n        \"tuesday\": \"9:00 AM - 6:00 PM\",\n        \"wednesday\": \"9:00 AM - 6:00 PM\",\n        \"thursday\": \"9:00 AM - 6:00 PM\",\n        \"friday\": \"Closed\",\n        \"saturday\": \"Closed\"\n      },\n      \"coordinates\": {\n        \"lat\": 23.7544,\n        \"lng\": 90.3837\n      },\n      \"mapUrl\": \"https://maps.google.com/?q=Influx+Group+Dhaka\"\n    },\n    {\n      \"id\": \"office-chittagong\",\n      \"city\": \"Chittagong\",\n      \"type\": \"Regional Office\",\n      \"address\": \"Plot 45, GEC Circle, Nasirabad\",\n      \"area\": \"Khulshi\",\n      \"city\": \"Chittagong 4209\",\n      \"country\": \"Bangladesh\",\n      \"phone\": \"+880 31 654 321\",\n      \"email\": \"ctg@influxgroup.com\",\n      \"hours\": {\n        \"sunday\": \"9:00 AM - 5:00 PM\",\n        \"monday\": \"9:00 AM - 5:00 PM\",\n        \"tuesday\": \"9:00 AM - 5:00 PM\",\n        \"wednesday\": \"9:00 AM - 5:00 PM\",\n        \"thursday\": \"9:00 AM - 5:00 PM\",\n        \"friday\": \"Closed\",\n        \"saturday\": \"Closed\"\n      },\n      \"coordinates\": {\n        \"lat\": 22.3588,\n        \"lng\": 91.8215\n      },\n      \"mapUrl\": \"https://maps.google.com/?q=Influx+Group+Chittagong\"\n    }\n  ]\n}"
+                        }
+                    ]
+                }
+            ],
+            "description": "Contact form and quote requests"
+        },
+        {
+            "name": "Testimonials API",
+            "item": [
+                {
+                    "name": "Get All Testimonials",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/testimonials",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "testimonials"
+                            ],
+                            "query": [
+                                {
+                                    "key": "featured",
+                                    "value": "true",
+                                    "description": "Get featured testimonials only",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10",
+                                    "disabled": true
+                                }
+                            ]
+                        },
+                        "description": "Retrieve all client testimonials"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/testimonials",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "testimonials"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"test-001\",\n      \"name\": \"Rahman Ali\",\n      \"position\": \"Chief Engineer\",\n      \"company\": \"Bangladesh Power Development Board\",\n      \"companyLogo\": \"/images/logos/bpdb.png\",\n      \"content\": \"Influx Group has been our trusted partner for over 15 years. Their technical expertise and commitment to quality have been instrumental in the successful completion of our critical power infrastructure projects. The team's professionalism and after-sales support are unmatched in the industry.\",\n      \"rating\": 5,\n      \"project\": \"National Grid Transmission Upgrade\",\n      \"image\": \"/images/testimonials/rahman-ali.jpg\",\n      \"featured\": true,\n      \"date\": \"2026-03-15T10:00:00Z\"\n    },\n    {\n      \"id\": \"test-002\",\n      \"name\": \"Sarah Chen\",\n      \"position\": \"Project Director\",\n      \"company\": \"Asian Development Bank\",\n      \"companyLogo\": \"/images/logos/adb.png\",\n      \"content\": \"Working with Influx Group on the renewable energy initiative has been exceptional. Their deep understanding of sustainable energy solutions, combined with local expertise, made them the ideal partner for Bangladesh's transition to clean energy. Highly recommend their EPC services.\",\n      \"rating\": 5,\n      \"project\": \"Renewable Energy Initiative\",\n      \"image\": \"/images/testimonials/sarah-chen.jpg\",\n      \"featured\": true,\n      \"date\": \"2026-02-20T10:00:00Z\"\n    },\n    {\n      \"id\": \"test-003\",\n      \"name\": \"Mohammad Hassan\",\n      \"position\": \"Managing Director\",\n      \"company\": \"Pran-RFL Group\",\n      \"companyLogo\": \"/images/logos/pran-rfl.png\",\n      \"content\": \"The industrial automation solutions provided by Influx Group have significantly improved our operational efficiency. Their team understood our complex requirements and delivered a customized solution that exceeded our expectations. Excellent technical support throughout the project lifecycle.\",\n      \"rating\": 5,\n      \"project\": \"Factory Automation Project\",\n      \"image\": \"/images/testimonials/mohammad-hassan.jpg\",\n      \"featured\": true,\n      \"date\": \"2026-01-10T10:00:00Z\"\n    }\n  ]\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Create Testimonial",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Ahmed Rahman\",\n  \"position\": \"CEO\",\n  \"company\": \"Square Pharmaceuticals\",\n  \"content\": \"Outstanding service and technical expertise. Influx Group delivered our power infrastructure project on time and within budget.\",\n  \"rating\": 5,\n  \"project\": \"Plant Electrification Project\",\n  \"featured\": true\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/testimonials",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "testimonials"
+                            ]
+                        },
+                        "description": "Create testimonial (Admin only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Testimonial",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"content\": \"Updated testimonial content...\",\n  \"featured\": true\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/testimonials/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "testimonials",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "test-001"
+                                }
+                            ]
+                        },
+                        "description": "Update testimonial (Admin only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Testimonial",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/testimonials/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "testimonials",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "test-001"
+                                }
+                            ]
+                        },
+                        "description": "Delete testimonial (Admin only)"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Client testimonials management"
+        },
+        {
+            "name": "Partners API",
+            "item": [
+                {
+                    "name": "Get All Partners",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/partners",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "partners"
+                            ]
+                        },
+                        "description": "Retrieve all partner organizations"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/partners",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "partners"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"partner-001\",\n      \"name\": \"Bangladesh Power Development Board\",\n      \"shortName\": \"BPDB\",\n      \"type\": \"government\",\n      \"logo\": \"/images/partners/bpdb.png\",\n      \"website\": \"https://www.bpdb.gov.bd\",\n      \"description\": \"Government agency responsible for power generation and distribution in Bangladesh\",\n      \"partnershipType\": \"Client\",\n      \"since\": \"1995\",\n      \"featured\": true,\n      \"order\": 1\n    },\n    {\n      \"id\": \"partner-002\",\n      \"name\": \"Asian Development Bank\",\n      \"shortName\": \"ADB\",\n      \"type\": \"international\",\n      \"logo\": \"/images/partners/adb.png\",\n      \"website\": \"https://www.adb.org\",\n      \"description\": \"Regional development bank supporting infrastructure projects across Asia\",\n      \"partnershipType\": \"Partner\",\n      \"since\": \"2010\",\n      \"featured\": true,\n      \"order\": 2\n    },\n    {\n      \"id\": \"partner-003\",\n      \"name\": \"World Bank\",\n      \"shortName\": \"WB\",\n      \"type\": \"international\",\n      \"logo\": \"/images/partners/world-bank.png\",\n      \"website\": \"https://www.worldbank.org\",\n      \"description\": \"International financial institution providing loans and grants\",\n      \"partnershipType\": \"Partner\",\n      \"since\": \"2008\",\n      \"featured\": true,\n      \"order\": 3\n    },\n    {\n      \"id\": \"partner-004\",\n      \"name\": \"Bangladesh Energy Regulatory Commission\",\n      \"shortName\": \"BERC\",\n      \"type\": \"regulator\",\n      \"logo\": \"/images/partners/berc.png\",\n      \"website\": \"http://www.berc.org.bd\",\n      \"description\": \"Regulatory body for energy sector in Bangladesh\",\n      \"partnershipType\": \"Regulator\",\n      \"since\": \"2005\",\n      \"featured\": true,\n      \"order\": 4\n    },\n    {\n      \"id\": \"partner-005\",\n      \"name\": \"International Electrotechnical Commission\",\n      \"shortName\": \"IEC\",\n      \"type\": \"standards\",\n      \"logo\": \"/images/partners/iec.png\",\n      \"website\": \"https://www.iec.ch\",\n      \"description\": \"International standards organization for electrical technologies\",\n      \"partnershipType\": \"Standards\",\n      \"since\": \"2000\",\n      \"featured\": true,\n      \"order\": 5\n    },\n    {\n      \"id\": \"partner-006\",\n      \"name\": \"Institute of Electrical and Electronics Engineers\",\n      \"shortName\": \"IEEE\",\n      \"type\": \"standards\",\n      \"logo\": \"/images/partners/ieee.png\",\n      \"website\": \"https://www.ieee.org\",\n      \"description\": \"Professional association for electrical engineering and electronics\",\n      \"partnershipType\": \"Standards\",\n      \"since\": \"2000\",\n      \"featured\": true,\n      \"order\": 6\n    }\n  ]\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Create Partner",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Siemens Bangladesh\",\n  \"shortName\": \"Siemens\",\n  \"type\": \"technology\",\n  \"website\": \"https://www.siemens.com.bd\",\n  \"description\": \"Technology partner for automation systems\",\n  \"partnershipType\": \"Technology Partner\",\n  \"since\": \"2015\",\n  \"featured\": true\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/partners",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "partners"
+                            ]
+                        },
+                        "description": "Create partner (Admin only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Partner",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"description\": \"Updated description\",\n  \"featured\": true\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/partners/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "partners",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "partner-001"
+                                }
+                            ]
+                        },
+                        "description": "Update partner (Admin only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Partner",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/partners/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "partners",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "partner-001"
+                                }
+                            ]
+                        },
+                        "description": "Delete partner (Admin only)"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Partner organizations management"
+        },
+        {
+            "name": "Careers API",
+            "item": [
+                {
+                    "name": "Get All Job Openings",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/careers/jobs",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "careers",
+                                "jobs"
+                            ],
+                            "query": [
+                                {
+                                    "key": "department",
+                                    "value": "engineering",
+                                    "description": "Filter by department",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "location",
+                                    "value": "dhaka",
+                                    "description": "Filter by location",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "type",
+                                    "value": "full-time",
+                                    "description": "Filter by employment type",
+                                    "disabled": true
+                                }
+                            ]
+                        },
+                        "description": "Retrieve all job openings"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/careers/jobs",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "careers",
+                                        "jobs"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"job-001\",\n      \"title\": \"Senior Electrical Engineer\",\n      \"department\": \"Engineering\",\n      \"location\": \"Dhaka\",\n      \"type\": \"Full-time\",\n      \"experience\": \"5-8 years\",\n      \"description\": \"We are looking for an experienced Electrical Engineer to join our power systems team.\",\n      \"responsibilities\": [\n        \"Design power distribution systems\",\n        \"Lead project engineering teams\",\n        \"Conduct feasibility studies\",\n        \"Provide technical oversight\"\n      ],\n      \"requirements\": [\n        \"BSc in Electrical Engineering\",\n        \"5+ years experience in power sector\",\n        \"Knowledge of IEEE/IEC standards\",\n        \"Strong leadership skills\"\n      ],\n      \"benefits\": [\n        \"Competitive salary\",\n        \"Health insurance\",\n        \"Professional development\",\n        \"Performance bonus\"\n      ],\n      \"salary\": \"TK 80,000 - 120,000\",\n      \"deadline\": \"2026-06-30T23:59:59Z\",\n      \"status\": \"active\",\n      \"postedDate\": \"2026-05-01T10:00:00Z\"\n    },\n    {\n      \"id\": \"job-002\",\n      \"title\": \"Project Manager - EPC\",\n      \"department\": \"Project Management\",\n      \"location\": \"Chittagong\",\n      \"type\": \"Full-time\",\n      \"experience\": \"8-12 years\",\n      \"description\": \"Lead EPC projects from conception to commissioning\",\n      \"responsibilities\": [\n        \"Manage EPC project lifecycles\",\n        \"Coordinate with clients and stakeholders\",\n        \"Oversee budget and timeline\",\n        \"Ensure quality and safety standards\"\n      ],\n      \"requirements\": [\n        \"BSc in Engineering (Any discipline)\",\n        \"PMP certification preferred\",\n        \"10+ years in EPC projects\",\n        \"Excellent communication skills\"\n      ],\n      \"benefits\": [\n        \"Transport facility\",\n        \"Provident fund\",\n        \"Gratuity\",\n        \"Annual increments\"\n      ],\n      \"salary\": \"TK 120,000 - 180,000\",\n      \"deadline\": \"2026-06-15T23:59:59Z\",\n      \"status\": \"active\",\n      \"postedDate\": \"2026-05-03T10:00:00Z\"\n    }\n  ]\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Job by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/careers/jobs/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "careers",
+                                "jobs",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "job-001"
+                                }
+                            ]
+                        },
+                        "description": "Retrieve detailed job information"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Submit Job Application",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "fullName",
+                                    "value": "Abdul Karim",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "email",
+                                    "value": "abdul.karim@email.com",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "phone",
+                                    "value": "+880 1712-345678",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "coverLetter",
+                                    "value": "I am excited to apply for this position...",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "resume",
+                                    "type": "file",
+                                    "src": "/path/to/resume.pdf"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/careers/jobs/:id/apply",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "careers",
+                                "jobs",
+                                ":id",
+                                "apply"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "job-001"
+                                }
+                            ]
+                        },
+                        "description": "Submit job application"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "fullName",
+                                            "value": "Abdul Karim",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "email",
+                                            "value": "abdul.karim@email.com",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "phone",
+                                            "value": "+880 1712-345678",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "coverLetter",
+                                            "value": "I am excited to apply for this position...",
+                                            "type": "text"
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/careers/jobs/job-001/apply",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "careers",
+                                        "jobs",
+                                        "job-001",
+                                        "apply"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"message\": \"Your application has been submitted successfully. We will review your application and contact you if shortlisted.\",\n  \"data\": {\n    \"applicationId\": \"app-20260506-001\",\n    \"jobTitle\": \"Senior Electrical Engineer\",\n    \"submittedAt\": \"2026-05-06T10:30:00Z\"\n  }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Create Job Opening",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Mechanical Engineer\",\n  \"department\": \"Engineering\",\n  \"location\": \"Dhaka\",\n  \"type\": \"Full-time\",\n  \"experience\": \"3-5 years\",\n  \"description\": \"Mechanical engineer for HVAC and industrial systems\",\n  \"responsibilities\": [\n    \"Design mechanical systems\",\n    \"Perform load calculations\",\n    \"Prepare technical specifications\"\n  ],\n  \"requirements\": [\n    \"BSc in Mechanical Engineering\",\n    \"3+ years experience\",\n    \"AutoCAD proficiency\"\n  ],\n  \"benefits\": [\n    \"Competitive salary\",\n    \"Health insurance\",\n    \"Professional development\"\n  ],\n  \"salary\": \"TK 60,000 - 90,000\",\n  \"deadline\": \"2026-07-31T23:59:59Z\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/careers/jobs",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "careers",
+                                "jobs"
+                            ]
+                        },
+                        "description": "Create job opening (Admin only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Job Opening",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"status\": \"closed\",\n  \"deadline\": \"2026-05-31T23:59:59Z\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/careers/jobs/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "careers",
+                                "jobs",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "job-001"
+                                }
+                            ]
+                        },
+                        "description": "Update job opening (Admin only)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Job Opening",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/careers/jobs/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "careers",
+                                "jobs",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "job-001"
+                                }
+                            ]
+                        },
+                        "description": "Delete job opening (Admin only)"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Career opportunities and job applications"
+        },
+        {
+            "name": "Content Management API",
+            "item": [
+                {
+                    "name": "Get Company Info",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/content/company-info",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "content",
+                                "company-info"
+                            ]
+                        },
+                        "description": "Get company information for About page"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/content/company-info",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "content",
+                                        "company-info"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"data\": {\n    \"company\": {\n      \"name\": \"Influx Group\",\n      \"tagline\": \"Leaders in Energy & Infrastructure\",\n      \"founded\": 1980,\n      \"description\": \"Following the legacy of JRC and Energypac, Influx Group has been powering Bangladesh's progress for over four decades. We are a leading engineering conglomerate specializing in power systems, renewable energy, and industrial solutions.\",\n      \"mission\": {\n        \"title\": \"Our Mission\",\n        \"description\": \"To deliver reliable, innovative, and sustainable energy solutions that drive Bangladesh's industrial growth and improve quality of life.\",\n        \"points\": [\n          \"Provide world-class engineering solutions\",\n          \"Foster sustainable development through renewable energy\",\n          \"Build long-term partnerships based on trust and excellence\"\n        ]\n      },\n      \"vision\": {\n        \"title\": \"Our Vision\",\n        \"description\": \"To be the leading energy and infrastructure solutions provider in South Asia, recognized for innovation, quality, and commitment to sustainable development.\",\n        \"points\": [\n          \"Expand regional presence by 2030\",\n          \"Lead in renewable energy adoption\",\n          \"Achieve carbon neutrality in operations\"\n        ]\n      },\n      \"stats\": [\n        {\n          \"value\": \"45+\",\n          \"label\": \"Years Experience\"\n        },\n        {\n          \"value\": \"15GW\",\n          \"label\": \"Power Generated\"\n        },\n        {\n          \"value\": \"250+\",\n          \"label\": \"Global Clients\"\n        },\n        {\n          \"value\": \"500+\",\n          \"label\": \"Technical Staff\"\n        }\n      ],\n      \"timeline\": [\n        {\n          \"year\": 1980,\n          \"title\": \"Foundation\",\n          \"description\": \"Established as a pioneering electrical engineering company in Bangladesh\"\n        },\n        {\n          \"year\": 1995,\n          \"title\": \"Expansion\",\n          \"description\": \"Expanded operations across Bangladesh with regional offices\"\n        },\n        {\n          \"year\": 2005,\n          \"title\": \"Manufacturing\",\n          \"description\": \"Started local manufacturing of transformers and switchgear\"\n        },\n        {\n          \"year\": 2015,\n          \"title\": \"Renewables\",\n          \"description\": \"Entered renewable energy sector with solar and wind solutions\"\n        },\n        {\n          \"year\": 2020,\n          \"title\": \"EPC Leadership\",\n          \"description\": \"Became leading EPC contractor for major power projects\"\n        },\n        {\n          \"year\": 2026,\n          \"title\": \"Regional Hub\",\n          \"description\": \"Positioned as regional energy solutions hub\"\n        }\n      ],\n      \"coreValues\": [\n        {\n          \"id\": \"safety\",\n          \"title\": \"Safety First\",\n          \"icon\": \"shield-check\",\n          \"description\": \"We prioritize safety in all operations, ensuring the well-being of our team, clients, and communities.\",\n          \"color\": \"#EF4444\"\n        },\n        {\n          \"id\": \"quality\",\n          \"title\": \"Quality Excellence\",\n          \"icon\": \"award\",\n          \"description\": \"We maintain the highest standards of quality in our products, services, and processes.\",\n          \"color\": \"#FBBF24\"\n        },\n        {\n          \"id\": \"customer\",\n          \"title\": \"Customer Focus\",\n          \"icon\": \"users\",\n          \"description\": \"Our customers are at the heart of everything we do. We build lasting relationships through exceptional service.\",\n          \"color\": \"#10B981\"\n        },\n        {\n          \"id\": \"innovation\",\n          \"title\": \"Innovation Driven\",\n          \"icon\": \"trending-up\",\n          \"description\": \"We continuously innovate and adopt new technologies to provide cutting-edge solutions.\",\n          \"color\": \"#0062FF\"\n        }\n      ],\n      \"certifications\": [\n        {\n          \"name\": \"ISO 9001:2015\",\n          \"description\": \"Quality Management System\",\n          \"issuedBy\": \"ISO\",\n          \"validUntil\": \"2027-12-31\",\n          \"certificateUrl\": \"/downloads/certificates/iso-9001.pdf\"\n        },\n        {\n          \"name\": \"ISO 14001:2015\",\n          \"description\": \"Environmental Management System\",\n          \"issuedBy\": \"ISO\",\n          \"validUntil\": \"2027-08-15\",\n          \"certificateUrl\": \"/downloads/certificates/iso-14001.pdf\"\n        },\n        {\n          \"name\": \"ISO 45001:2018\",\n          \"description\": \"Occupational Health and Safety\",\n          \"issuedBy\": \"ISO\",\n          \"validUntil\": \"2027-05-20\",\n          \"certificateUrl\": \"/downloads/certificates/iso-45001.pdf\"\n        },\n        {\n          \"name\": \"IEC 60076\",\n          \"description\": \"Power Transformer Standards\",\n          \"issuedBy\": \"IEC\",\n          \"validUntil\": null,\n          \"certificateUrl\": null\n        },\n        {\n          \"name\": \"IEEE Standards\",\n          \"description\": \"Electrical Engineering Standards\",\n          \"issuedBy\": \"IEEE\",\n          \"validUntil\": null,\n          \"certificateUrl\": null\n        },\n        {\n          \"name\": \"BPDB Approved\",\n          \"description\": \"Bangladesh Power Development Board Approved Vendor\",\n          \"issuedBy\": \"BPDB\",\n          \"validUntil\": \"2026-12-31\",\n          \"certificateUrl\": \"/downloads/certificates/bpdb-approval.pdf\"\n        }\n      ]\n    }\n  }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get SEO Metadata",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/content/seo/:page",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "content",
+                                "seo",
+                                ":page"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "page",
+                                    "value": "home"
+                                }
+                            ]
+                        },
+                        "description": "Get SEO metadata for a page"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/content/seo/home",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "content",
+                                        "seo",
+                                        "home"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"data\": {\n    \"title\": \"Influx Group | Leaders in Energy & Infrastructure Solutions Bangladesh\",\n    \"description\": \"Powering Bangladesh since 1980. Leading EPC contractor for power plants, transmission, renewable energy, and industrial automation. ISO certified quality.\",\n    \"keywords\": \"Influx Group, power engineering Bangladesh, EPC contractor, transformer manufacturer, renewable energy, solar power, electrical infrastructure\",\n    \"og\": {\n      \"title\": \"Influx Group - Energy & Infrastructure Solutions\",\n      \"description\": \"Leading energy and infrastructure solutions provider in Bangladesh since 1980\",\n      \"image\": \"https://influxgroup.com/images/og-home.jpg\",\n      \"type\": \"website\",\n      \"url\": \"https://influxgroup.com\"\n    },\n    \"twitter\": {\n      \"card\": \"summary_large_image\",\n      \"title\": \"Influx Group - Energy & Infrastructure Solutions\",\n      \"description\": \"Leading energy and infrastructure solutions provider in Bangladesh since 1980\",\n      \"image\": \"https://influxgroup.com/images/twitter-home.jpg\"\n    },\n    \"canonical\": \"https://influxgroup.com\",\n    \"robots\": \"index, follow\",\n    \"schema\": {\n      \"@context\": \"https://schema.org\",\n      \"@type\": \"Organization\",\n      \"name\": \"Influx Group\",\n      \"url\": \"https://influxgroup.com\",\n      \"logo\": \"https://influxgroup.com/logo.png\",\n      \"description\": \"Leading energy and infrastructure solutions provider\",\n      \"address\": {\n        \"@type\": \"PostalAddress\",\n        \"streetAddress\": \"Level 12, Energy Plaza, Tejgaon I/A\",\n        \"addressLocality\": \"Dhaka\",\n        \"postalCode\": \"1208\",\n        \"addressCountry\": \"BD\"\n      },\n      \"contactPoint\": {\n        \"@type\": \"ContactPoint\",\n        \"telephone\": \"+880-2-987-6543\",\n        \"contactType\": \"customer service\"\n      }\n    }\n  }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Update Company Info",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"mission\": {\n    \"description\": \"Updated mission description\",\n    \"points\": [\n      \"Updated point 1\",\n      \"Updated point 2\",\n      \"Updated point 3\"\n    ]\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/content/company-info",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "content",
+                                "company-info"
+                            ]
+                        },
+                        "description": "Update company information (Admin only)"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Company info and content management"
+        },
+        {
+            "name": "Authentication API",
+            "item": [
+                {
+                    "name": "Admin Login",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"admin@influxgroup.com\",\n  \"password\": \"your_password\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/auth/login",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "login"
+                            ]
+                        },
+                        "description": "Admin authentication endpoint"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"email\": \"admin@influxgroup.com\",\n  \"password\": \"your_password\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/auth/login",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "auth",
+                                        "login"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"message\": \"Login successful\",\n  \"data\": {\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"tokenType\": \"Bearer\",\n    \"expiresIn\": 86400,\n    \"user\": {\n      \"id\": \"admin-001\",\n      \"name\": \"System Administrator\",\n      \"email\": \"admin@influxgroup.com\",\n      \"role\": \"admin\",\n      \"permissions\": [\n        \"products.manage\",\n        \"projects.manage\",\n        \"news.manage\",\n        \"content.manage\",\n        \"careers.manage\",\n        \"users.manage\"\n      ]\n    }\n  }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Refresh Token",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"refreshToken\": \"your_refresh_token\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/auth/refresh",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "refresh"
+                            ]
+                        },
+                        "description": "Refresh access token"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Logout",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/auth/logout",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "logout"
+                            ]
+                        },
+                        "description": "Logout current user"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Authentication for admin access"
+        },
+        {
+            "name": "Search API",
+            "item": [
+                {
+                    "name": "Global Search",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/search?q=transformer&type=all",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "q",
+                                    "value": "transformer",
+                                    "description": "Search query"
+                                },
+                                {
+                                    "key": "type",
+                                    "value": "all",
+                                    "description": "Search type (all, products, projects, news, services)"
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "1",
+                                    "description": "Page number",
+                                    "disabled": true
+                                }
+                            ]
+                        },
+                        "description": "Search across all content"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/search?q=transformer&type=all",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "search"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "q",
+                                            "value": "transformer"
+                                        },
+                                        {
+                                            "key": "type",
+                                            "value": "all"
+                                        }
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"query\": \"transformer\",\n  \"data\": {\n    \"products\": {\n      \"total\": 12,\n      \"results\": [\n        {\n          \"id\": \"prod-001\",\n          \"type\": \"product\",\n          \"title\": \"Power Transformer 250 MVA\",\n          \"category\": \"Transformers\",\n          \"url\": \"/products/power-transformer-250-mva\",\n          \"thumbnail\": \"/images/products/transformer-250mva-thumb.jpg\",\n          \"description\": \"High-efficiency power transformer for industrial applications\"\n        }\n      ]\n    },\n    \"projects\": {\n      \"total\": 5,\n      \"results\": [\n        {\n          \"id\": \"proj-005\",\n          \"type\": \"project\",\n          \"title\": \"Grid Transformer Installation Project\",\n          \"category\": \"Transmission\",\n          \"url\": \"/projects/grid-transformer-installation\",\n          \"thumbnail\": \"/images/projects/grid-transformer-thumb.jpg\",\n          \"description\": \"Installation of 500kV grid transformers\"\n        }\n      ]\n    },\n    \"news\": {\n      \"total\": 3,\n      \"results\": []\n    },\n    \"services\": {\n      \"total\": 1,\n      \"results\": []\n    },\n    \"totalResults\": 21\n  }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Search Suggestions",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/search/suggest?q=pow",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "search",
+                                "suggest"
+                            ],
+                            "query": [
+                                {
+                                    "key": "q",
+                                    "value": "pow",
+                                    "description": "Partial search query"
+                                }
+                            ]
+                        },
+                        "description": "Get search suggestions for autocomplete"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/search/suggest?q=pow",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "search",
+                                        "suggest"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "q",
+                                            "value": "pow"
+                                        }
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"query\": \"pow\",\n  \"data\": {\n    \"suggestions\": [\n      {\n        \"text\": \"Power Transformer 250 MVA\",\n        \"type\": \"product\",\n        \"url\": \"/products/power-transformer-250-mva\"\n      },\n      {\n        \"text\": \"Power Distribution Systems\",\n        \"type\": \"service\",\n        \"url\": \"/services/power-distribution\"\n      },\n      {\n        \"text\": \"Power Plants\",\n        \"type\": \"category\",\n        \"url\": \"/projects?category=power\"\n      },\n      {\n        \"text\": \"Matarbari Ultra Mega Power Project\",\n        \"type\": \"project\",\n        \"url\": \"/projects/matarbari-power-project\"\n      },\n      {\n        \"text\": \"Power Generation Industry\",\n        \"type\": \"solution\",\n        \"url\": \"/solutions/power-generation\"\n      }\n    ]\n  }\n}"
+                        }
+                    ]
+                }
+            ],
+            "description": "Search functionality across all content"
+        },
+        {
+            "name": "Analytics API",
+            "item": [
+                {
+                    "name": "Track Page View",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"page\": \"/products\",\n  \"title\": \"Products - Influx Group\",\n  \"referrer\": \"https://influxgroup.com\",\n  \"userAgent\": \"Mozilla/5.0...\",\n  \"sessionId\": \"sess_12345\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/analytics/pageview",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "analytics",
+                                "pageview"
+                            ]
+                        },
+                        "description": "Track page views (Public endpoint)"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"page\": \"/products\",\n  \"title\": \"Products - Influx Group\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/analytics/pageview",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "analytics",
+                                        "pageview"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"message\": \"Page view recorded\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Track Event",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"event\": \"quote_requested\",\n  \"category\": \"engagement\",\n  \"label\": \"Power Transformer 250 MVA\",\n  \"value\": 1,\n  \"page\": \"/products\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/analytics/event",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "analytics",
+                                "event"
+                            ]
+                        },
+                        "description": "Track custom events"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Analytics Dashboard",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/analytics/dashboard?period=30d",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "analytics",
+                                "dashboard"
+                            ],
+                            "query": [
+                                {
+                                    "key": "period",
+                                    "value": "30d",
+                                    "description": "Time period (7d, 30d, 90d, 1y)"
+                                }
+                            ]
+                        },
+                        "description": "Get analytics dashboard data (Admin only)"
+                    },
+                    "response": [
+                        {
+                            "name": "Success Response",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminToken}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/analytics/dashboard?period=30d",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "analytics",
+                                        "dashboard"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "period",
+                                            "value": "30d"
+                                        }
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n  \"success\": true,\n  \"data\": {\n    \"period\": \"30d\",\n    \"pageViews\": {\n      \"total\": 45230,\n      \"unique\": 28450,\n      \"trend\": \"+12.5%\"\n    },\n    \"topPages\": [\n      {\n        \"page\": \"/\",\n        \"views\": 12500,\n        \"percentage\": 27.6\n      },\n      {\n        \"page\": \"/products\",\n        \"views\": 8900,\n        \"percentage\": 19.7\n      },\n      {\n        \"page\": \"/projects\",\n        \"views\": 7200,\n        \"percentage\": 15.9\n      }\n    ],\n    \"contactForms\": {\n      \"submitted\": 145,\n      \"quoteRequests\": 67,\n      \"jobApplications\": 23\n    },\n    \"engagement\": {\n      \"avgSessionDuration\": \"3m 24s\",\n      \"bounceRate\": \"42.3%\",\n      \"pagesPerSession\": 2.8\nn    },\n    \"sources\": [\n      {\n        \"source\": \"Google\",\n        \"visitors\": 18500,\n        \"percentage\": 40.9\n      },\n      {\n        \"source\": \"Direct\",\n        \"visitors\": 12300,\n        \"percentage\": 27.2\n      },\n      {\n        \"source\": \"LinkedIn\",\n        \"visitors\": 5200,\n        \"percentage\": 11.5\n      }\n    ]\n  }\n}"
+                        }
+                    ]
+                }
+            ],
+            "description": "Analytics tracking and reporting"
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "https://api.influxgroup.com",
+            "type": "string"
+        },
+        {
+            "key": "adminToken",
+            "value": "your_admin_jwt_token_here",
+            "type": "string"
+        }
+    ]
+}

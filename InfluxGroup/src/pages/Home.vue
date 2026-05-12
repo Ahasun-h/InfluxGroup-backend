@@ -1,0 +1,1088 @@
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { projectService, companyService } from '../services/content'
+import { API_CONFIG } from '../config/api'
+import {
+  Zap,
+  Settings,
+  ShieldCheck,
+  Activity,
+  ChevronRight,
+  Phone,
+  Mail,
+  MapPin,
+  ArrowUpRight,
+  Plus,
+  ArrowRight,
+  Monitor,
+  Cpu,
+  Wind,
+  Award,
+  Users,
+  Target,
+  CheckCircle,
+  Building2,
+  Factory,
+  Wrench,
+  Cog,
+  Star,
+  TrendingUp,
+  Briefcase,
+  X
+} from 'lucide-vue-next'
+
+const selectedProject = ref(null)
+const projectFilter = ref('all')
+const activeProductCategory = ref('all')
+
+const productCategories = [
+  { name: 'Transformers', icon: Zap, count: '45+' },
+  { name: 'Switchgear', icon: Settings, count: '120+' },
+  { name: 'Renewables', icon: Wind, count: '12GW' },
+  { name: 'Automation', icon: Cpu, count: '80+' }
+]
+
+const products = [
+  {
+    title: 'High-Voltage Transformer',
+    model: 'EP-450 Series',
+    desc: 'Core power distribution technology for industrial grids.',
+    image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800',
+    color: 'industrial-blue'
+  },
+  {
+    title: 'Intelligent Switchgear',
+    model: 'JRC-G3 Switch',
+    desc: 'Automated circuit protection and load management.',
+    image: 'https://images.unsplash.com/photo-1544724569-5f546fa6629c?auto=format&fit=crop&q=80&w=800',
+    color: 'industrial-red'
+  },
+  {
+    title: 'Solar Inverters',
+    model: 'REX-Solar V2',
+    desc: 'High-conversion efficiency for utility-scale solar farms.',
+    image: 'https://images.unsplash.com/photo-1509391366360-fe5bb658589d?auto=format&fit=crop&q=80&w=800',
+    color: 'industrial-blue'
+  },
+  {
+    title: 'Grid Control Unit',
+    model: 'TRX-Monitor',
+    desc: 'Real-time grid synchronization and performance tracking.',
+    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800',
+    color: 'industrial-red'
+  }
+]
+
+const homepageData = ref(null)
+
+const stats = computed(() => {
+  if (!homepageData.value?.stats) {
+    return [
+      { value: '45+', label: 'Years Experience' },
+      { value: '15GW', label: 'Power Generated' },
+      { value: '250+', label: 'Global Clients' },
+      { value: '500+', label: 'Technical Staff' }
+    ]
+  }
+  const s = homepageData.value.stats
+  return [
+    { value: s.years_experience + '+', label: 'Years Experience' },
+    { value: s.projects_completed + '+', label: 'Projects Completed' },
+    { value: s.happy_clients + '+', label: 'Happy Clients' },
+    { value: s.awards_won + '+', label: 'Awards Won' }
+  ]
+})
+
+const featuredProjects = ref([])
+
+const getImageUrl = (path) => {
+  if (!path) return 'https://images.unsplash.com/photo-1466611653911-95282fc3656b?auto=format&fit=crop&q=80&w=1200'
+  if (path.startsWith('http')) return path
+  return `${API_CONFIG.baseURL.replace('/api', '')}${path}`
+}
+
+const fetchFeaturedProjects = async () => {
+  try {
+    const data = await projectService.getFeaturedProjects()
+    featuredProjects.value = data
+  } catch (error) {
+    console.error('Failed to fetch featured projects:', error)
+  }
+}
+
+const fetchHomepageData = async () => {
+  try {
+    const data = await companyService.getCompanyInfo()
+    if (data && data.homepage) {
+      homepageData.value = data.homepage
+    }
+  } catch (error) {
+    console.error('Failed to fetch homepage data:', error)
+  }
+}
+
+onMounted(() => {
+  fetchFeaturedProjects()
+  fetchHomepageData()
+})
+
+const filteredProjects = computed(() => {
+  if (projectFilter.value === 'all') return featuredProjects.value
+  return featuredProjects.value.filter(p => p.category === projectFilter.value || p.type === projectFilter.value)
+})
+
+const openProjectModal = (project) => {
+  selectedProject.value = project
+  document.body.style.overflow = 'hidden'
+}
+
+const closeProjectModal = () => {
+  selectedProject.value = null
+  document.body.style.overflow = 'auto'
+}
+
+const setProjectFilter = (filter) => {
+  projectFilter.value = filter
+}
+
+// Helper function to format brand title with highlighted word
+const formatBrandTitle = (title) => {
+  if (!title) return ''
+
+  // Get the highlighted word from homepage data or use default
+  const highlightedWord = homepageData.value?.brand_statement?.highlighted_word || 'AUTHORITY'
+
+  // Split the title and wrap the highlighted word with span
+  const parts = title.split(highlightedWord)
+  return parts.join(`<span class="text-industrial-blue">${highlightedWord}</span>`)
+}
+
+// Mission & Vision from About page - now using dynamic data
+const missionVision = computed(() => {
+  if (!homepageData.value?.mission_vision) {
+    // Default values if no data
+    return [
+      {
+        icon: Zap,
+        title: 'Our Mission',
+        description: 'To deliver reliable, efficient, and sustainable power solutions that drive Bangladesh\'s industrial growth and infrastructure development.',
+        points: [
+          'Powering Bangladesh\'s development through innovative energy solutions',
+          'Ensuring energy security for future generations',
+          'Building sustainable infrastructure nationwide'
+        ]
+      },
+      {
+        icon: Target,
+        title: 'Our Vision',
+        description: 'To be the leading engineering conglomerate in South Asia, recognized globally for excellence in power infrastructure and renewable energy solutions.',
+        points: [
+          'Regional leadership in sustainable infrastructure development',
+          'Global recognition for engineering excellence',
+          'Pioneering renewable energy adoption'
+        ]
+      }
+    ]
+  }
+
+  // Dynamic data from API
+  const mv = homepageData.value.mission_vision
+  return [
+    {
+      icon: Zap,
+      title: mv.mission?.title || 'Our Mission',
+      description: mv.mission?.description || 'To deliver reliable, efficient, and sustainable power solutions...',
+      points: mv.mission?.points || []
+    },
+    {
+      icon: Target,
+      title: mv.vision?.title || 'Our Vision',
+      description: mv.vision?.description || 'To be the leading engineering conglomerate...',
+      points: mv.vision?.points || []
+    }
+  ]
+})
+
+// Timeline from About page (abbreviated)
+const timeline = [
+  { year: '1980', title: 'Foundation', description: 'Influx Group established as a small electrical contractor' },
+  { year: '1995', title: 'Expansion', description: 'Entered power transmission and distribution sector' },
+  { year: '2005', title: 'Manufacturing', description: 'Started manufacturing transformers and switchgear' },
+  { year: '2015', title: 'Renewables', description: 'Diversified into solar and wind energy solutions' },
+  { year: '2026', title: 'Regional Hub', description: 'Expanded operations across South Asia' }
+]
+
+// Core Values from About page
+const coreValues = [
+  { icon: ShieldCheck, title: 'Safety First', description: 'Zero-compromise approach to workplace and operational safety' },
+  { icon: Award, title: 'Quality Excellence', description: 'ISO 9001:2015 certified processes and international standards' },
+  { icon: Users, title: 'Customer Focus', description: 'Dedicated to delivering beyond client expectations' },
+  { icon: TrendingUp, title: 'Innovation Driven', description: 'Continuous investment in R&D and cutting-edge technology' }
+]
+
+// Certifications from About page
+const certifications = [
+  'ISO 9001:2015', 'ISO 14001:2015', 'ISO 45001:2018',
+  'IEC 60076', 'IEEE Standards', 'BPDB Approved'
+]
+
+// Product Categories from Products page
+const productCategoryList = [
+  { id: 'all', name: 'All Products', icon: Settings },
+  { id: 'transformers', name: 'Transformers', icon: Zap },
+  { id: 'switchgear', name: 'Switchgear', icon: Settings },
+  { id: 'renewables', name: 'Renewables', icon: Wind }
+]
+
+// Featured Products from Products page (limited selection)
+const featuredProducts = [
+  {
+    id: 1,
+    name: 'Power Transformer 250 MVA',
+    category: 'transformers',
+    description: 'High-capacity power transformer for utility-scale applications',
+    specifications: ['250 MVA', '230/132 kV', 'ONAN/ONAF Cooling'],
+    image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 2,
+    name: 'Gas Insulated Switchgear',
+    category: 'switchgear',
+    description: 'SF6 gas-insulated switchgear for compact substation solutions',
+    specifications: ['Up to 400 kV', '2500-4000 A', '40 kA'],
+    image: 'https://images.unsplash.com/photo-1544724569-5f546fa6629c?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 3,
+    name: 'Solar Inverter System',
+    category: 'renewables',
+    description: 'Grid-tied solar inverters for utility-scale solar farms',
+    specifications: ['100-1000 kW', 'MPPT tracking', 'Grid support'],
+    image: 'https://images.unsplash.com/photo-1509391366360-fe5bb658589d?auto=format&fit=crop&q=80&w=800'
+  }
+]
+
+const filteredFeaturedProducts = computed(() => {
+  if (activeProductCategory.value === 'all') return featuredProducts
+  return featuredProducts.filter(p => p.category === activeProductCategory.value)
+})
+
+// Services from Services page
+const mainServices = [
+  {
+    icon: Cog,
+    title: 'EPC Contracting',
+    description: 'Full-scope Engineering, Procurement, and Construction services for power infrastructure projects',
+    features: ['Turnkey Solutions', 'Project Management', 'Quality Assurance']
+  },
+  {
+    icon: Wrench,
+    title: 'Maintenance Services',
+    description: 'Comprehensive maintenance and support for all power systems and equipment',
+    features: ['24/7 Emergency Support', 'Preventive Maintenance', 'Condition Monitoring']
+  }
+]
+
+// Service Process from Services page
+const serviceProcess = [
+  { step: '01', title: 'Consultation', description: 'Understanding your requirements and developing customized solutions' },
+  { step: '02', title: 'Design', description: 'Engineering detailed designs and specifications for optimal performance' },
+  { step: '03', title: 'Implementation', description: 'Executing projects with precision and adherence to timelines' },
+  { step: '04', title: 'Support', description: 'Providing ongoing maintenance and technical support throughout lifecycle' }
+]
+
+// Solutions from Solutions page (abbreviated)
+const keySolutions = [
+  {
+    icon: Zap,
+    title: 'EPC Solutions',
+    description: 'Turnkey Engineering, Procurement, and Construction services for power infrastructure',
+    features: ['Power Plant EPC', 'Substation EPC', 'Transmission Line EPC']
+  },
+  {
+    icon: Building2,
+    title: 'MEP Solutions',
+    description: 'Integrated Mechanical, Electrical, and Plumbing services for buildings and facilities',
+    features: ['Electrical Design', 'HVAC Systems', 'Fire Protection']
+  }
+]
+
+// Industries from Solutions page
+const industries = [
+  { name: 'Power Generation', icon: Zap },
+  { name: 'Textile', icon: Factory },
+  { name: 'Pharmaceuticals', icon: Building2 },
+  { name: 'Construction', icon: Building2 },
+  { name: 'Food Processing', icon: Factory },
+  { name: 'Telecom', icon: Zap }
+]
+
+// Testimonials (new section)
+const testimonials = [
+  {
+    name: 'Rahman Ali',
+    position: 'Chief Engineer',
+    company: 'Bangladesh Power Development Board',
+    content: 'Influx Group has been our trusted partner for over 15 years. Their commitment to quality and timely delivery is unmatched in the industry.',
+    rating: 5
+  },
+  {
+    name: 'Sarah Chen',
+    position: 'Project Director',
+    company: 'Asian Development Bank',
+    content: 'The level of technical expertise and project management capability demonstrated by Influx Group is world-class. Highly recommended.',
+    rating: 5
+  },
+  {
+    name: 'Mohammad Hassan',
+    position: 'Managing Director',
+    company: 'Pran-RFL Group',
+    content: 'Their maintenance services have significantly improved our operational efficiency. A reliable partner for industrial power solutions.',
+    rating: 5
+  }
+]
+
+// Partners/Clients (new section)
+const partners = [
+  { name: 'BPDB', logo: '🏭' },
+  { name: 'ADB', logo: '🏦' },
+  { name: 'World Bank', logo: '🌐' },
+  { name: 'BERC', logo: '⚡' },
+  { name: 'IEC', logo: '🔌' },
+  { name: 'IEEE', logo: '📡' }
+]
+</script>
+
+<template>
+  <div class="min-h-screen">
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center pt-24 md:pt-20 pb-32 md:pb-40 overflow-hidden">
+      <!-- Background Image -->
+      <div class="absolute inset-0 z-0">
+        <img
+          :src="getImageUrl(homepageData?.hero?.background_image || '/hero.png')"
+          class="w-full h-full object-cover scale-105"
+          alt="Power Infrastructure"
+        />
+        <div class="absolute inset-0 bg-gradient-to-r from-industrial-dark via-industrial-dark/80 to-transparent"></div>
+        <div class="absolute inset-0 bg-industrial-dark/40"></div>
+      </div>
+
+      <!-- Content -->
+      <div class="relative z-10 max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
+        <div v-motion :initial="{ opacity: 0, x: -50 }" :enter="{ opacity: 1, x: 0 }">
+          <div class="flex items-center gap-3 mb-6 md:mb-8">
+            <div class="h-px w-8 md:w-12 bg-industrial-blue"></div>
+            <span class="text-industrial-blue font-black uppercase tracking-[0.3em] md:tracking-[0.5em] text-[10px] md:text-xs">
+              {{ homepageData?.hero?.subtitle || 'Leaders in Energy & Infrastructure' }}
+            </span>
+          </div>
+          <h1 class="text-3xl sm:text-4xl md:text-[4em] font-display font-black uppercase italic leading-[1.1] mb-8 text-white drop-shadow-[0_5px_15px_rgba(0,0,0,0.5)]">
+            {{ homepageData?.hero?.title || 'POWERING BANGLADESH SINCE 1980' }}
+          </h1>
+          <p class="text-sm md:text-base text-slate-200 max-w-lg mb-8 md:mb-10 leading-relaxed font-medium">
+            {{ homepageData?.hero?.description || 'From utility-scale power plants to smart grid automation, Influx Group delivers the technical precision that moves nations.' }}
+          </p>
+          <div class="flex flex-wrap gap-4 md:gap-5">
+            <a :href="homepageData?.hero?.cta_link || '/projects'" class="bg-industrial-blue text-white px-6 md:px-10 py-3 md:py-5 rounded-sm font-black uppercase tracking-widest text-[10px] md:text-xs flex items-center gap-3 hover:bg-industrial-red transition-all shadow-2xl hover:scale-105 active:scale-95">
+              {{ homepageData?.hero?.cta_text || 'EXPLORE CATALOG' }} <ChevronRight class="w-4 h-4" />
+            </a>
+            <a href="/about" class="bg-white/5 border-2 border-white/20 text-white px-6 md:px-10 py-3 md:py-5 rounded-sm font-black uppercase tracking-widest text-[10px] md:text-xs backdrop-blur-md hover:bg-white/20 transition-all hover:border-white">
+              CORPORATE PROFILE
+            </a>
+          </div>
+        </div>
+
+        <!-- Floating Cards -->
+        <div
+          class="hidden lg:grid grid-cols-2 gap-4 relative z-10"
+          v-motion
+          :initial="{ opacity: 0, scale: 0.8 }"
+          :enter="{ opacity: 1, scale: 1 }"
+          :delay="400"
+        >
+          <div class="glass-panel p-6 rounded-xl transform translate-y-8 hover:-translate-y-2 transition-all duration-500 cursor-pointer group">
+            <ShieldCheck class="text-industrial-blue mb-4 group-hover:scale-110 transition-transform" />
+            <h3 class="font-bold mb-2">Safety Core</h3>
+            <p class="text-[10px] text-slate-400">Class 5 risk mitigation integrated.</p>
+          </div>
+          <div class="glass-panel p-6 rounded-xl hover:-translate-y-2 transition-all duration-500 cursor-pointer group">
+            <Settings class="text-industrial-blue mb-4 group-hover:rotate-90 transition-transform duration-700" />
+            <h3 class="font-bold mb-2">Turnkey EPC</h3>
+            <p class="text-[10px] text-slate-400">End-to-end project management.</p>
+          </div>
+          <div class="col-span-2 glass-panel p-6 rounded-xl flex items-center justify-between hover:bg-industrial-blue/10 transition-colors">
+            <div>
+              <h3 class="text-2xl font-display font-black flex items-center gap-2">
+                ISO <span class="text-[10px] text-industrial-blue bg-industrial-blue/10 px-2 py-0.5 rounded uppercase">9001:2015</span>
+              </h3>
+              <p class="text-[10px] text-slate-400 uppercase tracking-widest mt-1">Certified Compliance</p>
+            </div>
+            <Activity class="w-8 h-8 text-industrial-blue animate-pulse" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Category Bar -->
+      <div class="absolute bottom-0 w-full bg-white/5 backdrop-blur-3xl border-t border-white/10 overflow-x-auto">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 divide-x divide-white/10 min-w-[600px] md:min-w-0">
+          <div v-for="cat in productCategories" :key="cat.name" class="py-6 md:py-8 px-0 group cursor-pointer hover:bg-white/5 transition-colors">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 flex items-center justify-center">
+                <component :is="cat.icon" class="w-6 h-6 md:w-8 md:h-8 text-industrial-blue group-hover:text-industrial-red transition-colors" />
+              </div>
+              <div>
+                <div class="text-[8px] md:text-[10px] text-slate-500 font-black uppercase tracking-widest">{{ cat.count }} Models</div>
+                <div class="font-display font-black uppercase text-base md:text-xl group-hover:text-industrial-blue transition-colors leading-tight">{{ cat.name }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Brand Statement / Trust Section -->
+    <section class="py-20 md:py-32 bg-white text-industrial-dark">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+          <div v-motion-slide-visible-left>
+             <h2 class="text-4xl md:text-5xl font-display font-black uppercase leading-[0.9] mb-8 text-industrial-dark">
+               <span v-html="formatBrandTitle(homepageData?.brand_statement?.title || 'ESTABLISHED AUTHORITY IN HEAVY ENGINEERING')"></span>
+             </h2>
+             <p class="text-slate-600 text-base md:text-lg leading-relaxed mb-8">
+               {{ homepageData?.brand_statement?.description || 'Following the legacy of JRC and Energypac, Influx Group has evolved into a multi-sector engineering conglomerate. We specialize in EPC contracts, high-capacity switchgears, and power generation maintenance.' }}
+             </p>
+             <div class="grid grid-cols-2 gap-8 md:gap-12">
+               <div v-for="stat in stats" :key="stat.label" class="border-l-4 border-industrial-blue pl-4 md:pl-6 py-2">
+                 <div class="text-3xl md:text-4xl font-display font-black text-industrial-blue">{{ stat.value }}</div>
+                 <div class="text-[10px] font-black uppercase tracking-widest text-slate-500">{{ stat.label }}</div>
+               </div>
+             </div>
+          </div>
+          <div class="relative group overflow-hidden rounded-sm h-[400px] md:h-[500px]" v-motion-slide-visible-right>
+            <img :src="homepageData?.brand_statement?.image_url || 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200'" class="w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110" />
+            <div class="absolute inset-0 bg-industrial-blue/10 mix-blend-multiply"></div>
+            <div class="absolute bottom-6 md:bottom-10 left-6 md:left-10 p-6 md:p-8 bg-industrial-blue text-white shadow-2xl max-w-[200px] md:max-w-xs transition-all opacity-0 md:opacity-100 group-hover:opacity-100">
+               <div class="text-[10px] font-black uppercase tracking-[0.3em] mb-2 opacity-70">{{ homepageData?.brand_statement?.overlay_title || 'Core Reliability' }}</div>
+               <div class="text-xl md:text-2xl font-display font-bold italic leading-tight">"{{ homepageData?.brand_statement?.overlay_text || 'Zero Downtime Operation Protocols' }}"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Projects Preview -->
+    <section class="py-20 md:py-32 bg-industrial-dark text-white relative overflow-hidden">
+      <div class="max-w-7xl mx-auto px-6 relative z-10">
+        <div class="grid lg:grid-cols-12 gap-12 md:gap-16 items-center mb-12">
+          <div class="lg:col-span-4" v-motion-slide-visible-left">
+             <span class="text-industrial-red font-black uppercase tracking-widest text-[10px] block mb-4 underline decoration-2 underline-offset-8">{{ homepageData?.projects_subtitle || 'Featured Deployments' }}</span>
+             <h2 class="text-5xl md:text-6xl font-display font-black uppercase italic leading-[0.9] mb-6 text-gradient-blue">{{ homepageData?.projects_title || 'THE ENERGY MATRIX' }}</h2>
+             <p class="text-slate-400 leading-relaxed mb-8 text-sm md:text-base">
+               Engineering large-scale infrastructure with interactive project tracking and real-time performance monitoring.
+             </p>
+
+             <!-- Interactive Filter Buttons -->
+             <div class="flex flex-wrap gap-2 mb-8">
+               <button
+                 @click="setProjectFilter('all')"
+                 :class="projectFilter === 'all' ? 'bg-industrial-blue text-white' : 'bg-white/5 text-slate-400 hover:bg-white/10'"
+                 class="px-4 py-2 text-[10px] font-black uppercase tracking-widest border border-industrial-blue/20 transition-all rounded-sm"
+               >
+                 All Projects
+               </button>
+               <button
+                 @click="setProjectFilter('infrastructure')"
+                 :class="projectFilter === 'infrastructure' ? 'bg-industrial-blue text-white' : 'bg-white/5 text-slate-400 hover:bg-white/10'"
+                 class="px-4 py-2 text-[10px] font-black uppercase tracking-widest border border-industrial-blue/20 transition-all rounded-sm"
+               >
+                 Infrastructure
+               </button>
+               <button
+                 @click="setProjectFilter('renewable')"
+                 :class="projectFilter === 'renewable' ? 'bg-industrial-blue text-white' : 'bg-white/5 text-slate-400 hover:bg-white/10'"
+                 class="px-4 py-2 text-[10px] font-black uppercase tracking-widest border border-industrial-blue/20 transition-all rounded-sm"
+               >
+                 Renewable
+               </button>
+             </div>
+          </div>
+
+          <!-- Project Grid -->
+          <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6" v-motion-slide-visible-right>
+             <div
+               v-for="(project, idx) in filteredProjects"
+               :key="idx"
+               @click="openProjectModal(project)"
+               class="relative group rounded-sm overflow-hidden aspect-[10/12] shadow-2xl cursor-pointer transform transition-all duration-500 hover:scale-[1.02] hover:shadow-industrial-blue/20"
+             >
+                <img
+                  :src="getImageUrl(project.image)"
+                  class="w-full h-full object-cover grayscale brightness-75 transition-all duration-700 group-hover:grayscale-0 group-hover:brightness-100 group-hover:scale-110"
+                  :alt="project.title"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-industrial-dark via-industrial-dark/40 to-transparent"></div>
+                <div class="absolute inset-0 border-4 md:border-8 border-transparent group-hover:border-industrial-blue/30 transition-all duration-500"></div>
+                <div class="absolute top-4 right-4 bg-industrial-blue/90 backdrop-blur-md px-3 py-1 rounded-sm">
+                  <div class="text-[10px] font-black uppercase tracking-widest text-white">{{ project.capacity }}</div>
+                </div>
+                <div class="absolute bottom-0 left-0 p-6 md:p-8 w-full transition-all duration-500">
+                   <div class="flex items-center justify-between mb-3">
+                     <div class="text-[10px] text-industrial-blue font-black uppercase tracking-[0.4em] drop-shadow-lg">{{ project.type }}</div>
+                     <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-industrial-blue transition-colors">
+                       <ArrowUpRight class="w-4 h-4 text-white group-hover:rotate-45 transition-transform duration-300" />
+                     </div>
+                   </div>
+                   <h3 class="text-2xl md:text-3xl font-display font-black uppercase italic mb-3 leading-tight text-white">{{ project.title }}</h3>
+                   <div class="flex items-center gap-2 text-[10px] text-slate-400 group-hover:text-white transition-colors">
+                     <MapPin class="w-3 h-3" />
+                     <span class="font-medium">{{ project.location }}</span>
+                   </div>
+                </div>
+             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mission & Vision Section (from About page) -->
+    <section class="py-20 md:py-32 bg-white text-industrial-dark">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="grid md:grid-cols-2 gap-16">
+          <div v-for="(item, index) in missionVision" :key="index" v-motion-slide-visible :class="index % 2 === 0 ? 'left' : 'right'">
+            <div class="flex items-center gap-3 mb-6">
+              <component :is="item.icon" class="w-8 h-8 text-industrial-blue" />
+              <h2 class="text-3xl md:text-4xl font-display font-black uppercase italic text-industrial-dark">{{ item.title }}</h2>
+            </div>
+            <p class="text-base md:text-lg text-slate-600 leading-relaxed mb-6">
+              {{ item.description }}
+            </p>
+            <ul class="space-y-4">
+              <li v-for="(point, idx) in item.points" :key="idx" class="flex items-start gap-3">
+                <CheckCircle class="w-6 h-6 text-industrial-blue flex-shrink-0 mt-1" />
+                <span class="text-slate-700">{{ point }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Company Timeline (from About page - abbreviated) -->
+    <section class="py-20 md:py-32 bg-industrial-light">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16" v-motion-slide-visible-bottom>
+          <h2 class="text-4xl md:text-5xl font-display font-black uppercase italic mb-6 text-industrial-dark">
+            Our <span class="text-industrial-blue">Journey</span>
+          </h2>
+          <p class="text-slate-600 text-lg max-w-2xl mx-auto">
+            Four decades of excellence in powering Bangladesh's development
+          </p>
+        </div>
+
+        <div class="relative">
+          <div class="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-industrial-blue/20 hidden md:block"></div>
+          <div class="space-y-12 md:space-y-16">
+            <div
+              v-for="(item, index) in timeline"
+              :key="index"
+              class="relative flex items-center"
+              :class="index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'"
+              v-motion-slide-visible-bottom
+              :delay="index * 100"
+            >
+              <div class="w-full md:w-5/12" :class="index % 2 === 0 ? 'md:pr-12' : 'md:pl-12'">
+                <div class="bg-white p-6 md:p-8 rounded-lg shadow-xl hover:shadow-2xl transition-shadow">
+                  <div class="text-industrial-blue font-black text-xl md:text-2xl mb-2">{{ item.year }}</div>
+                  <h3 class="text-lg md:text-xl font-bold mb-3 text-industrial-dark">{{ item.title }}</h3>
+                  <p class="text-slate-600 text-sm md:text-base">{{ item.description }}</p>
+                </div>
+              </div>
+              <div class="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-6 h-6 bg-industrial-blue rounded-full border-4 border-white shadow-lg"></div>
+              <div class="w-0 md:w-5/12"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Core Values (from About page) -->
+    <section class="py-20 md:py-32 bg-industrial-dark text-white">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16" v-motion-slide-visible-bottom>
+          <h2 class="text-4xl md:text-5xl font-display font-black uppercase italic mb-6 text-white">
+            Core <span class="text-industrial-blue">Values</span>
+          </h2>
+          <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+            The principles that guide everything we do
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+          <div
+            v-for="(value, index) in coreValues"
+            :key="index"
+            class="glass-panel p-6 md:p-8 rounded-lg hover:bg-industrial-blue/10 transition-colors group"
+            v-motion-slide-visible-bottom
+            :delay="index * 100"
+          >
+            <component :is="value.icon" class="w-10 h-10 md:w-12 md:h-12 text-industrial-blue mb-4 md:mb-6 group-hover:scale-110 transition-transform" />
+            <h3 class="text-lg md:text-xl font-bold mb-3 md:mb-4 text-white">{{ value.title }}</h3>
+            <p class="text-slate-400 text-xs md:text-sm leading-relaxed">{{ value.description }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Certifications (from About page) -->
+    <section class="py-16 md:py-24 bg-white text-industrial-dark">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-12" v-motion-slide-visible-bottom>
+          <h2 class="text-3xl md:text-4xl font-display font-black uppercase italic mb-6 text-industrial-dark">
+            Certifications & <span class="text-industrial-blue">Standards</span>
+          </h2>
+          <p class="text-slate-600 text-base md:text-lg max-w-2xl mx-auto">
+            Internationally recognized certifications ensuring quality and safety
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
+          <div
+            v-for="(cert, index) in certifications"
+            :key="index"
+            class="bg-industrial-light p-4 md:p-6 rounded-lg text-center hover:bg-industrial-blue hover:text-white transition-all group"
+            v-motion-slide-visible-bottom
+            :delay="index * 100"
+          >
+            <div class="font-black uppercase text-[10px] md:text-xs tracking-wider">{{ cert }}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Products (from Products page) -->
+    <section class="py-20 md:py-32 bg-industrial-light">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-12" v-motion-slide-visible-bottom>
+          <div class="flex items-center justify-center gap-3 mb-6">
+            <div class="h-px w-12 bg-industrial-blue"></div>
+            <span class="text-industrial-blue font-black uppercase tracking-[0.3em] text-[10px] md:text-xs">Our Products</span>
+            <div class="h-px w-12 bg-industrial-blue"></div>
+          </div>
+          <h2 class="text-4xl md:text-5xl font-display font-black uppercase italic mb-6 text-industrial-dark">
+            Engineering <span class="text-industrial-blue">Excellence</span>
+          </h2>
+          <p class="text-slate-600 text-base md:text-lg max-w-3xl mx-auto">
+            Comprehensive portfolio of power systems and equipment designed for reliability, efficiency, and sustainability.
+          </p>
+        </div>
+
+        <!-- Product Category Filter -->
+        <div class="flex flex-wrap gap-3 md:gap-4 justify-center mb-12" v-motion-slide-visible-bottom>
+          <button
+            v-for="category in productCategoryList"
+            :key="category.id"
+            @click="activeProductCategory = category.id"
+            class="flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-sm font-bold uppercase text-[10px] md:text-xs tracking-wider transition-all"
+            :class="activeProductCategory === category.id ? 'bg-industrial-blue text-white' : 'bg-white text-industrial-dark hover:bg-industrial-blue/10 shadow-md'"
+          >
+            <component :is="category.icon" class="w-4 h-4" />
+            {{ category.name }}
+          </button>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          <div
+            v-for="(product, index) in filteredFeaturedProducts"
+            :key="product.id"
+            class="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 group"
+            v-motion-slide-visible-bottom
+            :delay="index * 100"
+          >
+            <div class="relative h-48 md:h-64 overflow-hidden">
+              <img
+                :src="product.image"
+                :alt="product.name"
+                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-industrial-dark/80 to-transparent"></div>
+              <div class="absolute top-4 right-4 bg-industrial-blue text-white px-3 py-1 rounded-full text-[10px] md:text-xs font-bold uppercase">
+                {{ productCategoryList.find(c => c.id === product.category)?.name }}
+              </div>
+            </div>
+
+            <div class="p-4 md:p-6">
+              <h3 class="text-lg md:text-xl font-display font-black uppercase italic mb-3 text-industrial-dark group-hover:text-industrial-blue transition-colors">
+                {{ product.name }}
+              </h3>
+              <p class="text-slate-600 text-xs md:text-sm mb-4 line-clamp-2">
+                {{ product.description }}
+              </p>
+
+              <div class="mb-4">
+                <div class="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-2">Key Specifications</div>
+                <div class="flex flex-wrap gap-2">
+                  <span
+                    v-for="(spec, idx) in product.specifications"
+                    :key="idx"
+                    class="bg-industrial-light text-industrial-dark px-2 md:px-3 py-1 rounded text-[10px] md:text-xs font-medium"
+                  >
+                    {{ spec }}
+                  </span>
+                </div>
+              </div>
+
+              <button class="w-full bg-industrial-blue text-white py-2 md:py-3 rounded-sm font-black uppercase tracking-widest text-[10px] md:text-xs hover:bg-industrial-red transition-colors flex items-center justify-center gap-2 group-hover:gap-4">
+                Learn More <ArrowRight class="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-12" v-motion-slide-visible-bottom>
+          <a href="/products" class="inline-flex items-center gap-3 bg-industrial-dark text-white px-8 md:px-12 py-3 md:py-5 rounded-sm font-black uppercase tracking-widest text-[10px] md:text-xs hover:bg-industrial-blue transition-all shadow-2xl">
+            View All Products <ArrowRight class="w-4 h-4" />
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services Overview (from Services page) -->
+    <section class="py-20 md:py-32 bg-white">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16" v-motion-slide-visible-bottom>
+          <div class="flex items-center justify-center gap-3 mb-6">
+            <div class="h-px w-12 bg-industrial-blue"></div>
+            <span class="text-industrial-blue font-black uppercase tracking-[0.3em] text-[10px] md:text-xs">{{ homepageData?.services_subtitle || 'Our Services' }}</span>
+            <div class="h-px w-12 bg-industrial-blue"></div>
+          </div>
+          <h2 class="text-4xl md:text-5xl font-display font-black uppercase italic mb-6 text-industrial-dark">
+            {{ homepageData?.services_title || 'Comprehensive Solutions' }}
+          </h2>
+          <p class="text-slate-600 text-base md:text-lg max-w-3xl mx-auto">
+            End-to-end services from concept to commissioning, ensuring your power infrastructure operates at peak performance.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6 md:gap-8 mb-16">
+          <div
+            v-for="(service, index) in mainServices"
+            :key="index"
+            class="group p-6 md:p-8 rounded-lg border-2 border-slate-200 hover:border-industrial-blue transition-all duration-500 hover:shadow-2xl"
+            v-motion-slide-visible-bottom
+            :delay="index * 100"
+          >
+            <div class="flex items-start gap-4 md:gap-6">
+              <div class="w-12 h-12 md:w-16 md:h-16 bg-industrial-blue rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-industrial-red transition-colors">
+                <component :is="service.icon" class="w-6 h-6 md:w-8 md:h-8 text-white" />
+              </div>
+              <div class="flex-1">
+                <h3 class="text-xl md:text-2xl font-display font-black uppercase italic mb-3 md:mb-4 text-industrial-dark group-hover:text-industrial-blue transition-colors">
+                  {{ service.title }}
+                </h3>
+                <p class="text-slate-600 text-sm md:text-base mb-4 md:mb-6 leading-relaxed">
+                  {{ service.description }}
+                </p>
+                <div>
+                  <div class="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-2 md:mb-3">Key Features</div>
+                  <div class="space-y-1 md:space-y-2">
+                    <div
+                      v-for="(feature, idx) in service.features"
+                      :key="idx"
+                      class="flex items-center gap-2 text-xs md:text-sm text-slate-700"
+                    >
+                      <CheckCircle class="w-3 h-3 md:w-4 md:h-4 text-industrial-blue flex-shrink-0" />
+                      {{ feature }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Service Process -->
+        <div class="bg-industrial-dark text-white p-8 md:p-12 rounded-lg" v-motion-slide-visible-bottom>
+          <h3 class="text-2xl md:text-3xl font-display font-black uppercase italic text-center mb-8 md:mb-12 text-white">
+            Our <span class="text-industrial-blue">Process</span>
+          </h3>
+          <div class="grid md:grid-cols-4 gap-6 md:gap-8">
+            <div
+              v-for="(step, index) in serviceProcess"
+              :key="index"
+              class="text-center"
+              v-motion-slide-visible-bottom
+              :delay="index * 100"
+            >
+              <div class="text-4xl md:text-6xl font-display font-black text-industrial-blue/30 mb-3 md:mb-4">{{ step.step }}</div>
+              <h4 class="text-base md:text-xl font-bold mb-2 md:mb-3 text-white">{{ step.title }}</h4>
+              <p class="text-slate-400 text-xs md:text-sm leading-relaxed">{{ step.description }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-12" v-motion-slide-visible-bottom>
+          <a href="/services" class="inline-flex items-center gap-3 bg-industrial-blue text-white px-8 md:px-12 py-3 md:py-5 rounded-sm font-black uppercase tracking-widest text-[10px] md:text-xs hover:bg-industrial-red transition-all shadow-2xl">
+            All Services <ArrowRight class="w-4 h-4" />
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Key Solutions (from Solutions page - abbreviated) -->
+    <section class="py-20 md:py-32 bg-industrial-light">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16" v-motion-slide-visible-bottom>
+          <div class="flex items-center justify-center gap-3 mb-6">
+            <div class="h-px w-12 bg-industrial-blue"></div>
+            <span class="text-industrial-blue font-black uppercase tracking-[0.3em] text-[10px] md:text-xs">Our Solutions</span>
+            <div class="h-px w-12 bg-industrial-blue"></div>
+          </div>
+          <h2 class="text-4xl md:text-5xl font-display font-black uppercase italic mb-6 text-industrial-dark">
+            Engineering <span class="text-industrial-blue">Mastery</span>
+          </h2>
+          <p class="text-slate-600 text-base md:text-lg max-w-3xl mx-auto">
+            Tailored solutions designed to meet the unique challenges of power infrastructure across diverse industries.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6 md:gap-8 mb-16">
+          <div
+            v-for="(solution, index) in keySolutions"
+            :key="index"
+            class="bg-white rounded-lg overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500"
+            v-motion-slide-visible-bottom
+            :delay="index * 100"
+          >
+            <div class="grid md:grid-cols-2">
+              <div class="relative h-48 md:h-auto">
+                <img
+                  :src="solution.image"
+                  :alt="solution.title"
+                  class="w-full h-full object-cover"
+                />
+                <div class="absolute inset-0 bg-gradient-to-r from-industrial-dark/80 to-transparent md:bg-gradient-to-t"></div>
+                <div class="absolute top-4 left-4 bg-industrial-blue text-white p-2 md:p-3 rounded-lg">
+                  <component :is="solution.icon" class="w-5 h-5 md:w-6 md:h-6" />
+                </div>
+              </div>
+
+              <div class="p-6 md:p-8 flex flex-col">
+                <h3 class="text-xl md:text-2xl font-display font-black uppercase italic mb-3 md:mb-4 text-industrial-dark hover:text-industrial-blue transition-colors">
+                  {{ solution.title }}
+                </h3>
+                <p class="text-slate-600 text-xs md:text-sm mb-4 md:mb-6 leading-relaxed">
+                  {{ solution.description }}
+                </p>
+
+                <div class="mb-4 md:mb-6">
+                  <div class="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-2 md:mb-3">Core Features</div>
+                  <div class="space-y-1 md:space-y-2">
+                    <div
+                      v-for="(feature, idx) in solution.features"
+                      :key="idx"
+                      class="flex items-center gap-2 text-xs md:text-sm text-slate-700"
+                    >
+                      <div class="w-1.5 h-1.5 rounded-full bg-industrial-blue"></div>
+                      {{ feature }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Industries Served -->
+        <div class="bg-industrial-dark text-white p-8 md:p-12 rounded-lg" v-motion-slide-visible-bottom>
+          <h3 class="text-2xl md:text-3xl font-display font-black uppercase italic text-center mb-8 md:mb-12 text-white">
+            Industries We <span class="text-industrial-blue">Serve</span>
+          </h3>
+          <div class="grid md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
+            <div
+              v-for="(industry, index) in industries"
+              :key="index"
+              class="glass-panel p-4 md:p-6 rounded-lg text-center hover:bg-industrial-blue/10 transition-colors group"
+              v-motion-slide-visible-bottom
+              :delay="index * 100"
+            >
+              <component :is="industry.icon" class="w-8 h-8 md:w-12 md:h-12 text-industrial-blue mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform" />
+              <div class="font-bold uppercase text-[10px] md:text-xs tracking-wider">{{ industry.name }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-12" v-motion-slide-visible-bottom>
+          <a href="/solutions" class="inline-flex items-center gap-3 bg-industrial-blue text-white px-8 md:px-12 py-3 md:py-5 rounded-sm font-black uppercase tracking-widest text-[10px] md:text-xs hover:bg-industrial-red transition-all shadow-2xl">
+            All Solutions <ArrowRight class="w-4 h-4" />
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials (new section) -->
+    <section class="py-20 md:py-32 bg-white">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16" v-motion-slide-visible-bottom>
+          <div class="flex items-center justify-center gap-3 mb-6">
+            <div class="h-px w-12 bg-industrial-blue"></div>
+            <span class="text-industrial-blue font-black uppercase tracking-[0.3em] text-[10px] md:text-xs">{{ homepageData?.testimonials_subtitle || 'Testimonials' }}</span>
+            <div class="h-px w-12 bg-industrial-blue"></div>
+          </div>
+          <h2 class="text-4xl md:text-5xl font-display font-black uppercase italic mb-6 text-industrial-dark">
+            {{ homepageData?.testimonials_title || 'What Our Clients Say' }}
+          </h2>
+          <p class="text-slate-600 text-base md:text-lg max-w-3xl mx-auto">
+            Trusted by leading organizations across Bangladesh and beyond
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6 md:gap-8">
+          <div
+            v-for="(testimonial, index) in testimonials"
+            :key="index"
+            class="bg-industrial-light p-6 md:p-8 rounded-lg hover:shadow-xl transition-all"
+            v-motion-slide-visible-bottom
+            :delay="index * 100"
+          >
+            <div class="flex items-center gap-1 mb-4">
+              <Star v-for="n in testimonial.rating" :key="n" class="w-4 h-4 md:w-5 md:h-5 fill-yellow-400 text-yellow-400" />
+            </div>
+            <p class="text-slate-700 text-sm md:text-base leading-relaxed mb-6 italic">
+              "{{ testimonial.content }}"
+            </p>
+            <div class="border-t border-slate-300 pt-4">
+              <div class="font-bold text-industrial-dark">{{ testimonial.name }}</div>
+              <div class="text-xs md:text-sm text-slate-600">{{ testimonial.position }}</div>
+              <div class="text-[10px] md:text-xs text-industrial-blue font-medium">{{ testimonial.company }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Partners/Clients (new section) -->
+    <section class="py-16 md:py-24 bg-industrial-light">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-12" v-motion-slide-visible-bottom>
+          <h2 class="text-3xl md:text-4xl font-display font-black uppercase italic mb-6 text-industrial-dark">
+            Trusted by <span class="text-industrial-blue">Industry Leaders</span>
+          </h2>
+          <p class="text-slate-600 text-base md:text-lg max-w-2xl mx-auto">
+            Proud partner to government agencies, multinational corporations, and leading enterprises
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 md:gap-8">
+          <div
+            v-for="(partner, index) in partners"
+            :key="index"
+            class="bg-white p-6 md:p-8 rounded-lg flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-all group"
+            v-motion-slide-visible-bottom
+            :delay="index * 100"
+          >
+            <div class="text-4xl md:text-5xl mb-3 group-hover:scale-110 transition-transform">{{ partner.logo }}</div>
+            <div class="font-black uppercase text-xs md:text-sm tracking-wider text-slate-700 group-hover:text-industrial-blue transition-colors">{{ partner.name }}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact CTA (new section) -->
+    <section class="py-20 md:py-32 bg-industrial-blue text-white relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-r from-industrial-dark/20 to-transparent"></div>
+      <div class="max-w-4xl mx-auto px-6 text-center relative z-10">
+        <div v-motion-slide-visible-bottom>
+          <h2 class="text-4xl md:text-5xl font-display font-black uppercase italic mb-8">
+            {{ homepageData?.cta_section?.title || 'Ready to Power Your Success?' }}
+          </h2>
+          <p class="text-lg md:text-xl mb-12 text-industrial-100 max-w-3xl mx-auto">
+            {{ homepageData?.cta_section?.description || "Let's discuss how Influx Group can deliver the power infrastructure solutions your organization needs. Our team is ready to provide expert consultation and tailored solutions." }}
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a :href="homepageData?.cta_section?.button_link || '/contact?type=quote'" class="inline-flex items-center justify-center gap-3 bg-white text-industrial-blue px-8 md:px-12 py-4 md:py-5 rounded-sm font-black uppercase tracking-widest text-xs hover:bg-industrial-dark hover:text-white transition-all shadow-2xl">
+              {{ homepageData?.cta_section?.button_text || 'Request a Quote' }} <Briefcase class="w-5 h-5" />
+            </a>
+            <a href="/contact" class="inline-flex items-center justify-center gap-3 bg-transparent border-2 border-white text-white px-8 md:px-12 py-4 md:py-5 rounded-sm font-black uppercase tracking-widest text-xs hover:bg-white hover:text-industrial-blue transition-all">
+              Contact Us <Phone class="w-5 h-5" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Project Modal -->
+    <Transition
+      enter-active-class="transition-all duration-300"
+      enter-from-class="opacity-0 scale-95"
+      enter-to-class="opacity-100 scale-100"
+      leave-active-class="transition-all duration-200"
+      leave-from-class="opacity-100 scale-100"
+      leave-to-class="opacity-0 scale-95"
+    >
+      <div
+        v-if="selectedProject"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8"
+        @click.self="closeProjectModal"
+      >
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="closeProjectModal"></div>
+        <div class="relative bg-industrial-dark border border-industrial-blue/20 rounded-lg shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+           <button @click="closeProjectModal" class="absolute top-4 right-4 z-10 w-10 h-10 bg-industrial-blue rounded-full flex items-center justify-center text-white hover:bg-industrial-red transition-colors">
+             <X class="w-5 h-5" />
+           </button>
+           <div class="grid md:grid-cols-2">
+             <div class="relative h-64 md:h-auto">
+               <img :src="getImageUrl(selectedProject.image)" class="w-full h-full object-cover" :alt="selectedProject.title" />
+               <div class="absolute inset-0 bg-gradient-to-t from-industrial-dark via-transparent to-transparent md:bg-gradient-to-r"></div>
+               <div class="absolute top-4 left-4 bg-industrial-red text-white px-4 py-2 rounded-sm">
+                 <div class="text-[10px] font-black uppercase tracking-widest">{{ selectedProject.capacity }}</div>
+               </div>
+             </div>
+             <div class="p-6 md:p-10">
+               <div class="text-[10px] text-industrial-blue font-black uppercase tracking-[0.4em] mb-3">{{ selectedProject.type }}</div>
+               <h3 class="text-3xl md:text-4xl font-display font-black uppercase italic mb-4 leading-tight">{{ selectedProject.title }}</h3>
+               <p class="text-slate-300 leading-relaxed mb-8">{{ selectedProject.description }}</p>
+               <div class="grid grid-cols-2 gap-4 mb-8">
+                 <div class="bg-white/5 border border-white/10 rounded-sm p-4">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Location</div>
+                    <div class="text-sm font-bold flex items-center gap-2">
+                      <MapPin class="w-4 h-4 text-industrial-blue" />
+                      {{ selectedProject.location }}
+                    </div>
+                 </div>
+                 <div class="bg-white/5 border border-white/10 rounded-sm p-4">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Completion</div>
+                    <div class="text-sm font-bold">{{ selectedProject.completion }}</div>
+                 </div>
+               </div>
+               <div class="mb-8">
+                 <h4 class="text-[10px] font-black uppercase tracking-widest text-industrial-blue mb-3">Key Highlights</h4>
+                 <div class="space-y-2">
+                   <div v-for="(highlight, idx) in selectedProject.highlights" :key="idx" class="flex items-center gap-3 text-sm">
+                     <div class="w-2 h-2 rounded-full bg-industrial-blue"></div>
+                     <span class="text-slate-300">{{ highlight }}</span>
+                   </div>
+                 </div>
+               </div>
+               <div class="grid grid-cols-3 gap-4">
+                 <div class="text-center">
+                   <div class="text-2xl font-display font-black text-industrial-blue">{{ selectedProject.stats.efficiency }}%</div>
+                   <div class="text-[8px] font-black uppercase tracking-widest text-slate-500 mt-1">Efficiency</div>
+                 </div>
+                 <div class="text-center">
+                   <div class="text-2xl font-display font-black text-industrial-blue">{{ selectedProject.stats.uptime }}%</div>
+                   <div class="text-[8px] font-black uppercase tracking-widest text-slate-500 mt-1">Uptime</div>
+                 </div>
+                 <div class="text-center">
+                   <div class="text-2xl font-display font-black text-green-400">{{ selectedProject.stats.co2 }}</div>
+                   <div class="text-[8px] font-black uppercase tracking-widest text-slate-500 mt-1">CO₂ Impact</div>
+                 </div>
+               </div>
+             </div>
+           </div>
+        </div>
+      </div>
+    </Transition>
+  </div>
+</template>
