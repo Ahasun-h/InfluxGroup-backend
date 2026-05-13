@@ -8,7 +8,11 @@
       "Bash(C:\\\\Users\\\\habib\\\\.config\\\\herd\\\\bin\\\\php.bat artisan *)",
       "Bash(\"C:\\\\Users\\\\habib\\\\.config\\\\herd\\\\bin\\\\php.bat\" artisan *)",
       "Bash(npm install *)",
-      "Bash(./vendor/bin/sail php *)"
+      "Bash(./vendor/bin/sail php *)",
+      "Bash(grep -n '$hero->' /Users/bdcalling/Herd/InfluxGroup/resources/views/admin/hero/index.blade.php)",
+      "Bash(grep *)",
+      "Bash(php *)",
+      "Bash(composer dump-autoload *)"
     ]
   }
 }

@@ -3,19 +3,27 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     @php
-        // Helper function to get content data regardless of table structure
-        $getContentData = function($brandStatement, $field, $default = '') {
-            if (isset($brandStatement->content_data) && is_array($brandStatement->content_data)) {
-                return $brandStatement->content_data[$field] ?? $default;
+        // Helper function to get content from brand items
+        $getBrandContent = function($brandItems, $itemKey, $default = '') {
+            if (isset($brandItems[$itemKey]) && $brandItems[$itemKey]->section_content) {
+                return $brandItems[$itemKey]->section_content;
             }
-            return $brandStatement->$field ?? $default;
+            return $default;
         };
 
-        $getStats = function($brandStatement) {
-            if (isset($brandStatement->content_data) && is_array($brandStatement->content_data) && isset($brandStatement->content_data['stats'])) {
-                return collect($brandStatement->content_data['stats'])->sortBy('order')->values();
+        // Helper function to get stats
+        $getBrandStats = function($brandItems) {
+            $stats = [];
+            for ($i = 1; $i <= 4; $i++) {
+                $statKey = 'brand_statements_stat' . $i;
+                if (isset($brandItems[$statKey]) && $brandItems[$statKey]->section_content) {
+                    $statData = json_decode($brandItems[$statKey]->section_content, true);
+                    if ($statData) {
+                        $stats[] = $statData;
+                    }
+                }
             }
-            return collect($brandStatement->stats ?? [])->sortBy('order')->values();
+            return collect($stats)->sortBy('order')->values();
         };
     @endphp
 
@@ -42,11 +50,6 @@
                         <p class="text-sm text-gray-500 dark:text-gray-400">Click on any text to edit it directly</p>
                     </div>
                 </div>
-                @if($brandStatement)
-                    <a href="{{ route('admin.brand-statements.edit', $brandStatement->id) }}" class="px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors font-semibold">
-                        Edit Full Details
-                    </a>
-                @endif
             </div>
 
             <!-- Brand Statement Preview -->
@@ -56,7 +59,7 @@
                         <div>
                             <h2 class="text-3xl md:text-4xl font-display font-black uppercase leading-[0.9] mb-8 text-industrial-dark">
                                 <span class="editable-title" data-field="title">
-                                    {{ $getContentData($brandStatement, 'title', 'ESTABLISHED AUTHORITY IN HEAVY ENGINEERING') }}
+                                    {{ $getBrandContent($brandItems, 'brand_statements_title', 'ESTABLISHED AUTHORITY IN HEAVY ENGINEERING') }}
                                 </span>
                                 <button onclick="editField('title')" class="inline-block ml-2 p-1 text-brand-500 hover:text-brand-700 transition-colors">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,7 +69,7 @@
                             </h2>
 
                             <p class="text-slate-600 text-base md:text-lg leading-relaxed mb-8 editable-description" data-field="description">
-                                {{ $getContentData($brandStatement, 'description', 'Following the legacy of JRC and Energypac, Influx Group has evolved into a multi-sector engineering conglomerate. We specialize in EPC contracts, high-capacity switchgears, and power generation maintenance.') }}
+                                {{ $getBrandContent($brandItems, 'brand_statements_description', 'Following the legacy of JRC and Energypac, Influx Group has evolved into a multi-sector engineering conglomerate. We specialize in EPC contracts, high-capacity switchgears, and power generation maintenance.') }}
                                 <button onclick="editField('description')" class="ml-2 p-1 text-brand-500 hover:text-brand-700 transition-colors">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
@@ -75,7 +78,7 @@
                             </p>
 
                             <div class="grid grid-cols-2 gap-8 md:gap-12">
-                                @foreach($getStats($brandStatement)->take(4) as $stat)
+                                @foreach($getBrandStats($brandItems)->take(4) as $stat)
                                     <div class="border-l-4 border-industrial-blue pl-4 md:pl-6 py-2 relative group">
                                         <button onclick="editStat({{ $stat['order'] }})" class="absolute top-0 right-0 w-5 h-5 bg-brand-500/10 hover:bg-brand-500 rounded-full flex items-center justify-center text-brand-500 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -100,7 +103,7 @@
                                 </svg>
                             </button>
 
-                            <img id="brand-image" src="{{ $getContentData($brandStatement, 'image_url', 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200') }}"
+                            <img id="brand-image" src="{{ $getBrandContent($brandItems, 'brand_statements_image', 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200') }}"
                                  class="w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110"
                                  onerror="this.src='https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200'" />
 
@@ -114,11 +117,11 @@
                                 </button>
 
                                 <div class="text-[10px] font-black uppercase tracking-[0.3em] mb-2 opacity-70 editable-overlay-title" data-field="overlay_title">
-                                    {{ $getContentData($brandStatement, 'overlay_title', 'Core Reliability') }}
+                                    {{ $getBrandContent($brandItems, 'brand_statements_overlay_title', 'Core Reliability') }}
                                 </div>
 
                                 <div class="text-lg md:text-xl font-display font-bold italic leading-tight editable-overlay-text" data-field="overlay_text">
-                                    "{{ $getContentData($brandStatement, 'overlay_text', 'Zero Downtime Operation Protocols') }}"
+                                    "{{ $getBrandContent($brandItems, 'brand_statements_overlay_text', 'Zero Downtime Operation Protocols') }}"
                                 </div>
                             </div>
                         </div>
@@ -172,23 +175,20 @@
     </div>
 
     <!-- Hidden form for field updates -->
-    @if($brandStatement)
-    <form id="brand-form" action="{{ route('admin.brand-statements.update', $brandStatement->id) }}" method="POST" class="hidden">
+    <form id="brand-form" action="{{ route('admin.brand-statements.update') }}" method="POST" class="hidden">
         @csrf
         @method('PUT')
-        <input type="hidden" name="title" value="{{ $getContentData($brandStatement, 'title', '') }}">
-        <input type="hidden" name="description" value="{{ $getContentData($brandStatement, 'description', '') }}">
-        <input type="hidden" name="image_url" value="{{ $getContentData($brandStatement, 'image_url', '') }}">
-        <input type="hidden" name="overlay_title" value="{{ $getContentData($brandStatement, 'overlay_title', '') }}">
-        <input type="hidden" name="overlay_text" value="{{ $getContentData($brandStatement, 'overlay_text', '') }}">
-        <input type="hidden" name="status" value="publish">
+        <input type="hidden" name="title" value="{{ $getBrandContent($brandItems, 'brand_statements_title', '') }}">
+        <input type="hidden" name="description" value="{{ $getBrandContent($brandItems, 'brand_statements_description', '') }}">
+        <input type="hidden" name="image_url" value="{{ $getBrandContent($brandItems, 'brand_statements_image', '') }}">
+        <input type="hidden" name="overlay_title" value="{{ $getBrandContent($brandItems, 'brand_statements_overlay_title', '') }}">
+        <input type="hidden" name="overlay_text" value="{{ $getBrandContent($brandItems, 'brand_statements_overlay_text', '') }}">
 
-        @foreach($getStats($brandStatement)->take(4) as $stat)
+        @foreach($getBrandStats($brandItems)->take(4) as $stat)
             <input type="hidden" name="stat{{ $stat['order'] }}_value" value="{{ $stat['value'] }}">
             <input type="hidden" name="stat{{ $stat['order'] }}_label" value="{{ $stat['label'] }}">
         @endforeach
     </form>
-    @endif
 
     <!-- Single Field Edit Modal -->
     <div id="field-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">

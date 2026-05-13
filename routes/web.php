@@ -22,13 +22,13 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings.index');
     Route::post('settings', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
 
-    // Hero section management (legacy - will be migrated to site_sections)
+    // Hero section management (now using content_management system)
     Route::get('hero', [\App\Http\Controllers\Admin\HeroController::class, 'index'])->name('hero.index');
     Route::put('hero', [\App\Http\Controllers\Admin\HeroController::class, 'update'])->name('hero.update');
-    Route::get('hero/preview', [\App\Http\Controllers\Admin\HeroController::class, 'preview'])->name('hero.preview');
 
-    // Brand statement management (legacy - will be migrated to site_sections)
-    Route::resource('brand-statements', \App\Http\Controllers\Admin\BrandStatementController::class)->only(['index', 'edit', 'update']);
+    // Brand statements management (now using content_management system)
+    Route::get('brand-statements', [\App\Http\Controllers\Admin\BrandStatementController::class, 'index'])->name('brand-statements.index');
+    Route::put('brand-statements', [\App\Http\Controllers\Admin\BrandStatementController::class, 'update'])->name('brand-statements.update');
 
     // New Site Sections Management (Content Management Table)
     Route::prefix('site-sections')->name('site-sections.')->group(function () {

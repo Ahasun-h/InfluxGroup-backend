@@ -1,4 +1,13 @@
 <x-layouts.app title="Hero Section Management">
+    @php
+        function getBackgroundImage($heroItems) {
+            if (isset($heroItems['hero_section_Background']) && $heroItems['hero_section_Background']->media_files) {
+                $mediaFiles = json_decode($heroItems['hero_section_Background']->media_files, true);
+                return $mediaFiles['source_file'] ?? null;
+            }
+            return null;
+        }
+    @endphp
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Dropify CSS -->
@@ -43,7 +52,7 @@
 
                 <!-- Background Image -->
                 <div class="absolute inset-0 z-0">
-                    <img id="hero-background-image" src="{{ $hero->background_image ? asset($hero->background_image) : asset('hero-placeholder.svg') }}" onerror="this.src='https://placehold.co/1920x1080/1e3a5a/ffffff?text=Hero+Background'" class="w-full h-full object-cover scale-105" alt="Power Infrastructure">
+                    <img id="hero-background-image" src="{{ getBackgroundImage($heroItems) ? asset(getBackgroundImage($heroItems)) : asset('hero-placeholder.svg') }}" onerror="this.src='https://placehold.co/1920x1080/1e3a5a/ffffff?text=Hero+Background'" class="w-full h-full object-cover scale-105" alt="Power Infrastructure">
                     <div class="absolute inset-0 bg-gradient-to-r from-industrial-dark via-industrial-dark/80 to-transparent"></div>
                     <div class="absolute inset-0 bg-industrial-dark/40"></div>
                 </div>
@@ -54,7 +63,7 @@
                         <div class="flex items-center gap-3 mb-6 md:mb-8">
                             <div class="h-px w-8 md:w-12 bg-industrial-blue"></div>
                             <span class="text-industrial-blue font-black uppercase tracking-[0.3em] md:tracking-[0.5em] text-[10px] md:text-xs editable-badge" data-field="badge">
-                                {{ $hero->badge ?? 'Leaders in Energy & Infrastructure' }}
+                                {{ $heroItems['hero_section_badge_text']->section_content ?? 'Leaders in Energy & Infrastructure' }}
                             </span>
                             <button onclick="editField('badge')" class="p-1 text-white/50 hover:text-white transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,7 +73,7 @@
                         </div>
 
                         <h1 class="text-3xl sm:text-4xl md:text-[4em] font-display font-black uppercase italic leading-[1.1] mb-8 text-white drop-shadow-[0_5px_15px_rgba(0,0,0,0.5)] editable-title" data-field="title">
-                            {{ $hero->title ?? 'POWERING BANGLADESH SINCE 1980' }}
+                            {{ $heroItems['hero_section_title']->section_content ?? 'POWERING BANGLADESH SINCE 1980' }}
                             <button onclick="editField('title')" class="ml-2 p-1 text-white/50 hover:text-white transition-colors">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
@@ -73,7 +82,7 @@
                         </h1>
 
                         <p class="text-sm md:text-base text-slate-200 max-w-lg mb-8 md:mb-10 leading-relaxed font-medium editable-description" data-field="description">
-                            {{ $hero->description ?? 'From utility-scale power plants to smart grid automation, Influx Group delivers the technical precision that moves nations.' }}
+                            {{ $heroItems['hero_section_description']->section_content ?? 'From utility-scale power plants to smart grid automation, Influx Group delivers the technical precision that moves nations.' }}
                             <button onclick="editField('description')" class="ml-2 p-1 text-white/50 hover:text-white transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
@@ -82,36 +91,31 @@
                         </p>
 
                         <div class="flex flex-wrap gap-4 md:gap-5">
-                            @foreach($hero->cta_buttons ?? [] as $cta)
-                                @if($cta['type'] === 'primary')
-                                    <!-- Primary CTA Button -->
-                                    <div class="relative group">
-                                        <a href="{{ $cta['link'] ?? '/projects' }}" class="bg-industrial-blue text-white px-6 md:px-10 py-3 md:py-5 rounded-sm font-black uppercase tracking-widest text-[10px] md:text-xs flex items-center gap-3 hover:bg-industrial-red transition-all shadow-2xl hover:scale-105 active:scale-95 editable-cta" data-field="cta_button_text">
-                                            {{ $cta['text'] ?? 'EXPLORE CATALOG' }}
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide w-4 h-4">
-                                                <path d="m9 18 6-6-6-6"></path>
-                                            </svg>
-                                        </a>
-                                        <button onclick="editCtaButton('cta_button_text', 'cta_button_link')" class="absolute -top-2 -right-2 w-6 h-6 bg-white/20 hover:bg-white/40 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                            <!-- Primary CTA Button -->
+                            <div class="relative group">
+                                <a href="{{ $heroItems['hero_section_primary_cta_link']->section_content ?? '/projects' }}" class="bg-industrial-blue text-white px-6 md:px-10 py-3 md:py-5 rounded-sm font-black uppercase tracking-widest text-[10px] md:text-xs flex items-center gap-3 hover:bg-industrial-red transition-all shadow-2xl hover:scale-105 active:scale-95 editable-cta" data-field="cta_button_text">
+                                    {{ $heroItems['hero_section_primary_cta_text']->section_content ?? 'EXPLORE CATALOG' }}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide w-4 h-4">
+                                        <path d="m9 18 6-6-6-6"></path>
+                                    </svg>
+                                </a>
+                                <button onclick="editCtaButton('cta_button_text', 'cta_button_link')" class="absolute -top-2 -right-2 w-6 h-6 bg-white/20 hover:bg-white/40 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
                                             </svg>
                                         </button>
                                     </div>
-                                @elseif($cta['type'] === 'secondary')
-                                    <!-- Secondary CTA Button -->
-                                    <div class="relative group">
-                                        <a href="{{ $cta['link'] ?? '/about' }}" class="bg-white/5 border-2 border-white/20 text-white px-6 md:px-10 py-3 md:py-5 rounded-sm font-black uppercase tracking-widest text-[10px] md:text-xs backdrop-blur-md hover:bg-white/20 transition-all hover:border-white editable-secondary" data-field="secondary_button_text">
-                                            {{ $cta['text'] ?? 'CORPORATE PROFILE' }}
-                                        </a>
-                                        <button onclick="editCtaButton('secondary_button_text', 'secondary_button_link')" class="absolute -top-2 -right-2 w-6 h-6 bg-white/20 hover:bg-white/40 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                <!-- Secondary CTA Button -->
+                                <div class="relative group">
+                                    <a href="{{ $heroItems['hero_section_secondary_cta_link']->section_content ?? '/about' }}" class="bg-white/5 border-2 border-white/20 text-white px-6 md:px-10 py-3 md:py-5 rounded-sm font-black uppercase tracking-widest text-[10px] md:text-xs backdrop-blur-md hover:bg-white/20 transition-all hover:border-white editable-secondary" data-field="secondary_button_text">
+                                        {{ $heroItems['hero_section_secondary_cta_text']->section_content ?? 'CORPORATE PROFILE' }}
+                                    </a>
+                                    <button onclick="editCtaButton('secondary_button_text', 'secondary_button_link')" class="absolute -top-2 -right-2 w-6 h-6 bg-white/20 hover:bg-white/40 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
                                             </svg>
                                         </button>
                                     </div>
-                                @endif
-                            @endforeach
                         </div>
                     </div>
 
@@ -144,40 +148,6 @@
                                 <path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path>
                             </svg>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Quick Category Bar -->
-                <div class="absolute bottom-0 w-full bg-white/5 backdrop-blur-3xl border-t border-white/10 overflow-x-auto">
-                    <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 divide-x divide-white/10 min-w-[600px] md:min-w-0">
-                        @foreach($hero->sorted_categories ?? [] as $category)
-                            <div class="py-6 md:py-8 px-0 group cursor-pointer hover:bg-white/5 transition-colors relative">
-                                <button onclick="editCategory({{ $category['order'] }})" class="absolute top-2 right-2 w-5 h-5 bg-white/20 hover:bg-white/40 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-                                    </svg>
-                                </button>
-                                <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 flex items-center justify-center">
-                                        @if(!empty($category['icon']))
-                                            <div class="text-industrial-blue group-hover:text-industrial-red transition-colors">{!! $category['icon'] !!}</div>
-                                        @else
-                                            <svg class="w-6 h-6 md:w-8 md:h-8 text-industrial-blue group-hover:text-industrial-red transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                                            </svg>
-                                        @endif
-                                    </div>
-                                    <div>
-                                        <div class="text-[8px] md:text-[10px] text-slate-500 font-black uppercase tracking-widest editable-cat{{ $category['order'] }}-subtitle" data-field="cat{{ $category['order'] }}_subtitle">
-                                            {{ $category['subtitle'] ?? '45+ Models' }}
-                                        </div>
-                                        <div class="font-display font-black uppercase text-base md:text-xl group-hover:text-industrial-blue transition-colors leading-tight editable-cat{{ $category['order'] }}-title" data-field="cat{{ $category['order'] }}_title">
-                                            {{ $category['title'] ?? 'Transformers' }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
                     </div>
                 </div>
             </section>
@@ -245,12 +215,18 @@
                 <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Upload New Image</label>
                     <input type="file" name="background_image_dropify" id="background_image_dropify" class="dropify" accept="image/*">
-                    <input type="hidden" name="background_image" id="background_image_url" value="{{ $hero->background_image ?? '' }}">
+                    <input type="hidden" name="background_image" id="background_image_url" value="{{ getBackgroundImage($heroItems) ?? '' }}">
                 </div>
 
                 <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Or Enter Image URL</label>
-                    <input type="text" id="background_url_input" value="{{ $hero->background_image ? asset($hero->background_image) : asset('hero-placeholder.svg') }}" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent" placeholder="/hero.png">
+                    <input type="text" id="background_url_input" value="{{ getBackgroundImage($heroItems) ? asset(getBackgroundImage($heroItems)) : asset('hero-placeholder.svg') }}" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent" placeholder="/hero.png">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">SEO Attributes</label>
+                    <input type="text" name="seo_attributes" id="seo_attributes_input" value="{{ $heroItems['hero_section_Background']->attributes ?? '' }}" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent" placeholder='{"alt": "Hero background image", "title": "Hero Section"}'>
+                    <p class="text-xs text-gray-500 mt-1">Enter JSON format SEO attributes (e.g., alt, title)</p>
                 </div>
 
                 <div class="flex justify-end gap-3">
@@ -265,31 +241,15 @@
     <form id="hero-form" action="{{ route('admin.hero.update') }}" method="POST" class="hidden">
         @csrf
         @method('PUT')
-        <input type="hidden" name="badge" value="{{ $hero->badge ?? '' }}">
-        <input type="hidden" name="title" value="{{ $hero->title ?? '' }}">
-        <input type="hidden" name="description" value="{{ $hero->description ?? '' }}">
-        <input type="hidden" name="cta_button_text" value="{{ $hero->cta_button_text ?? '' }}">
-        <input type="hidden" name="cta_button_link" value="{{ $hero->cta_button_link ?? '' }}">
-        <input type="hidden" name="secondary_button_text" value="{{ $hero->secondary_button_text ?? '' }}">
-        <input type="hidden" name="secondary_button_link" value="{{ $hero->secondary_button_link ?? '' }}">
-        <input type="hidden" name="background_image" value="{{ $hero->background_image ?? '' }}">
-        <input type="hidden" name="cat1_title" value="{{ $hero->cat1_title ?? 'Transformers' }}">
-        <input type="hidden" name="cat1_subtitle" value="{{ $hero->cat1_subtitle ?? '45+ Models' }}">
-        <input type="hidden" name="cat1_icon" value="{{ $hero->cat1_icon ?? '' }}">
-        <input type="hidden" name="cat1_link" value="{{ $hero->cat1_link ?? '' }}">
-        <input type="hidden" name="cat2_title" value="{{ $hero->cat2_title ?? 'Switchgear' }}">
-        <input type="hidden" name="cat2_subtitle" value="{{ $hero->cat2_subtitle ?? '120+ Models' }}">
-        <input type="hidden" name="cat2_icon" value="{{ $hero->cat2_icon ?? '' }}">
-        <input type="hidden" name="cat2_link" value="{{ $hero->cat2_link ?? '' }}">
-        <input type="hidden" name="cat3_title" value="{{ $hero->cat3_title ?? 'Renewables' }}">
-        <input type="hidden" name="cat3_subtitle" value="{{ $hero->cat3_subtitle ?? '12GW Models' }}">
-        <input type="hidden" name="cat3_icon" value="{{ $hero->cat3_icon ?? '' }}">
-        <input type="hidden" name="cat3_link" value="{{ $hero->cat3_link ?? '' }}">
-        <input type="hidden" name="cat4_title" value="{{ $hero->cat4_title ?? 'Automation' }}">
-        <input type="hidden" name="cat4_subtitle" value="{{ $hero->cat4_subtitle ?? '80+ Models' }}">
-        <input type="hidden" name="cat4_icon" value="{{ $hero->cat4_icon ?? '' }}">
-        <input type="hidden" name="cat4_link" value="{{ $hero->cat4_link ?? '' }}">
-        <input type="hidden" name="is_active" value="1">
+        <input type="hidden" name="badge" value="{{ $heroItems['hero_section_badge_text']->section_content ?? '' }}">
+        <input type="hidden" name="title" value="{{ $heroItems['hero_section_title']->section_content ?? '' }}">
+        <input type="hidden" name="description" value="{{ $heroItems['hero_section_description']->section_content ?? '' }}">
+        <input type="hidden" name="cta_button_text" value="{{ $heroItems['hero_section_primary_cta_text']->section_content ?? '' }}">
+        <input type="hidden" name="cta_button_link" value="{{ $heroItems['hero_section_primary_cta_link']->section_content ?? '' }}">
+        <input type="hidden" name="secondary_button_text" value="{{ $heroItems['hero_section_secondary_cta_text']->section_content ?? '' }}">
+        <input type="hidden" name="secondary_button_link" value="{{ $heroItems['hero_section_secondary_cta_link']->section_content ?? '' }}">
+        <input type="hidden" name="background_image" value="{{ getBackgroundImage($heroItems) ?? '' }}">
+        <input type="hidden" name="seo_attributes" value="{{ $heroItems['hero_section_Background']->attributes ?? '' }}">
     </form>
 
     <!-- Single Field Edit Modal -->
@@ -467,7 +427,7 @@
             // Check if Dropify is available and element exists
             if (typeof $.fn.dropify === 'function' && $('.dropify').length && !$('.dropify').data('dropify')) {
                 $('.dropify').dropify({
-                    defaultFile: '{{ $hero->background_image ? asset($hero->background_image) : '' }}',
+                    defaultFile: '{{ getBackgroundImage($heroItems) ? asset(getBackgroundImage($heroItems)) : '' }}',
                     showRemove: true,
                     showErrors: true,
                     errorsPosition: 'overlay',

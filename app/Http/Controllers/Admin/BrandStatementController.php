@@ -2,234 +2,241 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\BrandStatement;
+use App\Http\Controllers\Controller;
+use App\Models\ContentManagement;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 
-class BrandStatementController extends BaseSectionController
+class BrandStatementController extends Controller
 {
-    protected function getModelClass()
+    /**
+     * Display the brand statement management page
+     */
+    public function index(): View
     {
-        return BrandStatement::class;
+        // Get or create brand statement items
+        $title = ContentManagement::firstOrCreate(
+            [
+                'section_name' => 'brand_statements_section',
+                'section_item_name' => 'brand_statements_title'
+            ],
+            [
+                'section_content' => 'ESTABLISHED AUTHORITY IN HEAVY ENGINEERING',
+                'attributes' => null,
+                'media_files' => null
+            ]
+        );
+
+        $description = ContentManagement::firstOrCreate(
+            [
+                'section_name' => 'brand_statements_section',
+                'section_item_name' => 'brand_statements_description'
+            ],
+            [
+                'section_content' => 'Following the legacy of JRC and Energypac, Influx Group has evolved into a multi-sector engineering conglomerate. We specialize in EPC contracts, high-capacity switchgears, and power generation maintenance.',
+                'attributes' => null,
+                'media_files' => null
+            ]
+        );
+
+        $image = ContentManagement::firstOrCreate(
+            [
+                'section_name' => 'brand_statements_section',
+                'section_item_name' => 'brand_statements_image'
+            ],
+            [
+                'section_content' => 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200',
+                'attributes' => null,
+                'media_files' => null
+            ]
+        );
+
+        $overlayTitle = ContentManagement::firstOrCreate(
+            [
+                'section_name' => 'brand_statements_section',
+                'section_item_name' => 'brand_statements_overlay_title'
+            ],
+            [
+                'section_content' => 'Core Reliability',
+                'attributes' => null,
+                'media_files' => null
+            ]
+        );
+
+        $overlayText = ContentManagement::firstOrCreate(
+            [
+                'section_name' => 'brand_statements_section',
+                'section_item_name' => 'brand_statements_overlay_text'
+            ],
+            [
+                'section_content' => 'Zero Downtime Operation Protocols',
+                'attributes' => null,
+                'media_files' => null
+            ]
+        );
+
+        // Create stats items
+        $stat1 = ContentManagement::firstOrCreate(
+            [
+                'section_name' => 'brand_statements_section',
+                'section_item_name' => 'brand_statements_stat1'
+            ],
+            [
+                'section_content' => json_encode(['value' => '45+', 'label' => 'Years Experience', 'order' => 1]),
+                'attributes' => null,
+                'media_files' => null
+            ]
+        );
+
+        $stat2 = ContentManagement::firstOrCreate(
+            [
+                'section_name' => 'brand_statements_section',
+                'section_item_name' => 'brand_statements_stat2'
+            ],
+            [
+                'section_content' => json_encode(['value' => '1200+', 'label' => 'Projects Delivered', 'order' => 2]),
+                'attributes' => null,
+                'media_files' => null
+            ]
+        );
+
+        $stat3 = ContentManagement::firstOrCreate(
+            [
+                'section_name' => 'brand_statements_section',
+                'section_item_name' => 'brand_statements_stat3'
+            ],
+            [
+                'section_content' => json_encode(['value' => 'ISO', 'label' => 'Certified Company', 'order' => 3]),
+                'attributes' => null,
+                'media_files' => null
+            ]
+        );
+
+        $stat4 = ContentManagement::firstOrCreate(
+            [
+                'section_name' => 'brand_statements_section',
+                'section_item_name' => 'brand_statements_stat4'
+            ],
+            [
+                'section_content' => json_encode(['value' => '500+', 'label' => 'Expert Engineers', 'order' => 4]),
+                'attributes' => null,
+                'media_files' => null
+            ]
+        );
+
+        // Get all brand statement items for the view
+        $brandItems = ContentManagement::where('section_name', 'brand_statements_section')
+            ->get()
+            ->keyBy('section_item_name');
+
+        return view('admin.brand-statements.index', compact('brandItems'));
     }
 
-    protected function getViewsPrefix()
+    /**
+     * Update the brand statement
+     */
+    public function update(Request $request): RedirectResponse
     {
-        return 'brand-statements';
-    }
-
-    protected function getRoutePrefix()
-    {
-        return 'admin.brand-statements';
-    }
-
-    protected function getValidationRules(Request $request)
-    {
-        return [
-            'title' => 'nullable|string|max:500',
-            'status' => 'in:publish,draft',
-            'description' => 'nullable|string|max:2000',
-            'stats' => 'nullable|array',
-            'stats.*.value' => 'required|string|max:255',
-            'stats.*.label' => 'required|string|max:255',
-            'stats.*.order' => 'required|integer',
-            'image_url' => 'nullable|string|max:500',
-            'overlay_title' => 'nullable|string|max:255',
-            'overlay_text' => 'nullable|string|max:500',
-        ];
-    }
-
-    protected function getStoragePath()
-    {
-        return 'brand-statements';
-    }
-
-    protected function getSuccessMessage($action)
-    {
-        return "Brand statement {$action} successfully.";
-    }
-
-    public function index()
-    {
-        // Check if required columns exist in hero_sections table
-        $hasBrandStatementColumns = \Schema::hasColumn('hero_sections', 'stats') &&
-                                   \Schema::hasColumn('hero_sections', 'image_url') &&
-                                   \Schema::hasColumn('hero_sections', 'overlay_title') &&
-                                   \Schema::hasColumn('hero_sections', 'overlay_text');
-
-        if (!$hasBrandStatementColumns) {
-            // Columns don't exist yet - show error message with instructions
-            return view('admin.brand-statements.migration-needed');
-        }
-
-        // Columns exist, proceed with normal logic
-        try {
-            $tableExists = \Schema::hasTable('Content_management_table');
-
-            if ($tableExists) {
-                // Using new Content_management_table
-                $brandStatement = BrandStatement::firstOrCreate(
-                    ['section_key' => 'brand_statement'],
-                    [
-                        'title' => 'Brand Statement',
-                        'type' => 'section',
-                        'status' => 'publish',
-                        'order' => 2,
-                        'content_data' => [
-                            'title' => 'ESTABLISHED AUTHORITY IN HEAVY ENGINEERING',
-                            'description' => 'Following the legacy of JRC and Energypac, Influx Group has evolved into a multi-sector engineering conglomerate. We specialize in EPC contracts, high-capacity switchgears, and power generation maintenance.',
-                            'stats' => [
-                                ['value' => '45+', 'label' => 'Years Experience', 'order' => 1],
-                                ['value' => '1200+', 'label' => 'Projects Delivered', 'order' => 2],
-                                ['value' => 'ISO', 'label' => 'Certified Company', 'order' => 3],
-                                ['value' => '500+', 'label' => 'Expert Engineers', 'order' => 4]
-                            ],
-                            'image_url' => 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200',
-                            'overlay_title' => 'Core Reliability',
-                            'overlay_text' => 'Zero Downtime Operation Protocols'
-                        ]
-                    ]
-                );
-            } else {
-                // Using existing hero_sections table
-                $brandStatement = BrandStatement::firstOrCreate(
-                    ['title' => 'ESTABLISHED AUTHORITY IN HEAVY ENGINEERING'],
-                    [
-                        'badge' => null,
-                        'description' => 'Following the legacy of JRC and Energypac, Influx Group has evolved into a multi-sector engineering conglomerate. We specialize in EPC contracts, high-capacity switchgears, and power generation maintenance.',
-                        'stats' => json_encode([
-                            ['value' => '45+', 'label' => 'Years Experience', 'order' => 1],
-                            ['value' => '1200+', 'label' => 'Projects Delivered', 'order' => 2],
-                            ['value' => 'ISO', 'label' => 'Certified Company', 'order' => 3],
-                            ['value' => '500+', 'label' => 'Expert Engineers', 'order' => 4]
-                        ]),
-                        'image_url' => 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200',
-                        'overlay_title' => 'Core Reliability',
-                        'overlay_text' => 'Zero Downtime Operation Protocols',
-                        'cta_buttons' => null,
-                        'background_image' => null,
-                        'categories' => null,
-                        'is_active' => true
-                    ]
-                );
-            }
-        } catch (\Exception $e) {
-            // Fallback to hero_sections table
-            $brandStatement = BrandStatement::firstOrCreate(
-                ['title' => 'ESTABLISHED AUTHORITY IN HEAVY ENGINEERING'],
+        // Handle title update
+        if ($request->has('title')) {
+            ContentManagement::updateOrCreate(
                 [
-                    'badge' => null,
-                    'description' => 'Following the legacy of JRC and Energypac, Influx Group has evolved into a multi-sector engineering conglomerate. We specialize in EPC contracts, high-capacity switchgears, and power generation maintenance.',
-                    'stats' => json_encode([
-                        ['value' => '45+', 'label' => 'Years Experience', 'order' => 1],
-                        ['value' => '1200+', 'label' => 'Projects Delivered', 'order' => 2],
-                        ['value' => 'ISO', 'label' => 'Certified Company', 'order' => 3],
-                        ['value' => '500+', 'label' => 'Expert Engineers', 'order' => 4]
-                    ]),
-                    'image_url' => 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200',
-                    'overlay_title' => 'Core Reliability',
-                    'overlay_text' => 'Zero Downtime Operation Protocols',
-                    'cta_buttons' => null,
-                    'background_image' => null,
-                    'categories' => null,
-                    'is_active' => true
+                    'section_name' => 'brand_statements_section',
+                    'section_item_name' => 'brand_statements_title'
+                ],
+                [
+                    'section_content' => $request->title,
+                    'attributes' => null,
+                    'media_files' => null
                 ]
             );
         }
 
-        return view('admin.brand-statements.index', compact('brandStatement'));
-    }
+        // Handle description update
+        if ($request->has('description')) {
+            ContentManagement::updateOrCreate(
+                [
+                    'section_name' => 'brand_statements_section',
+                    'section_item_name' => 'brand_statements_description'
+                ],
+                [
+                    'section_content' => $request->description,
+                    'attributes' => null,
+                    'media_files' => null
+                ]
+            );
+        }
 
-    public function edit($id)
-    {
-        $brandStatement = BrandStatement::withoutGlobalScope('brand_statement')->findOrFail($id);
-        return view('admin.brand-statements.edit', compact('brandStatement'));
-    }
+        // Handle image URL update
+        if ($request->has('image_url')) {
+            ContentManagement::updateOrCreate(
+                [
+                    'section_name' => 'brand_statements_section',
+                    'section_item_name' => 'brand_statements_image'
+                ],
+                [
+                    'section_content' => $request->image_url,
+                    'attributes' => null,
+                    'media_files' => null
+                ]
+            );
+        }
 
-    public function update(Request $request, $id)
-    {
-        $validated = $request->validate($this->getValidationRules($request));
+        // Handle overlay title update
+        if ($request->has('overlay_title')) {
+            ContentManagement::updateOrCreate(
+                [
+                    'section_name' => 'brand_statements_section',
+                    'section_item_name' => 'brand_statements_overlay_title'
+                ],
+                [
+                    'section_content' => $request->overlay_title,
+                    'attributes' => null,
+                    'media_files' => null
+                ]
+            );
+        }
 
-        $brandStatement = BrandStatement::withoutGlobalScope('brand_statement')->findOrFail($id);
+        // Handle overlay text update
+        if ($request->has('overlay_text')) {
+            ContentManagement::updateOrCreate(
+                [
+                    'section_name' => 'brand_statements_section',
+                    'section_item_name' => 'brand_statements_overlay_text'
+                ],
+                [
+                    'section_content' => $request->overlay_text,
+                    'attributes' => null,
+                    'media_files' => null
+                ]
+            );
+        }
 
-        // Check which table we're using
-        $usingNewTable = \Schema::hasTable('Content_management_table');
+        // Handle stats updates
+        for ($i = 1; $i <= 4; $i++) {
+            $statValue = $request->input("stat{$i}_value");
+            $statLabel = $request->input("stat{$i}_label");
 
-        if ($usingNewTable) {
-            // Update basic fields
-            $brandStatement->update([
-                'title' => $validated['title'] ?? $brandStatement->title,
-                'status' => $validated['status'] ?? $brandStatement->status,
-            ]);
+            if ($statValue || $statLabel) {
+                $statData = [
+                    'value' => $statValue,
+                    'label' => $statLabel,
+                    'order' => $i
+                ];
 
-            // Update content_data
-            $contentData = $brandStatement->content_data ?? [];
-
-            // Handle stats data
-            if (isset($validated['stats']) && is_array($validated['stats'])) {
-                $stats = [];
-                foreach ($validated['stats'] as $stat) {
-                    if (!empty($stat['value']) && !empty($stat['label'])) {
-                        $stats[] = [
-                            'value' => $stat['value'],
-                            'label' => $stat['label'],
-                            'order' => $stat['order'] ?? count($stats) + 1
-                        ];
-                    }
-                }
-                $contentData['stats'] = $stats;
+                ContentManagement::updateOrCreate(
+                    [
+                        'section_name' => 'brand_statements_section',
+                        'section_item_name' => "brand_statements_stat{$i}"
+                    ],
+                    [
+                        'section_content' => json_encode($statData),
+                        'attributes' => null,
+                        'media_files' => null
+                    ]
+                );
             }
-
-            // Update other content fields
-            if (isset($validated['description'])) {
-                $contentData['description'] = $validated['description'];
-            }
-            if (isset($validated['image_url'])) {
-                $contentData['image_url'] = $validated['image_url'];
-            }
-            if (isset($validated['overlay_title'])) {
-                $contentData['overlay_title'] = $validated['overlay_title'];
-            }
-            if (isset($validated['overlay_text'])) {
-                $contentData['overlay_text'] = $validated['overlay_text'];
-            }
-
-            $brandStatement->update(['content_data' => $contentData]);
-        } else {
-            // Using hero_sections table - update directly
-            $updateData = [
-                'title' => $validated['title'] ?? $brandStatement->title,
-            ];
-
-            // Handle stats data
-            if (isset($validated['stats']) && is_array($validated['stats'])) {
-                $stats = [];
-                foreach ($validated['stats'] as $stat) {
-                    if (!empty($stat['value']) && !empty($stat['label'])) {
-                        $stats[] = [
-                            'value' => $stat['value'],
-                            'label' => $stat['label'],
-                            'order' => $stat['order'] ?? count($stats) + 1
-                        ];
-                    }
-                }
-                $updateData['stats'] = json_encode($stats);
-            }
-
-            // Update other fields
-            if (isset($validated['description'])) {
-                $updateData['description'] = $validated['description'];
-            }
-            if (isset($validated['image_url'])) {
-                $updateData['image_url'] = $validated['image_url'];
-            }
-            if (isset($validated['overlay_title'])) {
-                $updateData['overlay_title'] = $validated['overlay_title'];
-            }
-            if (isset($validated['overlay_text'])) {
-                $updateData['overlay_text'] = $validated['overlay_text'];
-            }
-
-            $brandStatement->update($updateData);
         }
 
         return redirect()->route('admin.brand-statements.index')
