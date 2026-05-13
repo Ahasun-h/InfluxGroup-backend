@@ -28,7 +28,6 @@ class Project extends Model
         'highlights',
         'stats',
         'featured',
-        'order',
     ];
 
     protected $casts = [

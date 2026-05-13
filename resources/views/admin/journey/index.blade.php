@@ -53,18 +53,25 @@
                             <div class="relative flex items-center {{ $loop->index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse' }}">
                                 <div class="w-full md:w-5/12 {{ $loop->index % 2 === 0 ? 'md:pr-12' : 'md:pl-12' }}">
                                     <div class="bg-white p-6 md:p-8 rounded-lg shadow-xl hover:shadow-2xl transition-shadow relative group">
-                                        <button onclick="editTimeline({{ $item['order'] }})" class="absolute top-2 right-2 z-20 w-6 h-6 bg-white/50 hover:bg-white rounded-full flex items-center justify-center text-brand-500 opacity-0 group-hover:opacity-100 transition-opacity shadow-md">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-                                            </svg>
-                                        </button>
-                                        <div class="text-industrial-blue font-black text-xl md:text-2xl mb-2 editable-timeline{{ $item['order'] }}-year" data-field="timeline{{ $item['order'] }}_year">
+                                        <div class="absolute top-2 right-2 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button onclick="editTimeline({{ $item['order'] }})" class="w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center text-brand-500 shadow-md">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                                                </svg>
+                                            </button>
+                                            <button onclick="deleteTimeline({{ $item['order'] }})" class="w-8 h-8 bg-white/90 hover:bg-red-50 rounded-full flex items-center justify-center text-red-500 shadow-md">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <div class="text-industrial-blue font-black text-xl md:text-2xl mb-2 editable-timeline{{ $item['order'] }}-year" data-field="Journey_{{ $item['order'] }}_year">
                                             {{ $item['year'] }}
                                         </div>
-                                        <h3 class="text-lg md:text-xl font-bold mb-3 text-industrial-dark editable-timeline{{ $item['order'] }}-title" data-field="timeline{{ $item['order'] }}_title">
+                                        <h3 class="text-lg md:text-xl font-bold mb-3 text-industrial-dark editable-timeline{{ $item['order'] }}-title" data-field="Journey_{{ $item['order'] }}_title">
                                             {{ $item['title'] }}
                                         </h3>
-                                        <p class="text-slate-600 text-sm md:text-base editable-timeline{{ $item['order'] }}-description" data-field="timeline{{ $item['order'] }}_description">
+                                        <p class="text-slate-600 text-sm md:text-base editable-timeline{{ $item['order'] }}-description" data-field="Journey_{{ $item['order'] }}_description">
                                             {{ $item['description'] }}
                                         </p>
                                     </div>
@@ -73,6 +80,18 @@
                                 <div class="w-0 md:w-5/12"></div>
                             </div>
                             @endforeach
+                        </div>
+
+                        <!-- Add Item Button -->
+                        <div class="mt-16 flex justify-center">
+                            <button onclick="addTimeline()" class="flex items-center gap-2 px-8 py-4 bg-white dark:bg-surface-800 text-brand-500 rounded-2xl font-bold shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all border-2 border-dashed border-brand-200 hover:border-brand-500 group">
+                                <div class="w-8 h-8 rounded-lg bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center group-hover:bg-brand-500 group-hover:text-white transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                    </svg>
+                                </div>
+                                <span>Add New Journey Milestone</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -260,9 +279,9 @@
             modalTitle.textContent = 'Edit Timeline ' + timelineId;
 
             // Get current values
-            yearInput.value = document.querySelector(`[data-field="timeline${timelineId}_year"]`)?.textContent || '';
-            titleInput.value = document.querySelector(`[data-field="timeline${timelineId}_title"]`)?.textContent || '';
-            descriptionInput.value = document.querySelector(`[data-field="timeline${timelineId}_description"]`)?.textContent || '';
+            yearInput.value = document.querySelector(`[data-field="Journey_${timelineId}_year"]`)?.textContent || '';
+            titleInput.value = document.querySelector(`[data-field="Journey_${timelineId}_title"]`)?.textContent || '';
+            descriptionInput.value = document.querySelector(`[data-field="Journey_${timelineId}_description"]`)?.textContent || '';
 
             modal.classList.remove('hidden');
             modal.classList.add('flex');
@@ -281,27 +300,81 @@
             const description = document.getElementById('timeline-description').value;
 
             // Update the preview
-            const yearElement = document.querySelector(`[data-field="timeline${timelineId}_year"]`);
-            const titleElement = document.querySelector(`[data-field="timeline${timelineId}_title"]`);
-            const descriptionElement = document.querySelector(`[data-field="timeline${timelineId}_description"]`);
+            const yearElement = document.querySelector(`[data-field="Journey_${timelineId}_year"]`);
+            const titleElement = document.querySelector(`[data-field="Journey_${timelineId}_title"]`);
+            const descriptionElement = document.querySelector(`[data-field="Journey_${timelineId}_description"]`);
 
             if (yearElement) yearElement.textContent = year;
             if (titleElement) titleElement.textContent = title;
             if (descriptionElement) descriptionElement.textContent = description;
 
             // Update the form values
-            const yearInput = document.querySelector(`input[name="timeline${timelineId}_year"]`);
-            const titleInput = document.querySelector(`input[name="timeline${timelineId}_title"]`);
-            const descriptionInput = document.querySelector(`input[name="timeline${timelineId}_description"]`);
+            let yearInput = document.querySelector(`input[name="timeline${timelineId}_year"]`);
+            let titleInput = document.querySelector(`input[name="timeline${timelineId}_title"]`);
+            let descriptionInput = document.querySelector(`input[name="timeline${timelineId}_description"]`);
 
-            if (yearInput) yearInput.value = year;
-            if (titleInput) titleInput.value = title;
-            if (descriptionInput) descriptionInput.value = description;
+            if (!yearInput) {
+                // Create new inputs if they don't exist (for newly added items)
+                const form = document.getElementById('journey-form');
+                yearInput = document.createElement('input');
+                yearInput.type = 'hidden';
+                yearInput.name = `timeline${timelineId}_year`;
+                form.appendChild(yearInput);
+
+                titleInput = document.createElement('input');
+                titleInput.type = 'hidden';
+                titleInput.name = `timeline${timelineId}_title`;
+                form.appendChild(titleInput);
+
+                descriptionInput = document.createElement('input');
+                descriptionInput.type = 'hidden';
+                descriptionInput.name = `timeline${timelineId}_description`;
+                form.appendChild(descriptionInput);
+            }
+
+            yearInput.value = year;
+            titleInput.value = title;
+            descriptionInput.value = description;
 
             closeTimelineModal();
 
             // Auto-submit the form
             document.getElementById('journey-form').submit();
+        }
+
+        function deleteTimeline(timelineId) {
+            if (confirm('Are you sure you want to delete this journey milestone?')) {
+                const form = document.getElementById('journey-form');
+                
+                // Add a hidden input to indicate deletion
+                const deleteInput = document.createElement('input');
+                deleteInput.type = 'hidden';
+                deleteInput.name = `delete_timeline`;
+                deleteInput.value = timelineId;
+                form.appendChild(deleteInput);
+                
+                form.submit();
+            }
+        }
+
+        function addTimeline() {
+            const timelineItemsCount = {{ count($timelineItems) }};
+            const nextId = timelineItemsCount + 1;
+            
+            const modal = document.getElementById('timeline-modal');
+            const timelineInput = document.getElementById('current-timeline');
+            const modalTitle = document.getElementById('timeline-modal-title');
+            
+            // Clear inputs
+            document.getElementById('timeline-year').value = new Date().getFullYear();
+            document.getElementById('timeline-title').value = '';
+            document.getElementById('timeline-description').value = '';
+            
+            timelineInput.value = nextId;
+            modalTitle.textContent = 'Add New Timeline Milestone';
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
 
         // Close modals on outside click

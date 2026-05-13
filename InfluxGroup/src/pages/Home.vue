@@ -212,13 +212,33 @@ const timeline = [
   { year: '2026', title: 'Regional Hub', description: 'Expanded operations across South Asia' }
 ]
 
-// Core Values from About page
-const coreValues = [
-  { icon: ShieldCheck, title: 'Safety First', description: 'Zero-compromise approach to workplace and operational safety' },
-  { icon: Award, title: 'Quality Excellence', description: 'ISO 9001:2015 certified processes and international standards' },
-  { icon: Users, title: 'Customer Focus', description: 'Dedicated to delivering beyond client expectations' },
-  { icon: TrendingUp, title: 'Innovation Driven', description: 'Continuous investment in R&D and cutting-edge technology' }
-]
+// Core Values from About page - now dynamic
+const coreValues = computed(() => {
+  if (!homepageData.value?.core_values) {
+    return {
+      title: 'Core Values',
+      subtitle: 'The principles that guide everything we do',
+      list: [
+        { icon: ShieldCheck, title: 'Safety First', description: 'Zero-compromise approach to workplace and operational safety' },
+        { icon: Award, title: 'Quality Excellence', description: 'ISO 9001:2015 certified processes and international standards' },
+        { icon: Users, title: 'Customer Focus', description: 'Dedicated to delivering beyond client expectations' },
+        { icon: TrendingUp, title: 'Innovation Driven', description: 'Continuous investment in R&D and cutting-edge technology' }
+      ]
+    }
+  }
+
+  const cv = homepageData.value.core_values
+  const iconMap = { ShieldCheck, Award, Users, TrendingUp, Zap, Target, Activity, Settings }
+  
+  return {
+    title: cv.title,
+    subtitle: cv.subtitle,
+    list: cv.list.map(v => ({
+      ...v,
+      icon: iconMap[v.icon] || ShieldCheck
+    }))
+  }
+})
 
 // Certifications from About page
 const certifications = [
@@ -610,17 +630,16 @@ const partners = [
     <section class="py-20 md:py-32 bg-industrial-dark text-white">
       <div class="max-w-7xl mx-auto px-6">
         <div class="text-center mb-16" v-motion-slide-visible-bottom>
-          <h2 class="text-4xl md:text-5xl font-display font-black uppercase italic mb-6 text-white">
-            Core <span class="text-industrial-blue">Values</span>
+          <h2 class="text-4xl md:text-5xl font-display font-black uppercase italic mb-6 text-white" v-html="formatBrandTitle(coreValues.title)">
           </h2>
           <p class="text-slate-400 text-lg max-w-2xl mx-auto">
-            The principles that guide everything we do
+            {{ coreValues.subtitle }}
           </p>
         </div>
 
         <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           <div
-            v-for="(value, index) in coreValues"
+            v-for="(value, index) in coreValues.list"
             :key="index"
             class="glass-panel p-6 md:p-8 rounded-lg hover:bg-industrial-blue/10 transition-colors group"
             v-motion-slide-visible-bottom

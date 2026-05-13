@@ -18,7 +18,6 @@ class Service extends Model
         'features',
         'process',
         'image',
-        'order',
     ];
 
     protected $casts = [

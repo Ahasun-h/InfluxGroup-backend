@@ -149,63 +149,77 @@ class ContentController extends Controller
             'email' => 'info@influxgroup.com',
         ]);
 
-        $homepage = CompanySetting::get('homepage_content', [
+        // Fetch all homepage content from ContentManagement
+        $allContent = \App\Models\ContentManagement::all()->groupBy('section_name');
+
+        $homepage = [
             'hero' => [
-                'title' => 'Building Bangladesh\'s Future',
-                'subtitle' => 'Leading infrastructure development since 1980',
-                'description' => 'We deliver world-class construction and engineering solutions that power Bangladesh\'s growth and development.',
-                'cta_text' => 'View Our Projects',
-                'cta_link' => '/projects',
-                'background_image' => '/images/hero-bg.jpg',
+                'title' => $allContent['hero_section']->where('section_item_name', 'hero_section_title')->first()->section_content ?? 'Building Bangladesh\'s Future',
+                'subtitle' => $allContent['hero_section']->where('section_item_name', 'hero_section_badge_text')->first()->section_content ?? 'Leading infrastructure development since 1980',
+                'description' => $allContent['hero_section']->where('section_item_name', 'hero_section_description')->first()->section_content ?? '',
+                'cta_text' => $allContent['hero_section']->where('section_item_name', 'hero_section_primary_cta_text')->first()->section_content ?? 'View Our Projects',
+                'cta_link' => $allContent['hero_section']->where('section_item_name', 'hero_section_primary_cta_link')->first()->section_content ?? '/projects',
+                'background_image' => $allContent['hero_section']->where('section_item_name', 'hero_section_Background')->first()->media_files['source_file'] ?? '/images/hero-bg.jpg',
                 'show_contact_form' => true,
             ],
             'stats' => [
-                'projects_completed' => 500,
-                'years_experience' => 40,
-                'happy_clients' => 150,
-                'awards_won' => 25,
+                'projects_completed' => $allContent['homepage_stats']->where('section_item_name', 'stats_projects_completed')->first()->section_content ?? '500+',
+                'years_experience' => $allContent['homepage_stats']->where('section_item_name', 'stats_years_experience')->first()->section_content ?? '40',
+                'happy_clients' => $allContent['homepage_stats']->where('section_item_name', 'stats_happy_clients')->first()->section_content ?? '150',
+                'awards_won' => $allContent['homepage_stats']->where('section_item_name', 'stats_awards_won')->first()->section_content ?? '25',
             ],
             'brand_statement' => [
-                'title' => 'ESTABLISHED AUTHORITY IN HEAVY ENGINEERING',
-                'highlighted_word' => 'AUTHORITY',
-                'description' => 'Following the legacy of JRC and Energypac, Influx Group has evolved into a multi-sector engineering conglomerate. We specialize in EPC contracts, high-capacity switchgears, and power generation maintenance.',
-                'image_url' => 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200',
-                'overlay_title' => 'Core Reliability',
-                'overlay_text' => '"Zero Downtime Operation Protocols"',
+                'title' => $allContent['brand_statements_section']->where('section_item_name', 'brand_statements_title')->first()->section_content ?? '',
+                'highlighted_word' => 'AUTHORITY', // Can be dynamic if needed
+                'description' => $allContent['brand_statements_section']->where('section_item_name', 'brand_statements_description')->first()->section_content ?? '',
+                'image_url' => $allContent['brand_statements_section']->where('section_item_name', 'brand_statements_image')->first()->section_content ?? '',
+                'overlay_title' => $allContent['brand_statements_section']->where('section_item_name', 'brand_statements_overlay_title')->first()->section_content ?? '',
+                'overlay_text' => $allContent['brand_statements_section']->where('section_item_name', 'brand_statements_overlay_text')->first()->section_content ?? '',
+                'stats' => [
+                    json_decode($allContent['brand_statements_section']->where('section_item_name', 'brand_statements_stat1')->first()->section_content ?? '{}', true),
+                    json_decode($allContent['brand_statements_section']->where('section_item_name', 'brand_statements_stat2')->first()->section_content ?? '{}', true),
+                    json_decode($allContent['brand_statements_section']->where('section_item_name', 'brand_statements_stat3')->first()->section_content ?? '{}', true),
+                ]
             ],
             'mission_vision' => [
                 'mission' => [
-                    'title' => 'Our Mission',
-                    'description' => 'To deliver reliable, efficient, and sustainable power solutions that drive Bangladesh\'s industrial growth and infrastructure development.',
-                    'points' => [
-                        'Powering Bangladesh\'s development through innovative energy solutions',
-                        'Ensuring energy security for future generations',
-                        'Building sustainable infrastructure nationwide'
-                    ]
+                    'title' => $allContent['mission_vision']->where('section_item_name', 'mission_title')->first()->section_content ?? 'Our Mission',
+                    'description' => $allContent['mission_vision']->where('section_item_name', 'mission_description')->first()->section_content ?? '',
+                    'points' => json_decode($allContent['mission_vision']->where('section_item_name', 'mission_points')->first()->section_content ?? '[]', true)
                 ],
                 'vision' => [
-                    'title' => 'Our Vision',
-                    'description' => 'To be the leading engineering conglomerate in South Asia, recognized globally for excellence in power infrastructure and renewable energy solutions.',
-                    'points' => [
-                        'Regional leadership in sustainable infrastructure development',
-                        'Global recognition for engineering excellence',
-                        'Pioneering renewable energy adoption'
-                    ]
+                    'title' => $allContent['mission_vision']->where('section_item_name', 'vision_title')->first()->section_content ?? 'Our Vision',
+                    'description' => $allContent['mission_vision']->where('section_item_name', 'vision_description')->first()->section_content ?? '',
+                    'points' => json_decode($allContent['mission_vision']->where('section_item_name', 'vision_points')->first()->section_content ?? '[]', true)
                 ]
             ],
-            'services_title' => 'Our Services',
-            'services_subtitle' => 'Comprehensive construction and engineering solutions',
-            'projects_title' => 'Featured Projects',
-            'projects_subtitle' => 'Discover our portfolio of successful projects',
-            'testimonials_title' => 'What Our Clients Say',
-            'testimonials_subtitle' => 'Trusted by leading organizations across Bangladesh',
-            'cta_section' => [
-                'title' => 'Ready to Start Your Project?',
-                'description' => 'Contact us today to discuss how we can help bring your vision to life.',
-                'button_text' => 'Get in Touch',
-                'button_link' => '/contact',
+            'core_values' => [
+                'title' => $allContent['core_values']->where('section_item_name', 'core_values_title')->first()->section_content ?? 'Core Values',
+                'subtitle' => $allContent['core_values']->where('section_item_name', 'core_values_subtitle')->first()->section_content ?? '',
+                'list' => $allContent['core_values']->filter(fn($item) => str_starts_with($item->section_item_name, 'core_value_') && str_ends_with($item->section_item_name, '_title'))
+                    ->map(function($item) use ($allContent) {
+                        preg_match('/core_value_(\d+)_title/', $item->section_item_name, $matches);
+                        $id = $matches[1];
+                        return [
+                            'title' => $item->section_content,
+                            'description' => $allContent['core_values']->where('section_item_name', "core_value_{$id}_description")->first()->section_content ?? '',
+                            'icon' => $allContent['core_values']->where('section_item_name', "core_value_{$id}_icon")->first()->section_content ?? 'ShieldCheck',
+                        ];
+                    })->values()->toArray()
             ],
-        ]);
+            'services_title' => $allContent['homepage_headings']->where('section_item_name', 'services_title')->first()->section_content ?? 'Our Services',
+            'services_subtitle' => $allContent['homepage_headings']->where('section_item_name', 'services_subtitle')->first()->section_content ?? '',
+            'projects_title' => $allContent['homepage_headings']->where('section_item_name', 'projects_title')->first()->section_content ?? 'Featured Projects',
+            'projects_subtitle' => $allContent['homepage_headings']->where('section_item_name', 'projects_subtitle')->first()->section_content ?? '',
+            'testimonials_title' => $allContent['homepage_headings']->where('section_item_name', 'testimonials_title')->first()->section_content ?? 'What Our Clients Say',
+            'testimonials_subtitle' => $allContent['homepage_headings']->where('section_item_name', 'testimonials_subtitle')->first()->section_content ?? '',
+            'cta_section' => [
+                'title' => $allContent['cta_section']->where('section_item_name', 'cta_title')->first()->section_content ?? '',
+                'description' => $allContent['cta_section']->where('section_item_name', 'cta_description')->first()->section_content ?? '',
+                'button_text' => $allContent['cta_section']->where('section_item_name', 'cta_button_text')->first()->section_content ?? 'Get in Touch',
+                'button_link' => $allContent['cta_section']->where('section_item_name', 'cta_button_link')->first()->section_content ?? '/contact',
+            ],
+        ];
 
         return response()->json([
             'success' => true,
@@ -215,6 +229,7 @@ class ContentController extends Controller
             ]
         ]);
     }
+
 
     // Add other methods as needed based on models...
     public function getServices() { return response()->json(['success' => true, 'data' => Service::all()]); }

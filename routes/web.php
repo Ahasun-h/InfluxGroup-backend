@@ -34,13 +34,13 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('journey', [\App\Http\Controllers\Admin\JourneyController::class, 'index'])->name('journey.index');
     Route::put('journey', [\App\Http\Controllers\Admin\JourneyController::class, 'update'])->name('journey.update');
 
-    // New Site Sections Management (Content Management Table)
-    Route::prefix('site-sections')->name('site-sections.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Admin\SiteSectionController::class, 'index'])->name('index');
-        Route::get('/{sectionKey}/edit', [\App\Http\Controllers\Admin\SiteSectionController::class, 'edit'])->name('edit');
-        Route::put('/{sectionKey}', [\App\Http\Controllers\Admin\SiteSectionController::class, 'update'])->name('update');
-        Route::post('/{sectionKey}/toggle', [\App\Http\Controllers\Admin\SiteSectionController::class, 'toggleStatus'])->name('toggle');
-    });
+    // Mission & Vision management (now using content_management system)
+    Route::get('/mission-vision', [\App\Http\Controllers\Admin\MissionVisionController::class, 'index'])->name('mission-vision.index');
+    Route::put('/mission-vision', [\App\Http\Controllers\Admin\MissionVisionController::class, 'update'])->name('mission-vision.update');
+
+    // Core Values Routes
+    Route::get('/core-values', [\App\Http\Controllers\Admin\CoreValuesController::class, 'index'])->name('core-values.index');
+    Route::put('/core-values', [\App\Http\Controllers\Admin\CoreValuesController::class, 'update'])->name('core-values.update');
 
     // Homepage content management
     Route::get('homepage', [\App\Http\Controllers\Admin\HomepageController::class, 'index'])->name('homepage.index');

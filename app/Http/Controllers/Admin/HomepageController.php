@@ -147,7 +147,7 @@ class HomepageController extends Controller
      */
     public function getServices()
     {
-        $services = Service::orderBy('order')->get();
+        $services = Service::all();
         return response()->json([
             'success' => true,
             'data' => $services
@@ -169,7 +169,6 @@ class HomepageController extends Controller
             'features' => 'nullable|array',
             'process' => 'nullable|array',
             'image' => 'nullable|string',
-            'order' => 'nullable|integer',
         ]);
 
         if ($request->filled('id')) {
@@ -205,7 +204,7 @@ class HomepageController extends Controller
      */
     public function getProjects()
     {
-        $projects = Project::orderBy('order')->get();
+        $projects = Project::all();
         return response()->json([
             'success' => true,
             'data' => $projects
@@ -237,7 +236,6 @@ class HomepageController extends Controller
             'highlights' => 'nullable|array',
             'stats' => 'nullable|array',
             'featured' => 'boolean',
-            'order' => 'nullable|integer',
         ]);
 
         if ($request->filled('id')) {
@@ -273,7 +271,7 @@ class HomepageController extends Controller
      */
     public function getTestimonials()
     {
-        $testimonials = Testimonial::orderBy('order')->get();
+        $testimonials = Testimonial::all();
         return response()->json([
             'success' => true,
             'data' => $testimonials
@@ -297,7 +295,6 @@ class HomepageController extends Controller
             'image' => 'nullable|string',
             'featured' => 'boolean',
             'date' => 'nullable|date',
-            'order' => 'nullable|integer',
         ]);
 
         if ($request->filled('id')) {
