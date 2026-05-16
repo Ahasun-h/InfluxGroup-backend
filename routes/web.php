@@ -30,6 +30,10 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('brand-statements', [\App\Http\Controllers\Admin\BrandStatementController::class, 'index'])->name('brand-statements.index');
     Route::put('brand-statements', [\App\Http\Controllers\Admin\BrandStatementController::class, 'update'])->name('brand-statements.update');
 
+    // Journey timeline management (now using content_management system)
+    Route::get('journey', [\App\Http\Controllers\Admin\JourneyController::class, 'index'])->name('journey.index');
+    Route::put('journey', [\App\Http\Controllers\Admin\JourneyController::class, 'update'])->name('journey.update');
+
     // New Site Sections Management (Content Management Table)
     Route::prefix('site-sections')->name('site-sections.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\SiteSectionController::class, 'index'])->name('index');

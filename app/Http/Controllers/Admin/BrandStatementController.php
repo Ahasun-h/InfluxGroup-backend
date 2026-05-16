@@ -95,7 +95,7 @@ class BrandStatementController extends Controller
                 'section_item_name' => 'brand_statements_stat2'
             ],
             [
-                'section_content' => json_encode(['value' => '1200+', 'label' => 'Projects Delivered', 'order' => 2]),
+                'section_content' => json_encode(['value' => '15GW', 'label' => 'Power Generated', 'order' => 2]),
                 'attributes' => null,
                 'media_files' => null
             ]
@@ -107,7 +107,7 @@ class BrandStatementController extends Controller
                 'section_item_name' => 'brand_statements_stat3'
             ],
             [
-                'section_content' => json_encode(['value' => 'ISO', 'label' => 'Certified Company', 'order' => 3]),
+                'section_content' => json_encode(['value' => '250+', 'label' => 'Global Clients', 'order' => 3]),
                 'attributes' => null,
                 'media_files' => null
             ]
@@ -119,7 +119,7 @@ class BrandStatementController extends Controller
                 'section_item_name' => 'brand_statements_stat4'
             ],
             [
-                'section_content' => json_encode(['value' => '500+', 'label' => 'Expert Engineers', 'order' => 4]),
+                'section_content' => json_encode(['value' => '500+', 'label' => 'Technical Staff', 'order' => 4]),
                 'attributes' => null,
                 'media_files' => null
             ]
