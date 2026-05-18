@@ -394,11 +394,11 @@ const partners = [
           <div class="flex items-center gap-3 mb-6 md:mb-8">
             <div class="h-px w-8 md:w-12 bg-industrial-blue"></div>
             <span class="text-industrial-blue font-black uppercase tracking-[0.3em] md:tracking-[0.5em] text-[10px] md:text-xs">
-              {{ homepageData?.hero?.subtitle || 'Leaders in Energy & Infrastructure' }}
+              {{ homepageData?.hero?.subtitle || 'Leaders in Energy' }}
             </span>
           </div>
           <h1 class="text-3xl sm:text-4xl md:text-[4em] font-display font-black uppercase italic leading-[1.1] mb-8 text-white drop-shadow-[0_5px_15px_rgba(0,0,0,0.5)]">
-            {{ homepageData?.hero?.title || 'POWERING BANGLADESH SINCE 1980' }}
+            {{ homepageData?.hero?.title || 'POWERING BANGLADESH' }}
           </h1>
           <p class="text-sm md:text-base text-slate-200 max-w-lg mb-8 md:mb-10 leading-relaxed font-medium">
             {{ homepageData?.hero?.description || 'From utility-scale power plants to smart grid automation, Influx Group delivers the technical precision that moves nations.' }}
@@ -421,15 +421,15 @@ const partners = [
           :enter="{ opacity: 1, scale: 1 }"
           :delay="400"
         >
-          <div class="glass-panel p-6 rounded-xl transform translate-y-8 hover:-translate-y-2 transition-all duration-500 cursor-pointer group">
-            <ShieldCheck class="text-industrial-blue mb-4 group-hover:scale-110 transition-transform" />
-            <h3 class="font-bold mb-2">Safety Core</h3>
-            <p class="text-[10px] text-slate-400">Class 5 risk mitigation integrated.</p>
-          </div>
           <div class="glass-panel p-6 rounded-xl hover:-translate-y-2 transition-all duration-500 cursor-pointer group">
             <Settings class="text-industrial-blue mb-4 group-hover:rotate-90 transition-transform duration-700" />
             <h3 class="font-bold mb-2">Turnkey EPC</h3>
             <p class="text-[10px] text-slate-400">End-to-end project management.</p>
+          </div>
+          <div class="glass-panel p-6 rounded-xl hover:-translate-y-2 transition-all duration-500 cursor-pointer group">
+            <ShieldCheck class="text-industrial-blue mb-4 group-hover:scale-110 transition-transform" />
+            <h3 class="font-bold mb-2">Smart Grid and Distribution Network</h3>
+            <p class="text-[10px] text-slate-400">Class 5 risk mitigation integrated.</p>
           </div>
           <div class="col-span-2 glass-panel p-6 rounded-xl flex items-center justify-between hover:bg-industrial-blue/10 transition-colors">
             <div>

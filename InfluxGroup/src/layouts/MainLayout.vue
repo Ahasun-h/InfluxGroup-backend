@@ -19,6 +19,8 @@ import {
   ShieldCheck
 } from 'lucide-vue-next'
 import FloatingQuoteButton from '../components/FloatingQuoteButton.vue'
+import logoWhite from '@/assets/logo.png'
+import logoBlack from '@/assets/logo-black.png'
 
 const router = useRouter()
 const route = useRoute()
@@ -350,15 +352,11 @@ onUnmounted(() => {
             class="flex items-center gap-2 group cursor-pointer flex-shrink-0"
             @click="navigateTo('/')"
           >
-            <div class="w-8 h-8 lg:w-10 lg:h-10 bg-industrial-blue flex items-center justify-center rounded-sm transform group-hover:bg-industrial-red transition-all duration-500 shadow-lg">
-              <Zap class="text-white w-5 h-5 lg:w-6 lg:h-6" />
-            </div>
-            <div class="flex flex-col leading-none">
-              <span class="text-lg xl:text-xl font-display font-black tracking-tighter uppercase italic" :class="scrolled ? 'text-industrial-dark' : 'text-white'">
-                INFLUX<span class="text-industrial-blue">GROUP</span>
-              </span>
-              <span class="hidden sm:block text-[8px] font-bold uppercase tracking-[0.3em]" :class="scrolled ? 'text-slate-500' : 'text-slate-400'">Engineering the future</span>
-            </div>
+            <img
+              :src="scrolled ? logoBlack : logoWhite"
+              alt="INFLUX GROUP"
+              class="h-10 lg:h-12 w-auto object-contain"
+            />
           </div>
 
           <!-- Mobile Menu Button (Left Side) -->
@@ -372,7 +370,7 @@ onUnmounted(() => {
           </button>
 
           <!-- Desktop Navigation -->
-          <nav class="hidden lg:flex items-center gap-0.5 flex-1 justify-center">
+          <nav class="hidden lg:flex items-center gap-0.5 flex-1 justify-end">
             <div
               v-for="item in currentNavigation"
               :key="item.path || item.name"
@@ -702,11 +700,12 @@ onUnmounted(() => {
         <div class="grid md:grid-cols-4 gap-12 border-b border-slate-100 pb-16 mb-16">
           <!-- Company Info -->
           <div class="md:col-span-1">
-            <div class="flex items-center gap-2 mb-6">
-              <Zap class="text-industrial-blue w-6 h-6" />
-              <span class="text-xl font-display font-black tracking-tighter uppercase italic">
-                INFLUX<span class="text-industrial-blue">GROUP</span>
-              </span>
+            <div class="mb-6">
+              <img
+                src="@/assets/logo.png"
+                alt="INFLUX GROUP"
+                class="h-10 w-auto object-contain"
+              />
             </div>
             <p class="text-xs text-slate-500 font-medium leading-relaxed">
               Bangladesh's premier engineering conglomerate specializing in high-voltage infrastructure and renewable grid systems.
