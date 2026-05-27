@@ -13,5 +13,10 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
-  }
+  },
+  server: {
+    cors: {
+      origin: /^https?:\/\/(?:(?:[^:]+\.)?localhost|influx-group\.test|127\.0\.0\.1|\[::1\])(?::\d+)?$/,
+    },
+  },
 })

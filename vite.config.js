@@ -10,4 +10,9 @@ export default defineConfig({
         }),
         tailwindcss(),
     ],
+    server: {
+        cors: {
+            origin: /^https?:\/\/(?:(?:[^:]+\.)?localhost|influx-group\.test|127\.0\.0\.1|\[::1\])(?::\d+)?$/,
+        },
+    },
 });
