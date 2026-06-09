@@ -12,7 +12,9 @@
       "Bash(grep -n '$hero->' /Users/bdcalling/Herd/InfluxGroup/resources/views/admin/hero/index.blade.php)",
       "Bash(grep *)",
       "Bash(php *)",
-      "Bash(composer dump-autoload *)"
+      "Bash(composer dump-autoload *)",
+      "Bash(rm -f storage/framework/cache/data/*)",
+      "Bash(rm -f bootstrap/cache/*.php)"
     ]
   }
 }

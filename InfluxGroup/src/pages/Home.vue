@@ -75,6 +75,18 @@ const products = [
 
 const homepageData = ref(null)
 
+// Icon mapping for backwards compatibility
+const iconMap = {
+  ShieldCheck,
+  Award,
+  Users,
+  TrendingUp,
+  Zap,
+  Target,
+  Activity,
+  Settings
+}
+
 const stats = computed(() => {
   if (!homepageData.value?.stats) {
     return [
@@ -212,7 +224,7 @@ const timeline = [
   { year: '2026', title: 'Regional Hub', description: 'Expanded operations across South Asia' }
 ]
 
-// Core Values from About page - now dynamic
+// Core Values from admin panel - now using SVG data
 const coreValues = computed(() => {
   if (!homepageData.value?.core_values) {
     return {
@@ -228,14 +240,17 @@ const coreValues = computed(() => {
   }
 
   const cv = homepageData.value.core_values
-  const iconMap = { ShieldCheck, Award, Users, TrendingUp, Zap, Target, Activity, Settings }
-  
+
   return {
-    title: cv.title,
-    subtitle: cv.subtitle,
+    title: cv.title || 'Core Values',
+    subtitle: cv.subtitle || 'The principles that guide everything we do',
     list: cv.list.map(v => ({
-      ...v,
-      icon: iconMap[v.icon] || ShieldCheck
+      title: v.title || '',
+      description: v.description || '',
+      // If icon contains SVG, use it as component, otherwise map icon names
+      icon: v.icon?.includes('<svg') ? {
+        template: v.icon
+      } : (iconMap[v.icon] || ShieldCheck)
     }))
   }
 })
@@ -362,15 +377,32 @@ const testimonials = [
   }
 ]
 
-// Partners/Clients (new section)
-const partners = [
-  { name: 'BPDB', logo: '🏭' },
-  { name: 'ADB', logo: '🏦' },
-  { name: 'World Bank', logo: '🌐' },
-  { name: 'BERC', logo: '⚡' },
-  { name: 'IEC', logo: '🔌' },
-  { name: 'IEEE', logo: '📡' }
-]
+// Partners/Clients - now using dynamic data
+const partners = computed(() => {
+  if (!homepageData.value?.partners?.list) {
+    // Default values if no data
+    return {
+      title: 'Trusted by Industry Leaders',
+      subtitle: 'Proud partner to government agencies, multinational corporations, and leading enterprises',
+      list: [
+        { name: 'BPDB', logo: '🏭' },
+        { name: 'ADB', logo: '🏦' },
+        { name: 'World Bank', logo: '🌐' },
+        { name: 'BERC', logo: '⚡' },
+        { name: 'IEC', logo: '🔌' },
+        { name: 'IEEE', logo: '📡' }
+      ]
+    }
+  }
+
+  const p = homepageData.value.partners
+
+  return {
+    title: p.title || 'Trusted by Industry Leaders',
+    subtitle: p.subtitle || 'Proud partner to government agencies, multinational corporations, and leading enterprises',
+    list: p.list
+  }
+})
 </script>
 
 <template>
@@ -645,7 +677,9 @@ const partners = [
             v-motion-slide-visible-bottom
             :delay="index * 100"
           >
-            <component :is="value.icon" class="w-10 h-10 md:w-12 md:h-12 text-industrial-blue mb-4 md:mb-6 group-hover:scale-110 transition-transform" />
+            <!-- Icon - SVG template or component -->
+            <div v-if="value.icon?.template" v-html="value.icon.template" class="w-10 h-10 md:w-12 md:h-12 text-industrial-blue mb-4 md:mb-6 group-hover:scale-110 transition-transform"></div>
+            <component v-else :is="value.icon" class="w-10 h-10 md:w-12 md:h-12 text-industrial-blue mb-4 md:mb-6 group-hover:scale-110 transition-transform" />
             <h3 class="text-lg md:text-xl font-bold mb-3 md:mb-4 text-white">{{ value.title }}</h3>
             <p class="text-slate-400 text-xs md:text-sm leading-relaxed">{{ value.description }}</p>
           </div>
@@ -986,16 +1020,16 @@ const partners = [
       <div class="max-w-7xl mx-auto px-6">
         <div class="text-center mb-12" v-motion-slide-visible-bottom>
           <h2 class="text-3xl md:text-4xl font-display font-black uppercase italic mb-6 text-industrial-dark">
-            Trusted by <span class="text-industrial-blue">Industry Leaders</span>
+            {{ partners.title || 'Trusted by' }} <span class="text-industrial-blue">Industry Leaders</span>
           </h2>
           <p class="text-slate-600 text-base md:text-lg max-w-2xl mx-auto">
-            Proud partner to government agencies, multinational corporations, and leading enterprises
+            {{ partners.subtitle || 'Proud partner to government agencies, multinational corporations, and leading enterprises' }}
           </p>
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 md:gap-8">
           <div
-            v-for="(partner, index) in partners"
+            v-for="(partner, index) in partners.list"
             :key="index"
             class="bg-white p-6 md:p-8 rounded-lg flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-all group"
             v-motion-slide-visible-bottom
@@ -1105,3 +1139,14 @@ const partners = [
     </Transition>
   </div>
 </template>
+
+
+<style scoped>
+/* Core values SVG styling */
+:deep(.glass-panel svg) {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+</style>
+

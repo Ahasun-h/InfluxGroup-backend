@@ -207,6 +207,19 @@ class ContentController extends Controller
                         ];
                     })->values()->toArray()
             ],
+            'partners' => [
+                'title' => $allContent['partners']->where('section_item_name', 'partners_title')->first()->section_content ?? 'Trusted by Industry Leaders',
+                'subtitle' => $allContent['partners']->where('section_item_name', 'partners_subtitle')->first()->section_content ?? 'Proud partner to government agencies, multinational corporations, and leading enterprises',
+                'list' => $allContent['partners']->filter(fn($item) => str_starts_with($item->section_item_name, 'partner_') && str_ends_with($item->section_item_name, '_name'))
+                    ->map(function($item) use ($allContent) {
+                        preg_match('/partner_(\d+)_name/', $item->section_item_name, $matches);
+                        $id = $matches[1];
+                        return [
+                            'name' => $item->section_content,
+                            'logo' => $allContent['partners']->where('section_item_name', "partner_{$id}_logo")->first()->section_content ?? '🏢',
+                        ];
+                    })->values()->toArray()
+            ],
             'services_title' => $allContent['homepage_headings']->where('section_item_name', 'services_title')->first()->section_content ?? 'Our Services',
             'services_subtitle' => $allContent['homepage_headings']->where('section_item_name', 'services_subtitle')->first()->section_content ?? '',
             'projects_title' => $allContent['homepage_headings']->where('section_item_name', 'projects_title')->first()->section_content ?? 'Featured Projects',

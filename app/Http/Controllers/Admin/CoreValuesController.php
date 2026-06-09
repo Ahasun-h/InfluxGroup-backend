@@ -46,22 +46,22 @@ class CoreValuesController extends Controller
             [
                 'title' => 'Integrity',
                 'description' => 'We maintain the highest standards of ethical conduct in all our business operations.',
-                'icon' => 'ShieldCheck'
+                'icon' => '<svg class="w-6 h-6 text-[#007bff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>'
             ],
             [
                 'title' => 'Excellence',
                 'description' => 'We deliver exceptional quality and technical precision in every project we undertake.',
-                'icon' => 'Award'
+                'icon' => '<svg class="w-6 h-6 text-[#007bff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8l-4 4m0 0l4 4m-4-4h12M8 12H4M12 2v4M12 18v4M8 8l4-4M16 8l-4 4"></path></svg>'
             ],
             [
                 'title' => 'Collaboration',
                 'description' => 'We work together with clients and partners to achieve shared success.',
-                'icon' => 'Users'
+                'icon' => '<svg class="w-6 h-6 text-[#007bff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>'
             ],
             [
                 'title' => 'Innovation',
                 'description' => 'We embrace cutting-edge technology and creative solutions for complex challenges.',
-                'icon' => 'TrendingUp'
+                'icon' => '<svg class="w-6 h-6 text-[#007bff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>'
             ]
         ];
 
@@ -94,7 +94,7 @@ class CoreValuesController extends Controller
                 ]
             );
 
-            // Create icon
+            // Create icon with SVG
             ContentManagement::firstOrCreate(
                 [
                     'section_name' => 'core_values',
@@ -121,11 +121,22 @@ class CoreValuesController extends Controller
         $values = [];
         $i = 1;
         while (isset($data["core_value_{$i}_title"])) {
+            $iconValue = $data["core_value_{$i}_icon"]->section_content ?? '';
+
+            // Convert old icon names to SVG if needed
+            $iconSvg = $iconValue;
+            if (in_array($iconValue, ['ShieldCheck', 'Award', 'Users', 'TrendingUp', 'Zap', 'Target'])) {
+                $iconSvg = $this->getIconSvg($iconValue);
+            }
+
+            // Sanitize SVG to prevent rendering errors
+            $iconSvg = $this->sanitizeSvg($iconSvg);
+
             $values[] = [
                 'id' => $i,
                 'title' => $data["core_value_{$i}_title"]->section_content ?? '',
                 'description' => $data["core_value_{$i}_description"]->section_content ?? '',
-                'icon' => $data["core_value_{$i}_icon"]->section_content ?? 'ShieldCheck',
+                'icon' => $iconSvg,
             ];
             $i++;
         }
@@ -138,60 +149,66 @@ class CoreValuesController extends Controller
      */
     public function update(Request $request): RedirectResponse
     {
-        // Handle deletion
-        if ($request->has('delete_value')) {
-            $deleteId = (int) $request->delete_value;
+        // Handle deletion from new format
+        foreach ($request->all() as $key => $value) {
+            if (strpos($key, 'delete_value_') === 0 && !empty($value)) {
+                $deleteId = (int) $value;
 
-            $currentData = ContentManagement::where('section_name', 'core_values')
-                ->where('section_item_name', 'like', 'core_value_%')
-                ->get()
-                ->groupBy(function($item) {
-                    preg_match('/core_value_(\d+)_/', $item->section_item_name, $matches);
-                    return $matches[1] ?? 0;
-                });
+                \Log::info('Deleting core value ID: ' . $deleteId);
 
-            $remainingItems = [];
-            foreach ($currentData as $id => $rows) {
-                if ((int)$id !== $deleteId && (int)$id > 0) {
-                    $rowsByKey = $rows->keyBy('section_item_name');
-                    $remainingItems[] = [
-                        'title' => $rowsByKey["core_value_{$id}_title"]->section_content ?? '',
-                        'description' => $rowsByKey["core_value_{$id}_description"]->section_content ?? '',
-                        'icon' => $rowsByKey["core_value_{$id}_icon"]->section_content ?? '',
-                    ];
+                $currentData = ContentManagement::where('section_name', 'core_values')
+                    ->where('section_item_name', 'like', 'core_value_%')
+                    ->get()
+                    ->groupBy(function($item) {
+                        preg_match('/core_value_(\d+)_/', $item->section_item_name, $matches);
+                        return $matches[1] ?? 0;
+                    });
+
+                \Log::info('Current data count: ' . count($currentData));
+
+                $remainingItems = [];
+                foreach ($currentData as $id => $rows) {
+                    if ((int)$id !== $deleteId && (int)$id > 0) {
+                        $rowsByKey = $rows->keyBy('section_item_name');
+                        $remainingItems[] = [
+                            'title' => $rowsByKey["core_value_{$id}_title"]->section_content ?? '',
+                            'description' => $rowsByKey["core_value_{$id}_description"]->section_content ?? '',
+                            'icon' => $rowsByKey["core_value_{$id}_icon"]->section_content ?? '',
+                        ];
+                    }
                 }
+
+                ContentManagement::where('section_name', 'core_values')
+                    ->where('section_item_name', 'like', 'core_value_%')
+                    ->delete();
+
+                foreach ($remainingItems as $idx => $item) {
+                    $newId = $idx + 1;
+                    ContentManagement::create([
+                        'section_name' => 'core_values',
+                        'section_item_name' => "core_value_{$newId}_title",
+                        'section_content' => $item['title'],
+                        'attributes' => null,
+                        'media_files' => null
+                    ]);
+                    ContentManagement::create([
+                        'section_name' => 'core_values',
+                        'section_item_name' => "core_value_{$newId}_description",
+                        'section_content' => $item['description'],
+                        'attributes' => null,
+                        'media_files' => null
+                    ]);
+                    ContentManagement::create([
+                        'section_name' => 'core_values',
+                        'section_item_name' => "core_value_{$newId}_icon",
+                        'section_content' => $item['icon'],
+                        'attributes' => null,
+                        'media_files' => null
+                    ]);
+                }
+
+                return redirect()->route('admin.core-values.index')->with('success', 'Core value deleted successfully.');
             }
-
-            ContentManagement::where('section_name', 'core_values')
-                ->where('section_item_name', 'like', 'core_value_%')
-                ->delete();
-
-            foreach ($remainingItems as $idx => $item) {
-                $newId = $idx + 1;
-                ContentManagement::create([
-                    'section_name' => 'core_values',
-                    'section_item_name' => "core_value_{$newId}_title",
-                    'section_content' => $item['title'],
-                    'attributes' => null,
-                    'media_files' => null
-                ]);
-                ContentManagement::create([
-                    'section_name' => 'core_values',
-                    'section_item_name' => "core_value_{$newId}_description",
-                    'section_content' => $item['description'],
-                    'attributes' => null,
-                    'media_files' => null
-                ]);
-                ContentManagement::create([
-                    'section_name' => 'core_values',
-                    'section_item_name' => "core_value_{$newId}_icon",
-                    'section_content' => $item['icon'],
-                    'attributes' => null,
-                    'media_files' => null
-                ]);
-            }
-
-            return redirect()->route('admin.core-values.index')->with('success', 'Core value deleted successfully.');
         }
 
         // Update section title
@@ -226,14 +243,18 @@ class CoreValuesController extends Controller
 
         // Update core value items
         if ($request->has('values')) {
+            \Log::info('Processing values update', ['values' => $request->values]);
+
             foreach ($request->values as $id => $val) {
+                \Log::info("Processing value ID: {$id}", ['value' => $val]);
+
                 ContentManagement::updateOrCreate(
                     [
                         'section_name' => 'core_values',
                         'section_item_name' => "core_value_{$id}_title"
                     ],
                     [
-                        'section_content' => $val['title'],
+                        'section_content' => $val['title'] ?? '',
                         'attributes' => null,
                         'media_files' => null
                     ]
@@ -245,7 +266,7 @@ class CoreValuesController extends Controller
                         'section_item_name' => "core_value_{$id}_description"
                     ],
                     [
-                        'section_content' => $val['description'],
+                        'section_content' => $val['description'] ?? '',
                         'attributes' => null,
                         'media_files' => null
                     ]
@@ -257,7 +278,7 @@ class CoreValuesController extends Controller
                         'section_item_name' => "core_value_{$id}_icon"
                     ],
                     [
-                        'section_content' => $val['icon'] ?? 'ShieldCheck',
+                        'section_content' => $val['icon'] ?? '',
                         'attributes' => null,
                         'media_files' => null
                     ]
@@ -266,5 +287,52 @@ class CoreValuesController extends Controller
         }
 
         return redirect()->route('admin.core-values.index')->with('success', 'Core values updated successfully.');
+    }
+
+    /**
+     * Get SVG for icon name (for backwards compatibility)
+     */
+    private function getIconSvg($iconName): string
+    {
+        $iconMap = [
+            'ShieldCheck' => '<svg class="w-6 h-6 text-[#007bff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>',
+            'Award' => '<svg class="w-6 h-6 text-[#007bff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8l-4 4m0 0l4 4m-4-4h12M8 12H4M12 2v4M12 18v4M8 8l4-4M16 8l-4 4"></path></svg>',
+            'Users' => '<svg class="w-6 h-6 text-[#007bff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>',
+            'TrendingUp' => '<svg class="w-6 h-6 text-[#007bff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>',
+            'Zap' => '<svg class="w-6 h-6 text-[#007bff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>',
+            'Target' => '<svg class="w-6 h-6 text-[#007bff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2l4 4m0-4l-4 4m4-4v12m0 0l-4-4m4 4h12m-12 0a5 5 0 110-10 5 5 0 010 10z"></path></svg>',
+        ];
+
+        return $iconMap[$iconName] ?? $iconMap['ShieldCheck'];
+    }
+
+    /**
+     * Sanitize SVG to prevent rendering errors
+     */
+    private function sanitizeSvg($svg): string
+    {
+        // If it's empty, return default shield icon
+        if (empty($svg)) {
+            return $this->getIconSvg('ShieldCheck');
+        }
+
+        // If it doesn't contain SVG tags, return default
+        if (strpos($svg, '<svg') === false) {
+            return $this->getIconSvg('ShieldCheck');
+        }
+
+        // Basic SVG sanitization - remove potentially harmful attributes
+        $svg = preg_replace('/on\w+="[^"]*"/i', '', $svg);
+        $svg = preg_replace('/javascript:/i', '', $svg);
+
+        // Fix common SVG path issues
+        $svg = preg_replace('/<path([^>]*)>/i', '<path$1>', $svg);
+
+        // Ensure the SVG has proper structure
+        if (strpos($svg, 'xmlns=') === false) {
+            $svg = str_replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"', $svg);
+        }
+
+        return $svg;
     }
 }
