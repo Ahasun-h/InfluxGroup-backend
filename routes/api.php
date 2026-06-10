@@ -49,3 +49,30 @@ Route::prefix('pages')->group(function () {
     Route::get('/', [ContentController::class, 'getPages']);
     Route::get('/{slug}', [ContentController::class, 'getPageBySlug']);
 });
+
+// CMS Section APIs
+Route::prefix('cms')->group(function () {
+    // Hero Section
+    Route::get('/hero', [ContentController::class, 'getHeroSection']);
+
+    // Brand Statements
+    Route::get('/brand-statements', [ContentController::class, 'getBrandStatements']);
+
+    // Journey Timeline
+    Route::get('/journey', [ContentController::class, 'getJourneyTimeline']);
+
+    // Mission & Vision
+    Route::get('/mission-vision', [ContentController::class, 'getMissionVision']);
+
+    // Core Values
+    Route::get('/core-values', [ContentController::class, 'getCoreValues']);
+
+    // Partners
+    Route::get('/partners', [ContentController::class, 'getPartners']);
+
+    // Contact CTA
+    Route::get('/contact-cta', [ContentController::class, 'getContactCTA']);
+
+    // Homepage All Content
+    Route::get('/homepage', [ContentController::class, 'getHomepageContent']);
+});
