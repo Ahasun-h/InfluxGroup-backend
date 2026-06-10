@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { projectService, companyService } from '../services/content'
+import { projectService, companyService, heroService, brandService } from '../services/content'
 import { API_CONFIG } from '../config/api'
 import {
   Zap,
@@ -34,13 +34,38 @@ import {
 const selectedProject = ref(null)
 const projectFilter = ref('all')
 const activeProductCategory = ref('all')
+const brandStatements = ref(null)
 
-const productCategories = [
-  { name: 'Transformers', icon: Zap, count: '45+' },
-  { name: 'Switchgear', icon: Settings, count: '120+' },
-  { name: 'Renewables', icon: Wind, count: '12GW' },
-  { name: 'Automation', icon: Cpu, count: '80+' }
-]
+const productCategories = computed(() => {
+  if (heroData.value?.categories && heroData.value.categories.length > 0) {
+    return heroData.value.categories.map(cat => {
+      // Check if icon contains SVG HTML
+      if (cat.icon && cat.icon.includes('<svg')) {
+        return {
+          name: cat.name,
+          icon: cat.icon, // Store SVG HTML directly
+          isSvg: true, // Flag to indicate this is SVG HTML
+          count: cat.count
+        }
+      }
+      // Otherwise, map icon name to component
+      return {
+        name: cat.name,
+        icon: iconMap[cat.icon] || Zap,
+        isSvg: false,
+        count: cat.count
+      }
+    })
+  }
+
+  // Default categories
+  return [
+    { name: 'Transformers', icon: Zap, isSvg: false, count: '45+' },
+    { name: 'Switchgear', icon: Settings, isSvg: false, count: '120+' },
+    { name: 'Renewables', icon: Wind, isSvg: false, count: '12GW' },
+    { name: 'Automation', icon: Cpu, isSvg: false, count: '80+' }
+  ]
+})
 
 const products = [
   {
@@ -74,6 +99,7 @@ const products = [
 ]
 
 const homepageData = ref(null)
+const heroData = ref(null)
 
 // Icon mapping for backwards compatibility
 const iconMap = {
@@ -88,6 +114,15 @@ const iconMap = {
 }
 
 const stats = computed(() => {
+  // Use brandStatements stats if available
+  if (brandStatements.value?.stats && brandStatements.value.stats.length > 0) {
+    return brandStatements.value.stats.map(stat => ({
+      value: stat.value || stat.number || '0',
+      label: stat.label || stat.title || 'N/A'
+    }))
+  }
+
+  // Fallback to homepageData stats
   if (!homepageData.value?.stats) {
     return [
       { value: '45+', label: 'Years Experience' },
@@ -133,9 +168,81 @@ const fetchHomepageData = async () => {
   }
 }
 
+const fetchHeroData = async () => {
+  try {
+    console.log('Fetching hero data from /api/cms/hero...')
+    const response = await heroService.getHeroData()
+    console.log('Hero data response:', response)
+
+    // Check if response has data property
+    if (response && response.data) {
+      heroData.value = response.data
+      console.log('Hero section data loaded successfully:', heroData.value)
+    } else if (response) {
+      heroData.value = response
+      console.log('Hero section data loaded (direct):', heroData.value)
+    } else {
+      console.warn('Hero data response is empty or invalid')
+    }
+  } catch (error) {
+    console.error('Failed to fetch hero data:', error)
+    console.error('Error message:', error.message)
+    console.error('Error stack:', error.stack)
+
+    // Set default hero data as fallback
+    heroData.value = {
+      badge: 'Leaders in Energy',
+      title: 'POWERING BANGLADESH',
+      description: 'From utility-scale power plants to smart grid automation, Influx Group delivers the technical precision that moves nations.',
+      primary_cta: {
+        text: 'EXPLORE CATALOG',
+        link: '/projects'
+      },
+      secondary_cta: {
+        text: 'CORPORATE PROFILE',
+        link: '/about'
+      },
+      background_image: '/hero.png',
+      categories: []
+    }
+  }
+}
+
+const fetchBrandStatements = async () => {
+  try {
+    console.log('Fetching brand statements from /api/cms/brand-statements...')
+    const response = await brandService.getBrandStatements()
+    console.log('Brand statements response:', response)
+
+    if (response && response.data) {
+      brandStatements.value = response.data
+      console.log('Brand statements loaded successfully:', brandStatements.value)
+    }
+  } catch (error) {
+    console.error('Failed to fetch brand statements:', error)
+
+    // Set default brand statements as fallback
+    brandStatements.value = {
+      title: 'ESTABLISHED AUTHORITY IN HEAVY ENGINEERING',
+      description: 'Following the legacy of JRC and Energypac, Influx Group has evolved into a multi-sector engineering conglomerate. We specialize in EPC contracts, high-capacity switchgears, and power generation maintenance.',
+      image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200',
+      overlay_title: 'Core Reliability',
+      overlay_text: 'Zero Downtime Operation Protocols',
+      stats: [
+        { value: '45+', label: 'Years Experience' },
+        { value: '15GW', label: 'Power Generated' },
+        { value: '250+', label: 'Global Clients' },
+        { value: '500+', label: 'Technical Staff' }
+      ]
+    }
+  }
+}
+
 onMounted(() => {
   fetchFeaturedProjects()
   fetchHomepageData()
+  fetchHeroData()
+  fetchBrandStatements()
 })
 
 const filteredProjects = computed(() => {
@@ -412,7 +519,7 @@ const partners = computed(() => {
       <!-- Background Image -->
       <div class="absolute inset-0 z-0">
         <img
-          :src="getImageUrl(homepageData?.hero?.background_image || '/hero.png')"
+          :src="getImageUrl(heroData?.background_image || heroData?.seo_attributes?.src || homepageData?.hero?.background_image || '/hero.png')"
           class="w-full h-full object-cover scale-105"
           alt="Power Infrastructure"
         />
@@ -426,21 +533,21 @@ const partners = computed(() => {
           <div class="flex items-center gap-3 mb-6 md:mb-8">
             <div class="h-px w-8 md:w-12 bg-industrial-blue"></div>
             <span class="text-industrial-blue font-black uppercase tracking-[0.3em] md:tracking-[0.5em] text-[10px] md:text-xs">
-              {{ homepageData?.hero?.subtitle || 'Leaders in Energy' }}
+              {{ heroData?.badge || homepageData?.hero?.subtitle || 'Leaders in Energy' }}
             </span>
           </div>
           <h1 class="text-3xl sm:text-4xl md:text-[4em] font-display font-black uppercase italic leading-[1.1] mb-8 text-white drop-shadow-[0_5px_15px_rgba(0,0,0,0.5)]">
-            {{ homepageData?.hero?.title || 'POWERING BANGLADESH' }}
+            {{ heroData?.title || homepageData?.hero?.title || 'POWERING BANGLADESH' }}
           </h1>
           <p class="text-sm md:text-base text-slate-200 max-w-lg mb-8 md:mb-10 leading-relaxed font-medium">
-            {{ homepageData?.hero?.description || 'From utility-scale power plants to smart grid automation, Influx Group delivers the technical precision that moves nations.' }}
+            {{ heroData?.description || homepageData?.hero?.description || 'From utility-scale power plants to smart grid automation, Influx Group delivers the technical precision that moves nations.' }}
           </p>
           <div class="flex flex-wrap gap-4 md:gap-5">
-            <a :href="homepageData?.hero?.cta_link || '/projects'" class="bg-industrial-blue text-white px-6 md:px-10 py-3 md:py-5 rounded-sm font-black uppercase tracking-widest text-[10px] md:text-xs flex items-center gap-3 hover:bg-industrial-red transition-all shadow-2xl hover:scale-105 active:scale-95">
-              {{ homepageData?.hero?.cta_text || 'EXPLORE CATALOG' }} <ChevronRight class="w-4 h-4" />
+            <a :href="heroData?.primary_cta?.link || heroData?.cta_link || homepageData?.hero?.cta_link || '/projects'" class="bg-industrial-blue text-white px-6 md:px-10 py-3 md:py-5 rounded-sm font-black uppercase tracking-widest text-[10px] md:text-xs flex items-center gap-3 hover:bg-industrial-red transition-all shadow-2xl hover:scale-105 active:scale-95">
+              {{ heroData?.primary_cta?.text || heroData?.cta_text || homepageData?.hero?.cta_text || 'EXPLORE CATALOG' }} <ChevronRight class="w-4 h-4" />
             </a>
-            <a href="/about" class="bg-white/5 border-2 border-white/20 text-white px-6 md:px-10 py-3 md:py-5 rounded-sm font-black uppercase tracking-widest text-[10px] md:text-xs backdrop-blur-md hover:bg-white/20 transition-all hover:border-white">
-              CORPORATE PROFILE
+            <a :href="heroData?.secondary_cta?.link || '/about'" class="bg-white/5 border-2 border-white/20 text-white px-6 md:px-10 py-3 md:py-5 rounded-sm font-black uppercase tracking-widest text-[10px] md:text-xs backdrop-blur-md hover:bg-white/20 transition-all hover:border-white">
+              {{ heroData?.secondary_cta?.text || 'CORPORATE PROFILE' }}
             </a>
           </div>
         </div>
@@ -453,24 +560,36 @@ const partners = computed(() => {
           :enter="{ opacity: 1, scale: 1 }"
           :delay="400"
         >
-          <div class="glass-panel p-6 rounded-xl hover:-translate-y-2 transition-all duration-500 cursor-pointer group">
-            <Settings class="text-industrial-blue mb-4 group-hover:rotate-90 transition-transform duration-700" />
-            <h3 class="font-bold mb-2">Turnkey EPC</h3>
-            <p class="text-[10px] text-slate-400">End-to-end project management.</p>
+          <div class="glass-panel p-6 rounded-xl hover:-translate-y-2 transition-all duration-500 cursor-pointer group flex items-center gap-4">
+            <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center">
+              <Settings class="w-12 h-12 text-industrial-blue group-hover:rotate-90 transition-transform duration-700" />
+            </div>
+            <div>
+              <h3 class="font-bold mb-1">Turnkey EPC</h3>
+              <p class="text-[10px] text-slate-400">End-to-end project management.</p>
+            </div>
           </div>
-          <div class="glass-panel p-6 rounded-xl hover:-translate-y-2 transition-all duration-500 cursor-pointer group">
-            <ShieldCheck class="text-industrial-blue mb-4 group-hover:scale-110 transition-transform" />
-            <h3 class="font-bold mb-2">Smart Grid and Distribution Network</h3>
-            <p class="text-[10px] text-slate-400">Class 5 risk mitigation integrated.</p>
+          <div class="glass-panel p-6 rounded-xl hover:-translate-y-2 transition-all duration-500 cursor-pointer group flex items-center gap-4">
+            <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center">
+              <ShieldCheck class="w-12 h-12 text-industrial-blue group-hover:scale-110 transition-transform" />
+            </div>
+            <div>
+              <h3 class="font-bold mb-1">Smart Grid</h3>
+              <p class="text-[10px] text-slate-400">Class 5 risk mitigation integrated.</p>
+            </div>
           </div>
           <div class="col-span-2 glass-panel p-6 rounded-xl flex items-center justify-between hover:bg-industrial-blue/10 transition-colors">
-            <div>
-              <h3 class="text-2xl font-display font-black flex items-center gap-2">
-                ISO <span class="text-[10px] text-industrial-blue bg-industrial-blue/10 px-2 py-0.5 rounded uppercase">9001:2015</span>
-              </h3>
-              <p class="text-[10px] text-slate-400 uppercase tracking-widest mt-1">Certified Compliance</p>
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center">
+                <Activity class="w-12 h-12 text-industrial-blue animate-pulse" />
+              </div>
+              <div>
+                <h3 class="text-2xl font-display font-black flex items-center gap-2">
+                  ISO <span class="text-[10px] text-industrial-blue bg-industrial-blue/10 px-2 py-0.5 rounded uppercase">9001:2015</span>
+                </h3>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest mt-1">Certified Compliance</p>
+              </div>
             </div>
-            <Activity class="w-8 h-8 text-industrial-blue animate-pulse" />
           </div>
         </div>
       </div>
@@ -481,7 +600,9 @@ const partners = computed(() => {
           <div v-for="cat in productCategories" :key="cat.name" class="py-6 md:py-8 px-0 group cursor-pointer hover:bg-white/5 transition-colors">
             <div class="flex items-center gap-4">
               <div class="w-12 h-12 flex items-center justify-center">
-                <component :is="cat.icon" class="w-6 h-6 md:w-8 md:h-8 text-industrial-blue group-hover:text-industrial-red transition-colors" />
+                <!-- Render SVG if icon contains HTML, otherwise use component -->
+                <div v-if="cat.isSvg" v-html="cat.icon" class="w-6 h-6 md:w-8 md:h-8 text-industrial-blue group-hover:text-industrial-red transition-colors"></div>
+                <component v-else :is="cat.icon" class="w-6 h-6 md:w-8 md:h-8 text-industrial-blue group-hover:text-industrial-red transition-colors" />
               </div>
               <div>
                 <div class="text-[8px] md:text-[10px] text-slate-500 font-black uppercase tracking-widest">{{ cat.count }} Models</div>
@@ -499,10 +620,10 @@ const partners = computed(() => {
         <div class="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
           <div v-motion-slide-visible-left>
              <h2 class="text-4xl md:text-5xl font-display font-black uppercase leading-[0.9] mb-8 text-industrial-dark">
-               <span v-html="formatBrandTitle(homepageData?.brand_statement?.title || 'ESTABLISHED AUTHORITY IN HEAVY ENGINEERING')"></span>
+               <span v-html="formatBrandTitle(brandStatements?.title || homepageData?.brand_statement?.title || 'ESTABLISHED AUTHORITY IN HEAVY ENGINEERING')"></span>
              </h2>
              <p class="text-slate-600 text-base md:text-lg leading-relaxed mb-8">
-               {{ homepageData?.brand_statement?.description || 'Following the legacy of JRC and Energypac, Influx Group has evolved into a multi-sector engineering conglomerate. We specialize in EPC contracts, high-capacity switchgears, and power generation maintenance.' }}
+               {{ brandStatements?.description || homepageData?.brand_statement?.description || 'Following the legacy of JRC and Energypac, Influx Group has evolved into a multi-sector engineering conglomerate. We specialize in EPC contracts, high-capacity switchgears, and power generation maintenance.' }}
              </p>
              <div class="grid grid-cols-2 gap-8 md:gap-12">
                <div v-for="stat in stats" :key="stat.label" class="border-l-4 border-industrial-blue pl-4 md:pl-6 py-2">
@@ -512,11 +633,11 @@ const partners = computed(() => {
              </div>
           </div>
           <div class="relative group overflow-hidden rounded-sm h-[400px] md:h-[500px]" v-motion-slide-visible-right>
-            <img :src="homepageData?.brand_statement?.image_url || 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200'" class="w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110" />
+            <img :src="getImageUrl(brandStatements?.image || homepageData?.brand_statement?.image_url)" class="w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110" />
             <div class="absolute inset-0 bg-industrial-blue/10 mix-blend-multiply"></div>
             <div class="absolute bottom-6 md:bottom-10 left-6 md:left-10 p-6 md:p-8 bg-industrial-blue text-white shadow-2xl max-w-[200px] md:max-w-xs transition-all opacity-0 md:opacity-100 group-hover:opacity-100">
-               <div class="text-[10px] font-black uppercase tracking-[0.3em] mb-2 opacity-70">{{ homepageData?.brand_statement?.overlay_title || 'Core Reliability' }}</div>
-               <div class="text-xl md:text-2xl font-display font-bold italic leading-tight">"{{ homepageData?.brand_statement?.overlay_text || 'Zero Downtime Operation Protocols' }}"</div>
+               <div class="text-[10px] font-black uppercase tracking-[0.3em] mb-2 opacity-70">{{ brandStatements?.overlay_title || homepageData?.brand_statement?.overlay_title || 'Core Reliability' }}</div>
+               <div class="text-xl md:text-2xl font-display font-bold italic leading-tight">"{{ brandStatements?.overlay_text || homepageData?.brand_statement?.overlay_text || 'Zero Downtime Operation Protocols' }}"</div>
             </div>
           </div>
         </div>

@@ -213,6 +213,46 @@ export const companyService = {
   },
 }
 
+/**
+ * Hero Service
+ */
+export const heroService = {
+  /**
+   * Get hero section data
+   */
+  async getHeroData() {
+    try {
+      console.log('heroService: Fetching from', API_ENDPOINTS.HERO)
+      const response = await api.get(API_ENDPOINTS.HERO)
+      console.log('heroService: Response received', response)
+      return response
+    } catch (error) {
+      console.error('heroService: Error fetching hero data', error)
+      throw error
+    }
+  },
+}
+
+/**
+ * Brand Statements Service
+ */
+export const brandService = {
+  /**
+   * Get brand statements data
+   */
+  async getBrandStatements() {
+    try {
+      console.log('brandService: Fetching from', API_ENDPOINTS.BRAND_STATEMENTS)
+      const response = await api.get(API_ENDPOINTS.BRAND_STATEMENTS)
+      console.log('brandService: Response received', response)
+      return response
+    } catch (error) {
+      console.error('brandService: Error fetching brand statements', error)
+      throw error
+    }
+  },
+}
+
 // Export all services as a combined object
 export const contentService = {
   products: productService,
@@ -226,6 +266,8 @@ export const contentService = {
   careers: careerService,
   pages: pageService,
   company: companyService,
+  hero: heroService,
+  brand: brandService,
 }
 
 export default contentService

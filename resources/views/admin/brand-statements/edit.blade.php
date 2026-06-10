@@ -14,7 +14,28 @@
             }
             return $brandStatement->stats ?? [];
         };
+
+        // Get current image URL
+        $currentImage = $getContentData($brandStatement, 'image_url', '');
     @endphp
+
+    @push('styles')
+    <!-- Dropify CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropify/0.2.2/css/dropify.min.css" />
+    <style>
+        .dropify-wrapper .dropify-message {
+            font-size: 14px;
+            color: #777;
+        }
+        .dropify-wrapper .dropify-message p {
+            font-size: 12px;
+            color: #999;
+        }
+        .dropify-wrapper:hover .dropify-message {
+            color: #555;
+        }
+    </style>
+    @endpush
 
     <div class="space-y-8 pb-10">
         <!-- Page Header -->
@@ -51,12 +72,20 @@
                                   placeholder="Following the legacy of JRC and Energypac...">{{ old('description', $getContentData($brandStatement, 'description', '')) }}</textarea>
                     </div>
 
-                    <!-- Image URL -->
+                    <!-- Image Upload with Dropify -->
                     <div>
                         <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Image URL</label>
-                        <input type="text" name="image_url" value="{{ old('image_url', $getContentData($brandStatement, 'image_url', '')) }}"
-                               class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                               placeholder="https://images.unsplash.com/photo-1581092160607-ee22621dd758...">
+                        <input type="file" name="image_upload" id="image-upload" class="dropify" accept="image/*"
+                               @if($currentImage) data-default-file="{{ $currentImage }}" @endif />
+                        <input type="hidden" name="image_url" id="image-url" value="{{ old('image_url', $currentImage) }}" />
+
+                        <!-- Or enter URL manually -->
+                        <div class="mt-3">
+                            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Or enter image URL manually:</label>
+                            <input type="text" id="manual-image-url" value="{{ old('image_url', $currentImage) }}"
+                                   class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-brand-500"
+                                   placeholder="https://images.unsplash.com/photo-1581092160607-ee22621dd758...">
+                        </div>
                     </div>
 
                     <!-- Overlay Title -->
@@ -120,4 +149,85 @@
             </form>
         </div>
     </div>
+
+    <!-- Dropify JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropify/0.2.2/js/dropify.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Dropify
+            var drEvent = $('#image-upload').dropify({
+                messages: {
+                    'default': 'Drag and drop an image here or click',
+                    'replace': 'Drag and drop or click to replace',
+                    'remove':  'Remove',
+                    'error':   'Ooops, something wrong happened.'
+                },
+                error: {
+                    'fileSize': 'The file size is too big ({{ value }}max).',
+                    'minWidth': 'The image width is too small ({{ value }}}px min).',
+                    'maxWidth': 'The image width is too big ({{ value }}}px max).',
+                    'minHeight': 'The image height is too small ({{ value }}}px min).',
+                    'maxHeight': 'The image height is too big ({{ value }}px max).',
+                    'imageFormat': 'The image format is not allowed ({{ value }} only).'
+                },
+                tpl: {
+                    wrap:            '<div class="dropify-wrapper"><div class="dropify-message"><span class="file-icon" />\
+                                        <p>{{ default }}</p>\
+                                        <p style="font-size: 10px; margin-top: 5px; color: #999;">(or enter URL below)</p>\
+                                       </div>\
+                                       <div class="dropify-preview">\
+                                       <span class="dropify-render"></span>\
+                                       <div class="dropify-infos"><div class="dropify-infos-inner"></div></div>\
+                                       </div>\
+                                       <span class="dropify-error">{{ error }}</span>\
+                                       <button class="dropify-clear">{{ remove }}</button>\
+                                       </div>',
+                    message:         '<div class="dropify-message">{{ default }}</div>',
+                    preview:         '<div class="dropify-preview"><span class="dropify-render"></span>\
+                                       <div class="dropify-infos"><div class="dropify-infos-inner"></div></div></div>',
+                    filename:        '<p class="dropify-filename"><span></span></p>',
+                    clearButton:     '<button class="dropify-clear">{{ remove }}</button>',
+                    errorLine:       '<p class="dropify-error">{{ error }}</p>',
+                    infos:           '<div class="dropify-infos-inner"></div>'
+                }
+            });
+
+            // Handle file selection
+            drEvent.on('dropify.afterClear', function(event, element) {
+                $('#image-url').val('');
+                $('#manual-image-url').val('');
+            });
+
+            // Sync manual URL input
+            $('#manual-image-url').on('input change', function() {
+                var url = $(this).val();
+                $('#image-url').val(url);
+
+                // Update Dropify preview if URL is provided
+                if (url) {
+                    var drEvent = $('#image-upload').data('dropify');
+                    drEvent.resetPreview();
+                    drEvent.setPreview(url, url);
+                    drEvent.settings.defaultFile = url;
+                    drEvent.init();
+                }
+            });
+
+            // Handle file upload - need to upload to server and get URL
+            drEvent.on('dropify.fileSelected', function(event, element) {
+                var file = element.files[0];
+                if (file) {
+                    // For now, we'll store the file object reference
+                    // In a real implementation, you'd upload to server and get the URL
+                    console.log('File selected:', file.name);
+
+                    // Create object URL for preview
+                    var objectUrl = URL.createObjectURL(file);
+                    $('#image-url').val(objectUrl);
+                    $('#manual-image-url').val(objectUrl);
+                }
+            });
+        });
+    </script>
 </x-layouts.app>

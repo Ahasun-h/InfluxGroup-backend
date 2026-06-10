@@ -1,6 +1,4 @@
 <x-layouts.app title="Brand Statement Management">
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     @php
         // Helper function to get content from brand items
@@ -25,7 +23,61 @@
             }
             return collect($stats)->sortBy('order')->values();
         };
+
+        // Get current image URL
+        $currentImage = $getBrandContent($brandItems, 'brand_statements_image', '');
     @endphp
+
+    @push('styles')
+    <!-- Dropify CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropify/0.2.2/css/dropify.min.css" />
+    <style>
+        /* Ensure Dropify input is always visible */
+        #image-upload.dropify {
+            display: block !important;
+        }
+        /* Fix Dropify wrapper visibility */
+        .dropify-wrapper {
+            display: block !important;
+        }
+        /* Manual URL input validation styling */
+        #manual-image-url:valid {
+            border-color: #10b981;
+        }
+        #manual-image-url:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+    </style>
+    @endpush
+
+    <!-- jQuery (needed for Dropify) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Dropify JS - Try multiple CDNs -->
+    <script>
+        // Try to load Dropify from primary CDN
+        var dropifyScript = document.createElement('script');
+        dropifyScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/dropify/0.2.2/js/dropify.min.js';
+        dropifyScript.onerror = function() {
+            console.warn('Primary Dropify CDN failed, trying jsdelivr...');
+            // Try jsdelivr CDN as backup
+            var backupScript = document.createElement('script');
+            backupScript.src = 'https://cdn.jsdelivr.net/npm/dropify@0.2.2/dist/js/dropify.min.js';
+            backupScript.onerror = function() {
+                console.error('✗ Dropify failed to load from all CDNs');
+            };
+            backupScript.onload = function() {
+                console.log('✓ Dropify loaded from jsdelivr CDN');
+            };
+            document.head.appendChild(backupScript);
+        };
+        dropifyScript.onload = function() {
+            console.log('✓ Dropify loaded from cdnjs');
+        };
+        document.head.appendChild(dropifyScript);
+    </script>
 
     <div class="space-y-8 pb-10">
         <!-- Page Header -->
@@ -198,10 +250,37 @@
             </div>
             <div class="p-6 space-y-4">
                 <input type="hidden" id="current-field-name">
-                <div>
+
+                <!-- Text Input (default) -->
+                <div id="text-input-group">
                     <label id="field-label" class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Field Value</label>
                     <textarea id="field-input" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"></textarea>
                 </div>
+
+                <!-- Image Upload (for image_url field) -->
+                <div id="image-input-group" class="hidden">
+                    <label id="image-field-label" class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Image</label>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Drag & drop an image, click to browse, or paste a URL below</p>
+
+                    <input type="file" id="image-upload" class="dropify" accept="image/*" />
+                    <input type="hidden" id="image-url-input" />
+
+                    <!-- Manual URL input with enhanced styling -->
+                    <div class="mt-4 p-4 bg-gray-50 dark:bg-surface-700 rounded-lg border border-gray-200 dark:border-surface-600">
+                        <div class="flex items-center gap-2 mb-2">
+                            <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656-5.656l4-4a4 4 0 00-5.656 5.656l1.101 1.101M5 22h14"></path>
+                            </svg>
+                            <label class="text-xs font-semibold text-gray-700 dark:text-gray-300">Or paste image URL:</label>
+                        </div>
+                        <input type="text" id="manual-image-url"
+                               class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-surface-600 bg-white dark:bg-surface-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors"
+                               placeholder="https://example.com/image.jpg or https://unsplash.com/..."
+                        />
+                        <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">✨ Press Enter or click away to preview the image</p>
+                    </div>
+                </div>
+
                 <div class="flex justify-end gap-3">
                     <button type="button" onclick="closeFieldModal()" class="px-6 py-3 bg-gray-100 dark:bg-surface-700 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-200 dark:hover:bg-surface-600 transition-all">Cancel</button>
                     <button type="button" onclick="saveField()" class="px-6 py-3 bg-brand-500 text-white rounded-xl font-semibold hover:bg-brand-600 transition-all">Save</button>
@@ -235,13 +314,81 @@
     </div>
 
     <script>
+        let dropifyInstance = null;
+
+        // Make functions available globally for debugging
+        window.checkDropifyStatus = function() {
+            console.log('=== Dropify Status Check ===');
+            console.log('jQuery:', typeof window.$ !== 'undefined' ? '✓' : '✗');
+            console.log('Dropify plugin:', typeof window.$ !== 'undefined' && typeof window.$.fn.dropify !== 'undefined' ? '✓' : '✗');
+            console.log('Dropify instance:', dropifyInstance ? '✓' : '✗');
+
+            const dropifyScript = document.querySelector('script[src*="dropify"]');
+            if (dropifyScript) {
+                console.log('Script element:', '✓ found');
+                console.log('Script src:', dropifyScript.src);
+                console.log('Script readyState:', dropifyScript.readyState || 'N/A');
+            } else {
+                console.log('Script element:', '✗ not found');
+            }
+
+            return {
+                jquery: typeof window.$ !== 'undefined',
+                dropify: typeof window.$ !== 'undefined' && typeof window.$.fn.dropify !== 'undefined',
+                instance: dropifyInstance !== null
+            };
+        };
+
+        // Check if Dropify is ready (jQuery and Dropify loaded)
+        function checkDropifyReady() {
+            return (typeof window.$ !== 'undefined' && typeof window.$.fn.dropify !== 'undefined');
+        }
+
+        // Initialize when DOM is ready with retry logic
+        window.addEventListener('DOMContentLoaded', function() {
+            // Check multiple times with increasing delays
+            const checkAttempts = [100, 500, 1000, 2000];
+
+            checkAttempts.forEach(function(delay, index) {
+                setTimeout(function() {
+                    const isReady = checkDropifyReady();
+
+                    if (index === 0) {
+                        // First check - show full status
+                        console.log('=== Brand Statements Debug ===');
+                        console.log('jQuery:', typeof window.$ !== 'undefined' ? '✓ loaded' : '✗ not loaded');
+
+                        // Check if Dropify script element exists
+                        const dropifyScript = document.querySelector('script[src*="dropify"]');
+                        console.log('Dropify script element:', dropifyScript ? '✓ found' : '✗ not found');
+
+                        if (dropifyScript) {
+                            console.log('  - src:', dropifyScript.src);
+                            console.log('  - loaded:', dropifyScript.readyState || 'loading');
+                        }
+
+                        console.log('Dropify plugin:', typeof window.$.fn.dropify !== 'undefined' ? '✓ loaded' : '✗ not loaded');
+                    }
+
+                    if (isReady && index === 0) {
+                        console.log('✓ Dropify is ready to use!');
+                    } else if (index === checkAttempts.length - 1 && !isReady) {
+                        console.warn('✗ Dropify.js not loaded after all retries. Will use basic file input.');
+                        console.log('Workaround: You can still paste image URLs in the manual input field.');
+                    } else if (isReady) {
+                        console.log('✓ Dropify loaded on attempt #' + (index + 1));
+                    }
+                }, delay);
+            });
+        });
+
         // Field editing functions
         function editField(fieldName) {
             const modal = document.getElementById('field-modal');
-            const input = document.getElementById('field-input');
             const title = document.getElementById('field-modal-title');
-            const label = document.getElementById('field-label');
             const fieldNameInput = document.getElementById('current-field-name');
+            const textInputGroup = document.getElementById('text-input-group');
+            const imageInputGroup = document.getElementById('image-input-group');
 
             fieldNameInput.value = fieldName;
 
@@ -253,28 +400,184 @@
                 'overlay_text': 'Edit Overlay Text'
             };
 
-            const labels = {
-                'title': 'Title',
-                'description': 'Description',
-                'image_url': 'Image URL',
-                'overlay_title': 'Overlay Title',
-                'overlay_text': 'Overlay Text'
-            };
-
             title.textContent = titles[fieldName] || 'Edit Field';
-            label.textContent = labels[fieldName] || 'Field Value';
 
-            // Get current value from the page
-            const element = document.querySelector(`[data-field="${fieldName}"]`);
-            if (element) {
-                // Handle text content with quotes
-                let text = element.textContent;
-                if (text.startsWith('"') && text.endsWith('"')) {
-                    text = text.slice(1, -1);
+            // Check if this is an image field
+            if (fieldName === 'image_url') {
+                textInputGroup.classList.add('hidden');
+                imageInputGroup.classList.remove('hidden');
+
+                // Get current image URL
+                const currentImageUrl = document.getElementById('brand-image').src;
+
+                // Destroy existing Dropify instance
+                if (dropifyInstance) {
+                    try {
+                        dropifyInstance.destroy();
+                    } catch (e) {
+                        console.warn('Error destroying Dropify:', e);
+                    }
+                    dropifyInstance = null;
                 }
-                input.value = text.trim();
-            } else if (fieldName === 'image_url') {
-                input.value = document.getElementById('brand-image').src;
+
+                // Initialize values
+                const dropifyInput = document.getElementById('image-upload');
+                if (dropifyInput) {
+                    dropifyInput.setAttribute('data-default-file', currentImageUrl);
+                    dropifyInput.style.display = '';
+                }
+                document.getElementById('image-url-input').value = currentImageUrl;
+                document.getElementById('manual-image-url').value = currentImageUrl;
+
+                // Check if Dropify is available and initialize
+                if (checkDropifyReady()) {
+                    try {
+                        // Use window.$ to be explicit
+                        dropifyInstance = window.$('#image-upload').dropify({
+                            messages: {
+                                'default': 'Drag and drop an image here or click',
+                                'replace': 'Drag and drop or click to replace',
+                                'remove':  'Remove',
+                                'error':   'Ooops, something wrong happened.'
+                            }
+                        });
+
+                        // Handle Dropify events
+                        dropifyInstance.on('dropify.afterClear', function() {
+                            document.getElementById('image-url-input').value = '';
+                            document.getElementById('manual-image-url').value = '';
+                        });
+
+                        // Handle file selection - update URL input when file is selected
+                        dropifyInstance.on('dropify.change', function(event, element) {
+                            console.log('File selected via Dropify');
+                            // Create object URL for preview
+                            const file = element.files[0];
+                            if (file) {
+                                const objectUrl = URL.createObjectURL(file);
+                                document.getElementById('image-url-input').value = objectUrl;
+                                document.getElementById('manual-image-url').value = objectUrl;
+                            }
+                        });
+
+                        console.log('✓ Dropify initialized successfully');
+                    } catch (e) {
+                        console.warn('✗ Dropify initialization error:', e);
+                        console.log('Falling back to basic file input');
+                    }
+                } else {
+                    console.log('✗ Dropify not available, using basic file input');
+                    console.log('  jQuery:', typeof window.$ !== 'undefined' ? 'loaded' : 'NOT loaded');
+                    console.log('  Dropify:', typeof window.$ !== 'undefined' && typeof window.$.fn.dropify !== 'undefined' ? 'loaded' : 'NOT loaded');
+                }
+
+                // Setup manual URL input with debounce for better UX
+                const manualInput = document.getElementById('manual-image-url');
+
+                // Remove any existing event listeners by cloning
+                const newManualInput = manualInput.cloneNode(true);
+                manualInput.parentNode.replaceChild(newManualInput, manualInput);
+
+                // Debounce function for URL input
+                let urlUpdateTimeout;
+                const debouncedUpdate = function(url) {
+                    clearTimeout(urlUpdateTimeout);
+                    urlUpdateTimeout = setTimeout(function() {
+                        document.getElementById('image-url-input').value = url;
+
+                        // Update Dropify preview if available and URL is valid
+                        if (url && dropifyInstance && checkDropifyReady()) {
+                            try {
+                                // Check if URL looks like an image URL
+                                if (url.match(/\.(jpg|jpeg|png|gif|webp|svg|bmp)(\?.*)?$/i) ||
+                                    url.includes('http') ||
+                                    url.includes('data:image')) {
+
+                                    // Reset and set new preview with URL
+                                    dropifyInstance.resetPreview();
+                                    dropifyInstance.setPreview(url, url);
+                                    dropifyInstance.settings.defaultFile = url;
+
+                                    // Update the input element's data-default-file attribute
+                                    const dropifyEl = document.getElementById('image-upload');
+                                    if (dropifyEl) {
+                                        dropifyEl.setAttribute('data-default-file', url);
+                                    }
+
+                                    console.log('✓ Dropify preview updated:', url.substring(0, 50) + '...');
+                                }
+                            } catch (error) {
+                                console.warn('✗ Error updating Dropify preview:', error);
+                            }
+                        }
+                    }, 500); // 500ms debounce
+                };
+
+                // Add input event listener with debounce
+                document.getElementById('manual-image-url').addEventListener('input', function(e) {
+                    const url = e.target.value;
+                    debouncedUpdate(url);
+                });
+
+                // Handle paste event (immediate update)
+                document.getElementById('manual-image-url').addEventListener('paste', function(e) {
+                    setTimeout(() => {
+                        const url = e.target.value;
+                        if (url) {
+                            document.getElementById('image-url-input').value = url;
+                            if (dropifyInstance && checkDropifyReady()) {
+                                console.log('📋 URL pasted, updating preview...');
+                            }
+                        }
+                    }, 10);
+                });
+
+                // Handle blur event (final update when leaving field)
+                document.getElementById('manual-image-url').addEventListener('blur', function(e) {
+                    const url = e.target.value.trim();
+                    if (url && dropifyInstance && checkDropifyReady()) {
+                        try {
+                            if (url.match(/\.(jpg|jpeg|png|gif|webp|svg|bmp)(\?.*)?$/i) ||
+                                url.includes('http') ||
+                                url.includes('data:image')) {
+                                dropifyInstance.resetPreview();
+                                dropifyInstance.setPreview(url, url);
+                                dropifyInstance.settings.defaultFile = url;
+                                console.log('✓ Final preview updated');
+                            }
+                        } catch (error) {
+                            console.warn('✗ Error on blur:', error);
+                        }
+                    }
+                });
+
+            } else {
+                // Show text input
+                imageInputGroup.classList.add('hidden');
+                textInputGroup.classList.remove('hidden');
+
+                const input = document.getElementById('field-input');
+                const label = document.getElementById('field-label');
+
+                const labels = {
+                    'title': 'Title',
+                    'description': 'Description',
+                    'overlay_title': 'Overlay Title',
+                    'overlay_text': 'Overlay Text'
+                };
+
+                label.textContent = labels[fieldName] || 'Field Value';
+
+                // Get current value from the page
+                const element = document.querySelector(`[data-field="${fieldName}"]`);
+                if (element) {
+                    // Handle text content with quotes
+                    let text = element.textContent;
+                    if (text.startsWith('"') && text.endsWith('"')) {
+                        text = text.slice(1, -1);
+                    }
+                    input.value = text.trim();
+                }
             }
 
             modal.classList.remove('hidden');
@@ -285,15 +588,32 @@
             const modal = document.getElementById('field-modal');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
+
+            // Destroy Dropify instance when closing (if it exists)
+            if (dropifyInstance && typeof dropifyInstance.destroy === 'function') {
+                try {
+                    dropifyInstance.destroy();
+                } catch (e) {
+                    console.warn('Error destroying Dropify instance:', e);
+                }
+                dropifyInstance = null;
+            }
         }
 
         function saveField() {
             const fieldName = document.getElementById('current-field-name').value;
-            let value = document.getElementById('field-input').value;
+            let value;
 
-            // Add quotes back for overlay text
-            if (fieldName === 'overlay_text' && !value.startsWith('"')) {
-                value = '"' + value + '"';
+            // Get value based on field type
+            if (fieldName === 'image_url') {
+                value = document.getElementById('image-url-input').value;
+            } else {
+                value = document.getElementById('field-input').value;
+
+                // Add quotes back for overlay text
+                if (fieldName === 'overlay_text' && !value.startsWith('"')) {
+                    value = '"' + value + '"';
+                }
             }
 
             // Update the preview
@@ -366,8 +686,9 @@
             document.getElementById('brand-form').submit();
         }
 
-        // Close modals on outside click
-        document.addEventListener('DOMContentLoaded', function() {
+        // Close modals on outside click and initialize
+        (function() {
+            // Setup modal click handlers
             const fieldModal = document.getElementById('field-modal');
             if (fieldModal) {
                 fieldModal.addEventListener('click', function(e) {
@@ -385,13 +706,15 @@
                     }
                 });
             }
-        });
 
-        // Show success message if any
-        @if(session('success'))
-            setTimeout(() => {
-                alert('{{ session('success') }}');
-            }, 100);
-        @endif
+            // Show success message if any
+            @if(session('success'))
+                setTimeout(() => {
+                    alert('{{ session('success') }}');
+                }, 100);
+            @endif
+
+            console.log('Brand statements page initialized');
+        })();
     </script>
 </x-layouts.app>

@@ -47,4 +47,10 @@ export const API_ENDPOINTS = {
 
   // Company Info
   COMPANY_INFO: '/content/company-info',
+
+  // CMS Hero
+  HERO: '/cms/hero',
+
+  // CMS Brand Statements
+  BRAND_STATEMENTS: '/cms/brand-statements',
 }

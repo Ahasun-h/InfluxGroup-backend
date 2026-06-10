@@ -277,17 +277,24 @@ class ContentController extends Controller
             $backgroundImage = $mediaFiles['source_file'] ?? null;
         }
 
-        // Get hero categories
+        // Get hero categories - looking for hero_section_category1, hero_section_category2, etc.
         $heroCategories = [];
         for ($i = 1; $i <= 4; $i++) {
-            $cat = $heroItems->get("cat{$i}_name");
-            if ($cat) {
-                $heroCategories[] = [
-                    'order' => $i,
-                    'name' => $cat->section_content,
-                    'count' => $heroItems["cat{$i}_count"]->section_content ?? '0',
-                    'icon' => $heroItems["cat{$i}_icon"]->section_content ?? ''
-                ];
+            $catKey = "hero_section_category{$i}";
+            $catItem = $heroItems->get($catKey);
+
+            if ($catItem) {
+                // Parse JSON content
+                $catData = json_decode($catItem->section_content, true);
+
+                if ($catData && isset($catData['name'])) {
+                    $heroCategories[] = [
+                        'order' => $i,
+                        'name' => $catData['name'],
+                        'count' => $catData['count'] ?? '0',
+                        'icon' => $catData['icon'] ?? ''
+                    ];
+                }
             }
         }
 

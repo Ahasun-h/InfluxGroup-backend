@@ -18,7 +18,13 @@
       "Bash(mysql *)",
       "Bash(curl *)",
       "Bash(herd restart *)",
-      "Bash(python3 -m json.tool)"
+      "Bash(python3 -m json.tool)",
+      "Bash(netstat:*)",
+      "Bash(where php:*)",
+      "Bash(cd D:\\\\Herd\\\\InfluxGroup-backend\\\\InfluxGroup:*)",
+      "Bash(taskkill:*)",
+      "Bash(cmd:*)",
+      "Bash(powershell:*)"
     ]
   }
 }
