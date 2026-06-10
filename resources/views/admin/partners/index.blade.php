@@ -1,13 +1,11 @@
 <x-layouts.app title="Partners & Clients Management">
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Dropify CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropify/0.2.2/css/dropify.min.css">
-    <!-- Dropify JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropify/0.2.2/js/dropify.min.js"></script>
-
     <div class="min-h-screen bg-[#0a0e17] py-20 px-4 md:px-8">
+
+    <!-- Load Dropify dependencies (local files) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="{{ asset('css/dropify.min.css') }}">
+    <script src="{{ asset('js/dropify.min.js') }}"></script>
         <div class="max-w-7xl mx-auto">
             <!-- Page Header -->
             <div class="mb-8">
@@ -61,7 +59,11 @@
                                             id="partner_logo_{{ $partner['id'] }}"
                                             class="dropify"
                                             accept="image/*"
-                                            data-default-file="{{ $partner['logo'] && !str_starts_with($partner['logo'], '<') && !str_starts_with($partner['logo'], 'http') ? asset($partner['logo']) : '' }}"
+                                            @if($partner['logo'] && (str_starts_with($partner['logo'], '/') || str_starts_with($partner['logo'], 'http')))
+                                                data-default-file="{{ str_starts_with($partner['logo'], '/') ? asset($partner['logo']) : $partner['logo'] }}"
+                                            @else
+                                                data-default-file=""
+                                            @endif
                                             data-height="120">
                                         <input type="hidden"
                                             name="partners[{{ $partner['id'] }}][logo]"
@@ -258,58 +260,53 @@
     </style>
 
     <script>
-        // Debug: Check if required libraries are loaded
-        console.log('jQuery loaded:', typeof $ !== 'undefined');
-        console.log('Dropify loaded:', typeof $.fn.dropify !== 'undefined');
+        console.log('Script loaded, checking jQuery...');
 
-        // Initialize Dropify after a short delay to ensure library is fully loaded
-        setTimeout(function () {
-            if (typeof $.fn.dropify === 'function' && $('.dropify').length) {
-                console.log('Initializing Dropify on page load...');
-                initializeDropify();
-            } else {
-                console.error('Dropify not available or no elements found');
-                console.log('jQuery available:', typeof $ !== 'undefined');
-                console.log('Dropify function:', typeof $.fn.dropify);
-                console.log('Dropify elements:', $('.dropify').length);
-            }
-        }, 500);
+        // Wait for jQuery to load
+        var checkJQuery = setInterval(function() {
+            if (typeof jQuery !== 'undefined' || typeof $ !== 'undefined') {
+                clearInterval(checkJQuery);
+                console.log('jQuery loaded!');
 
+                var $ = (typeof $ !== 'undefined') ? $ : jQuery;
 
-        // Initialize Dropify after a short delay to ensure library is fully loaded
-        setTimeout(function () {
-            if (typeof $.fn.dropify === 'function' && $('.dropify').length) {
-                console.log('Initializing Dropify on page load...');
-                initializeDropify();
-            } else {
-                console.error('Dropify not available or no elements found');
-            }
-        }, 500);
+                // Wait for Dropify to load
+                var checkDropify = setInterval(function() {
+                    if (typeof $.fn.dropify !== 'undefined') {
+                        clearInterval(checkDropify);
+                        console.log('Dropify loaded! Initializing...');
 
-        // Separate function to initialize Dropify
-        function initializeDropify() {
-            // Check if Dropify is available and element exists
-            if (typeof $.fn.dropify === 'function' && $('.dropify').length && !$('.dropify').data('dropify')) {
-                $('.dropify').dropify({
-                    showRemove: true,
-                    showErrors: true,
-                    errorsPosition: 'outside',
-                    messages: {
-                        'default': 'Drag and drop a file here or click',
-                        'replace': 'Drag and drop or click to replace',
-                        'remove': 'Remove',
-                        'error': 'Ooops, something wrong happened.'
+                        $('.dropify').dropify({
+                            showRemove: true,
+                            showErrors: true,
+                            errorsPosition: 'outside',
+                            messages: {
+                                'default': 'Drag and drop a file here or click',
+                                'replace': 'Drag and drop or click to replace',
+                                'remove': 'Remove',
+                                'error': 'Ooops, something wrong happened.'
+                            }
+                        });
+                        console.log('Dropify initialized on ' + $('.dropify').length + ' elements');
+                    } else {
+                        console.log('Waiting for Dropify to load...');
                     }
-                });
-                console.log('Dropify initialized successfully');
-            } else if ($('.dropify').data('dropify')) {
-                console.log('Dropify already initialized');
+                }, 200);
             } else {
-                console.error('Dropify library not loaded or element not found');
+                console.log('Waiting for jQuery to load...');
             }
-        }
+        }, 200);
 
-
+        // Timeout after 10 seconds
+        setTimeout(function() {
+            clearInterval(checkJQuery);
+            if (typeof $ === 'undefined' && typeof jQuery === 'undefined') {
+                console.error('jQuery failed to load after 10 seconds');
+                console.log('Checking if scripts are in HTML...');
+                console.log('jQuery script tag:', document.querySelector('script[src*="jquery"]'));
+                console.log('Dropify script tag:', document.querySelector('script[src*="dropify"]'));
+            }
+        }, 10000);
 
         var nextId = {{ count($partners) + 1 }};
 
@@ -370,7 +367,7 @@
                 var div = document.createElement('div');
                 div.className = 'bg-[#121828] border border-[#1a1f2e] rounded-lg p-6 hover:border-[#007bff]/50 value-card group/card relative animate-fade-in-down';
 
-                // Build HTML using string concatenation to avoid template literal issues
+                // Build HTML using string concatenation
                 var partnerId = nextId;
                 div.innerHTML =
                     '<button type="button"' +

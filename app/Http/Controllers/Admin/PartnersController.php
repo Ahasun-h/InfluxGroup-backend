@@ -229,6 +229,20 @@ class PartnersController extends Controller
 
                 if ($request->hasFile($fileKey)) {
                     $file = $request->file($fileKey);
+
+                    // Validate file size (max 10MB per file)
+                    if ($file->getSize() > 10 * 1024 * 1024) {
+                        return redirect()->route('admin.partners.index')
+                            ->with('error', 'File size must be less than 10MB.');
+                    }
+
+                    // Validate file type
+                    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                    if (!in_array($file->getMimeType(), $allowedTypes)) {
+                        return redirect()->route('admin.partners.index')
+                            ->with('error', 'Only JPEG, PNG, GIF, and WebP images are allowed.');
+                    }
+
                     $filename = time() . '_' . $file->getClientOriginalName();
 
                     // Create directory if it doesn't exist

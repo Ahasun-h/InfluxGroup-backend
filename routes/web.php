@@ -46,6 +46,10 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('/partners', [\App\Http\Controllers\Admin\PartnersController::class, 'index'])->name('partners.index');
     Route::put('/partners', [\App\Http\Controllers\Admin\PartnersController::class, 'update'])->name('partners.update');
 
+    // Contact CTA Routes
+    Route::get('/contact-cta', [\App\Http\Controllers\Admin\ContactCtaController::class, 'index'])->name('contact-cta.index');
+    Route::put('/contact-cta', [\App\Http\Controllers\Admin\ContactCtaController::class, 'update'])->name('contact-cta.update');
+
     // Homepage content management
     Route::get('homepage', [\App\Http\Controllers\Admin\HomepageController::class, 'index'])->name('homepage.index');
     Route::post('homepage', [\App\Http\Controllers\Admin\HomepageController::class, 'update'])->name('homepage.update');
