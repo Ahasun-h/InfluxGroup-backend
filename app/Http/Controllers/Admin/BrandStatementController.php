@@ -213,29 +213,59 @@ class BrandStatementController extends Controller
             );
         }
 
-        // Handle stats updates
-        for ($i = 1; $i <= 4; $i++) {
-            $statValue = $request->input("stat{$i}_value");
-            $statLabel = $request->input("stat{$i}_label");
+        // Handle stats updates - support both old format (stat1_value) and new format (stats[1][value])
+        if ($request->has('stats')) {
+            // New format from edit page: stats[1][value], stats[1][label]
+            foreach ($request->input('stats') as $index => $statData) {
+                $statValue = $statData['value'] ?? null;
+                $statLabel = $statData['label'] ?? null;
+                $statOrder = $statData['order'] ?? $index;
 
-            if ($statValue || $statLabel) {
-                $statData = [
-                    'value' => $statValue,
-                    'label' => $statLabel,
-                    'order' => $i
-                ];
+                if ($statValue || $statLabel) {
+                    $data = [
+                        'value' => $statValue,
+                        'label' => $statLabel,
+                        'order' => $statOrder
+                    ];
 
-                ContentManagement::updateOrCreate(
-                    [
-                        'section_name' => 'brand_statements_section',
-                        'section_item_name' => "brand_statements_stat{$i}"
-                    ],
-                    [
-                        'section_content' => json_encode($statData),
-                        'attributes' => null,
-                        'media_files' => null
-                    ]
-                );
+                    ContentManagement::updateOrCreate(
+                        [
+                            'section_name' => 'brand_statements_section',
+                            'section_item_name' => "brand_statements_stat{$index}"
+                        ],
+                        [
+                            'section_content' => json_encode($data),
+                            'attributes' => null,
+                            'media_files' => null
+                        ]
+                    );
+                }
+            }
+        } else {
+            // Old format from index page: stat1_value, stat1_label
+            for ($i = 1; $i <= 4; $i++) {
+                $statValue = $request->input("stat{$i}_value");
+                $statLabel = $request->input("stat{$i}_label");
+
+                if ($statValue || $statLabel) {
+                    $statData = [
+                        'value' => $statValue,
+                        'label' => $statLabel,
+                        'order' => $i
+                    ];
+
+                    ContentManagement::updateOrCreate(
+                        [
+                            'section_name' => 'brand_statements_section',
+                            'section_item_name' => "brand_statements_stat{$i}"
+                        ],
+                        [
+                            'section_content' => json_encode($statData),
+                            'attributes' => null,
+                            'media_files' => null
+                        ]
+                    );
+                }
             }
         }
 

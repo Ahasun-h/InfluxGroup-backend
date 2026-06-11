@@ -24,7 +24,9 @@
       "Bash(cd D:\\\\Herd\\\\InfluxGroup-backend\\\\InfluxGroup:*)",
       "Bash(taskkill:*)",
       "Bash(cmd:*)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(tasklist:*)",
+      "Bash(type C:\\\\Windows\\\\System32\\\\drivers\\\\etc\\\\hosts:*)"
     ]
   }
 }

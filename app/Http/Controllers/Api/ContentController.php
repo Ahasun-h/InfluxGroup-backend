@@ -331,7 +331,7 @@ class ContentController extends Controller
             ->keyBy('section_item_name');
 
         $stats = [];
-        for ($i = 1; $i <= 3; $i++) {
+        for ($i = 1; $i <= 4; $i++) {
             $statData = $brandItems["brand_statements_stat{$i}"]->section_content ?? '{}';
             $stats[] = json_decode($statData, true) ?: [];
         }
