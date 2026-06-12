@@ -26,7 +26,11 @@
       "Bash(cmd:*)",
       "Bash(powershell:*)",
       "Bash(tasklist:*)",
-      "Bash(type C:\\\\Windows\\\\System32\\\\drivers\\\\etc\\\\hosts:*)"
+      "Bash(type C:\\\\Windows\\\\System32\\\\drivers\\\\etc\\\\hosts:*)",
+      "Bash(chmod 755 *)",
+      "Bash(pkill -f \"vite\")",
+      "Bash(sed -i '' '316,354d' About.vue)",
+      "Bash(sed -i '' '315r /Users/bdcalling/Herd/InfluxGroup-backend/About_temp.vue' About.vue)"
     ]
   }
 }

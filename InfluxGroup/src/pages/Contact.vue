@@ -1,6 +1,7 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { MapPin, Phone, Mail, Clock, Send, Building2 } from 'lucide-vue-next'
+import { contentService } from '@/services/content'
 
 const contactForm = ref({
   name: '',
@@ -10,22 +11,32 @@ const contactForm = ref({
   message: ''
 })
 
-const offices = [
-  {
-    city: 'Dhaka',
-    type: 'Corporate Headquarters',
-    address: 'Level 12, Energy Plaza, Tejgaon I/A',
-    phone: '+880 2 987 6543',
-    email: 'dhaka@influxgroup.com'
+const contactData = ref({
+  phones: [],
+  emails: [],
+  office_hours: {
+    weekdays: '',
+    friday: ''
   },
-  {
-    city: 'Chittagong',
-    type: 'Regional Office',
-    address: 'Plot 45, GEC Circle, Nasirabad',
-    phone: '+880 31 654 321',
-    email: 'ctg@influxgroup.com'
+  offices: []
+})
+
+const loading = ref(true)
+const error = ref(null)
+
+onMounted(async () => {
+  try {
+    const response = await contentService.contactSection.getContactSectionData()
+    if (response.success && response.data) {
+      contactData.value = response.data
+    }
+  } catch (err) {
+    console.error('Error fetching contact data:', err)
+    error.value = 'Failed to load contact information'
+  } finally {
+    loading.value = false
   }
-]
+})
 </script>
 
 <template>
@@ -136,15 +147,24 @@ const offices = [
               Contact <span class="text-industrial-blue">Information</span>
             </h2>
 
-            <div class="space-y-8 mb-12">
+            <div v-if="loading" class="text-center py-12">
+              <p class="text-slate-500">Loading contact information...</p>
+            </div>
+
+            <div v-else-if="error" class="text-center py-12">
+              <p class="text-red-500">{{ error }}</p>
+            </div>
+
+            <div v-else class="space-y-8 mb-12">
               <div class="flex items-start gap-4">
                 <div class="w-12 h-12 bg-industrial-blue rounded-lg flex items-center justify-center flex-shrink-0">
                   <Phone class="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <h3 class="font-bold text-lg mb-2">Phone</h3>
-                  <p class="text-slate-600">+880 2 987 6543</p>
-                  <p class="text-slate-600">+880 1XXX-XXXXXX</p>
+                  <p v-for="(phone, index) in contactData.phones" :key="index" class="text-slate-600">
+                    {{ phone }}
+                  </p>
                 </div>
               </div>
 
@@ -154,8 +174,9 @@ const offices = [
                 </div>
                 <div>
                   <h3 class="font-bold text-lg mb-2">Email</h3>
-                  <p class="text-slate-600">info@influxgroup.com</p>
-                  <p class="text-slate-600">sales@influxgroup.com</p>
+                  <p v-for="(email, index) in contactData.emails" :key="index" class="text-slate-600">
+                    {{ email }}
+                  </p>
                 </div>
               </div>
 
@@ -165,8 +186,8 @@ const offices = [
                 </div>
                 <div>
                   <h3 class="font-bold text-lg mb-2">Office Hours</h3>
-                  <p class="text-slate-600">Saturday - Thursday: 9:00 AM - 6:00 PM</p>
-                  <p class="text-slate-600">Friday: Closed</p>
+                  <p class="text-slate-600">{{ contactData.office_hours.weekdays }}</p>
+                  <p class="text-slate-600">{{ contactData.office_hours.friday }}</p>
                 </div>
               </div>
             </div>
@@ -175,7 +196,7 @@ const offices = [
             <h3 class="text-xl font-bold mb-6">Our Offices</h3>
             <div class="space-y-6">
               <div
-                v-for="(office, index) in offices"
+                v-for="(office, index) in contactData.offices"
                 :key="index"
                 class="bg-industrial-light p-6 rounded-lg"
               >

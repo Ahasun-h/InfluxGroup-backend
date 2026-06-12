@@ -42,7 +42,7 @@ class MissionVisionController extends Controller
             ]
         ];
 
-        return view('admin.mission-vision.index', compact('mvItems'));
+        return view('admin.cms-section.mission-vision-section', compact('mvItems'));
     }
 
     /**
@@ -61,7 +61,7 @@ class MissionVisionController extends Controller
                 ['section_name' => 'mission_vision', 'section_item_name' => 'mission_description'],
                 ['section_content' => $mission['description']]
             );
-            
+
             $missionPoints = array_filter($mission['points'] ?? []);
             ContentManagement::updateOrCreate(
                 ['section_name' => 'mission_vision', 'section_item_name' => 'mission_points'],
@@ -88,7 +88,7 @@ class MissionVisionController extends Controller
             );
         }
 
-        return redirect()->route('admin.mission-vision.index')
+        return redirect()->route('admin.cms-section.mission-vision-section')
             ->with('success', 'Mission & Vision updated successfully.');
     }
 }

@@ -73,6 +73,12 @@ Route::prefix('cms')->group(function () {
     // Contact CTA
     Route::get('/contact-cta', [ContentController::class, 'getContactCTA']);
 
+    // Career CTA
+    Route::get('/career-cta', [ContentController::class, 'getCareerCTA']);
+
+    // Contact Section
+    Route::get('/contact', [ContentController::class, 'getContactSection']);
+
     // Homepage All Content
     Route::get('/homepage', [ContentController::class, 'getHomepageContent']);
 });

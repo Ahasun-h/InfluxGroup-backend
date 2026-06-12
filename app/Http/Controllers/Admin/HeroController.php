@@ -204,7 +204,7 @@ class HeroController extends Controller
         }
         $heroCategories = collect($heroCategories)->sortBy('order')->values();
 
-        return view('admin.hero.index', compact('heroItems', 'heroCategories'));
+        return view('admin.cms-section.home-hero-section', compact('heroItems', 'heroCategories'));
     }
 
     /**
@@ -387,7 +387,7 @@ class HeroController extends Controller
             }
         }
 
-        return redirect()->route('admin.hero.index')
+        return redirect()->route('admin.cms-section.home-hero-section')
             ->with('success', 'Hero section updated successfully.');
     }
 

@@ -1,8 +1,5 @@
 <x-layouts.app title="Contact CTA Management">
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
     <div class="space-y-8 pb-10">
         <!-- Page Header -->
         <div class="flex items-center justify-between">
@@ -31,6 +28,12 @@
                         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Live Preview</h2>
                         <p class="text-sm text-gray-500 dark:text-gray-400">Click on any text to edit it directly</p>
                     </div>
+                </div>
+                <div>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                          Home Page
+                    </span>
                 </div>
             </div>
 
@@ -113,7 +116,7 @@
             class="glass-card p-8 bg-gradient-to-r from-brand-50 to-blue-50 dark:from-brand-500/10 dark:to-blue-500/10">
             <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Quick Links</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <a href="{{ route('admin.homepage.index') }}"
+                <a href="{{ route('admin.brand-statements.index') }}"
                     class="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-xl hover:shadow-md transition-all">
                     <div
                         class="w-10 h-10 rounded-lg bg-brand-100 dark:bg-brand-500/10 flex items-center justify-center">
@@ -125,8 +128,8 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="font-bold text-gray-900 dark:text-white">Homepage Content</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Manage other homepage sections</p>
+                        <p class="font-bold text-gray-900 dark:text-white">Brand Statements</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Manage brand statements content</p>
                     </div>
                 </a>
 
@@ -238,161 +241,166 @@
         </div>
     </div>
 
-    <script>
-        // Field editing functions
-        function editField(fieldName) {
-            const modal = document.getElementById('field-modal');
-            const input = document.getElementById('field-input');
-            const title = document.getElementById('field-modal-title');
-            const label = document.getElementById('field-label');
-            const fieldNameInput = document.getElementById('current-field-name');
+    <x-slot:scripts>
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            // Field editing functions
+            function editField(fieldName) {
+                const modal = document.getElementById('field-modal');
+                const input = document.getElementById('field-input');
+                const title = document.getElementById('field-modal-title');
+                const label = document.getElementById('field-label');
+                const fieldNameInput = document.getElementById('current-field-name');
 
-            fieldNameInput.value = fieldName;
+                fieldNameInput.value = fieldName;
 
-            const titles = {
-                'title': 'Edit Section Title',
-                'description': 'Edit Description'
-            };
+                const titles = {
+                    'title': 'Edit Section Title',
+                    'description': 'Edit Description'
+                };
 
-            const labels = {
-                'title': 'Section Title',
-                'description': 'Description'
-            };
+                const labels = {
+                    'title': 'Section Title',
+                    'description': 'Description'
+                };
 
-            title.textContent = titles[fieldName] || 'Edit Field';
-            label.textContent = labels[fieldName] || 'Field Value';
+                title.textContent = titles[fieldName] || 'Edit Field';
+                label.textContent = labels[fieldName] || 'Field Value';
 
-            // Get current value from the page
-            const element = document.querySelector(`[data-field="${fieldName}"]`);
-            if (element) {
-                const textElement = element.childNodes[0] || element;
-                input.value = textElement.textContent || element.textContent;
+                // Get current value from the page
+                const element = document.querySelector(`[data-field="${fieldName}"]`);
+                if (element) {
+                    const textElement = element.childNodes[0] || element;
+                    input.value = textElement.textContent || element.textContent;
+                }
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
             }
 
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeFieldModal() {
-            const modal = document.getElementById('field-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        function saveField() {
-            const fieldName = document.getElementById('current-field-name').value;
-            const value = document.getElementById('field-input').value;
-
-            // Update the preview
-            const element = document.querySelector(`[data-field="${fieldName}"]`);
-            if (element) {
-                const textElement = element.childNodes[0] || element;
-                textElement.textContent = value;
+            function closeFieldModal() {
+                const modal = document.getElementById('field-modal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
             }
 
-            // Update the form value
-            const formInput = document.querySelector(`#cta-form [name="${fieldName}"]`);
-            if (formInput) {
-                formInput.value = value;
+            function saveField() {
+                const fieldName = document.getElementById('current-field-name').value;
+                const value = document.getElementById('field-input').value;
+
+                // Update the preview
+                const element = document.querySelector(`[data-field="${fieldName}"]`);
+                if (element) {
+                    const textElement = element.childNodes[0] || element;
+                    textElement.textContent = value;
+                }
+
+                // Update the form value
+                const formInput = document.querySelector(`#cta-form [name="${fieldName}"]`);
+                if (formInput) {
+                    formInput.value = value;
+                }
+
+                closeFieldModal();
+
+                // Auto-submit the form
+                document.getElementById('cta-form').submit();
             }
 
-            closeFieldModal();
+            // CTA button editing functions
+            function editCtaButton(textField, linkField) {
+                const modal = document.getElementById('cta-modal');
+                const title = document.getElementById('cta-modal-title');
+                const textInput = document.getElementById('cta-button-text');
+                const linkInput = document.getElementById('cta-button-link');
+                const textFieldInput = document.getElementById('current-cta-text-field');
+                const linkFieldInput = document.getElementById('current-cta-link-field');
 
-            // Auto-submit the form
-            document.getElementById('cta-form').submit();
-        }
+                textFieldInput.value = textField;
+                linkFieldInput.value = linkField;
 
-        // CTA button editing functions
-        function editCtaButton(textField, linkField) {
-            const modal = document.getElementById('cta-modal');
-            const title = document.getElementById('cta-modal-title');
-            const textInput = document.getElementById('cta-button-text');
-            const linkInput = document.getElementById('cta-button-link');
-            const textFieldInput = document.getElementById('current-cta-text-field');
-            const linkFieldInput = document.getElementById('current-cta-link-field');
+                title.textContent = 'Edit Primary Button';
 
-            textFieldInput.value = textField;
-            linkFieldInput.value = linkField;
+                // Get current values
+                const textElement = document.querySelector(`[data-field="${textField}"]`);
+                const linkElement = document.querySelector(`input[name="${linkField}"]`);
 
-            title.textContent = 'Edit Primary Button';
+                if (textElement) {
+                    const textNode = textElement.childNodes[0] || textElement;
+                    textInput.value = textNode.textContent || textElement.textContent;
+                }
+                if (linkElement) {
+                    linkInput.value = linkElement.value;
+                }
 
-            // Get current values
-            const textElement = document.querySelector(`[data-field="${textField}"]`);
-            const linkElement = document.querySelector(`input[name="${linkField}"]`);
-
-            if (textElement) {
-                const textNode = textElement.childNodes[0] || textElement;
-                textInput.value = textNode.textContent || textElement.textContent;
-            }
-            if (linkElement) {
-                linkInput.value = linkElement.value;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
             }
 
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeCtaModal() {
-            const modal = document.getElementById('cta-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        function saveCtaButton() {
-            const textField = document.getElementById('current-cta-text-field').value;
-            const linkField = document.getElementById('current-cta-link-field').value;
-            const buttonText = document.getElementById('cta-button-text').value;
-            const buttonLink = document.getElementById('cta-button-link').value;
-
-            // Update the preview
-            const textElement = document.querySelector(`[data-field="${textField}"]`);
-            if (textElement) {
-                const textNode = textElement.childNodes[0] || textElement;
-                textNode.textContent = buttonText;
+            function closeCtaModal() {
+                const modal = document.getElementById('cta-modal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
             }
 
-            // Update the link href
-            const linkElement = document.querySelector(`[data-field="${linkField}"]`);
-            if (linkElement) {
-                linkElement.href = buttonLink;
+            function saveCtaButton() {
+                const textField = document.getElementById('current-cta-text-field').value;
+                const linkField = document.getElementById('current-cta-link-field').value;
+                const buttonText = document.getElementById('cta-button-text').value;
+                const buttonLink = document.getElementById('cta-button-link').value;
+
+                // Update the preview
+                const textElement = document.querySelector(`[data-field="${textField}"]`);
+                if (textElement) {
+                    const textNode = textElement.childNodes[0] || textElement;
+                    textNode.textContent = buttonText;
+                }
+
+                // Update the link href
+                const linkElement = document.querySelector(`[data-field="${linkField}"]`);
+                if (linkElement) {
+                    linkElement.href = buttonLink;
+                }
+
+                // Update the form values
+                document.querySelector(`input[name="${textField}"]`).value = buttonText;
+                document.querySelector(`input[name="${linkField}"]`).value = buttonLink;
+
+                closeCtaModal();
+
+                // Auto-submit the form
+                document.getElementById('cta-form').submit();
             }
 
-            // Update the form values
-            document.querySelector(`input[name="${textField}"]`).value = buttonText;
-            document.querySelector(`input[name="${linkField}"]`).value = buttonLink;
+            // Close modal on outside click
+            document.addEventListener('DOMContentLoaded', function () {
+                const fieldModal = document.getElementById('field-modal');
+                if (fieldModal) {
+                    fieldModal.addEventListener('click', function (e) {
+                        if (e.target === this) {
+                            closeFieldModal();
+                        }
+                    });
+                }
 
-            closeCtaModal();
+                const ctaModal = document.getElementById('cta-modal');
+                if (ctaModal) {
+                    ctaModal.addEventListener('click', function (e) {
+                        if (e.target === this) {
+                            closeCtaModal();
+                        }
+                    });
+                }
+            });
 
-            // Auto-submit the form
-            document.getElementById('cta-form').submit();
-        }
-
-        // Close modal on outside click
-        document.addEventListener('DOMContentLoaded', function () {
-            const fieldModal = document.getElementById('field-modal');
-            if (fieldModal) {
-                fieldModal.addEventListener('click', function (e) {
-                    if (e.target === this) {
-                        closeFieldModal();
-                    }
-                });
-            }
-
-            const ctaModal = document.getElementById('cta-modal');
-            if (ctaModal) {
-                ctaModal.addEventListener('click', function (e) {
-                    if (e.target === this) {
-                        closeCtaModal();
-                    }
-                });
-            }
-        });
-
-        // Show success message if any
-        @if(session('success'))
+            // Show success message if any
+            @if(session('success'))
             setTimeout(() => {
                 alert('{{ session('success') }}');
             }, 100);
-        @endif
-    </script>
+            @endif
+        </script>
+    </x-slot:scripts>
+
 </x-layouts.app>

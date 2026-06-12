@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { projectService, companyService, heroService, brandService } from '../services/content'
+import { projectService, companyService, heroService, brandService, missionVisionService, journeyService, coreValuesService, contactCtaService } from '../services/content'
 import { API_CONFIG } from '../config/api'
 import {
   Zap,
@@ -100,6 +100,10 @@ const products = [
 
 const homepageData = ref(null)
 const heroData = ref(null)
+const missionVisionData = ref(null)
+const journeyData = ref(null)
+const coreValuesData = ref(null)
+const contactCtaData = ref(null)
 
 // Icon mapping for backwards compatibility
 const iconMap = {
@@ -238,11 +242,158 @@ const fetchBrandStatements = async () => {
   }
 }
 
+const fetchMissionVisionData = async () => {
+  try {
+    console.log('Fetching mission & vision data from /api/cms/mission-vision...')
+    const response = await missionVisionService.getMissionVisionData()
+    console.log('Mission & Vision response:', response)
+
+    // Check if response has data property
+    if (response && response.data) {
+      missionVisionData.value = response.data
+      console.log('Mission & Vision data loaded successfully:', missionVisionData.value)
+    } else if (response) {
+      missionVisionData.value = response
+      console.log('Mission & Vision data loaded (direct):', missionVisionData.value)
+    } else {
+      console.warn('Mission & Vision data response is empty or invalid')
+    }
+  } catch (error) {
+    console.error('Failed to fetch mission & vision data:', error)
+    console.error('Error message:', error.message)
+
+    // Set default mission & vision data as fallback
+    missionVisionData.value = {
+      mission: {
+        title: 'Our Mission',
+        description: 'To deliver reliable, efficient, and sustainable power solutions that drive Bangladesh\'s industrial growth and infrastructure development.',
+        points: [
+          'Powering Bangladesh\'s development through innovative energy solutions',
+          'Ensuring energy security for future generations',
+          'Building sustainable infrastructure nationwide'
+        ]
+      },
+      vision: {
+        title: 'Our Vision',
+        description: 'To be the leading engineering conglomerate in South Asia, recognized globally for excellence in power infrastructure and renewable energy solutions.',
+        points: [
+          'Regional leadership in sustainable infrastructure development',
+          'Global recognition for engineering excellence',
+          'Pioneering renewable energy adoption'
+        ]
+      }
+    }
+  }
+}
+
+const fetchJourneyData = async () => {
+  try {
+    console.log('Fetching journey timeline data from /api/cms/journey...')
+    const response = await journeyService.getJourneyData()
+    console.log('Journey timeline response:', response)
+
+    // Check if response has data property
+    if (response && response.data) {
+      journeyData.value = response.data
+      console.log('Journey timeline data loaded successfully:', journeyData.value)
+    } else if (response) {
+      journeyData.value = response
+      console.log('Journey timeline data loaded (direct):', journeyData.value)
+    } else {
+      console.warn('Journey timeline data response is empty or invalid')
+    }
+  } catch (error) {
+    console.error('Failed to fetch journey timeline data:', error)
+    console.error('Error message:', error.message)
+
+    // Set default journey timeline data as fallback
+    journeyData.value = {
+      title: 'Our Journey',
+      subtitle: 'Building Tomorrow\'s Infrastructure Today',
+      milestones: [
+        { year: '1980', title: 'Foundation', description: 'Influx Group established as a small electrical contractor' },
+        { year: '1995', title: 'Expansion', description: 'Entered power transmission and distribution sector' },
+        { year: '2005', title: 'Manufacturing', description: 'Started manufacturing transformers and switchgear' },
+        { year: '2015', title: 'Renewables', description: 'Diversified into solar and wind energy solutions' },
+        { year: '2026', title: 'Regional Hub', description: 'Expanded operations across South Asia' }
+      ]
+    }
+  }
+}
+
+const fetchCoreValuesData = async () => {
+  try {
+    console.log('Fetching core values data from /api/cms/core-values...')
+    const response = await coreValuesService.getCoreValuesData()
+    console.log('Core values response:', response)
+
+    // Check if response has data property
+    if (response && response.data) {
+      coreValuesData.value = response.data
+      console.log('Core values data loaded successfully:', coreValuesData.value)
+    } else if (response) {
+      coreValuesData.value = response
+      console.log('Core values data loaded (direct):', coreValuesData.value)
+    } else {
+      console.warn('Core values data response is empty or invalid')
+    }
+  } catch (error) {
+    console.error('Failed to fetch core values data:', error)
+    console.error('Error message:', error.message)
+
+    // Set default core values data as fallback
+    coreValuesData.value = {
+      title: 'Core Values',
+      subtitle: 'The principles that guide everything we do',
+      values: [
+        { icon: 'ShieldCheck', title: 'Safety First', description: 'Zero-compromise approach to workplace and operational safety' },
+        { icon: 'Award', title: 'Quality Excellence', description: 'ISO 9001:2015 certified processes and international standards' },
+        { icon: 'Users', title: 'Customer Focus', description: 'Dedicated to delivering beyond client expectations' },
+        { icon: 'TrendingUp', title: 'Innovation Driven', description: 'Continuous investment in R&D and cutting-edge technology' }
+      ]
+    }
+  }
+}
+
+const fetchContactCtaData = async () => {
+  try {
+    console.log('Fetching contact CTA data from /api/cms/contact-cta...')
+    const response = await contactCtaService.getContactCtaData()
+    console.log('Contact CTA response:', response)
+
+    // Check if response has data property
+    if (response && response.data) {
+      contactCtaData.value = response.data
+      console.log('Contact CTA data loaded successfully:', contactCtaData.value)
+    } else if (response) {
+      contactCtaData.value = response
+      console.log('Contact CTA data loaded (direct):', contactCtaData.value)
+    } else {
+      console.warn('Contact CTA data response is empty or invalid')
+    }
+  } catch (error) {
+    console.error('Failed to fetch contact CTA data:', error)
+    console.error('Error message:', error.message)
+
+    // Set default contact CTA data as fallback
+    contactCtaData.value = {
+      title: 'Ready to Power Your Success?',
+      description: "Let's discuss how Influx Group can deliver the power infrastructure solutions your organization needs. Our team is ready to provide expert consultation and tailored solutions.",
+      button_text: 'Get in Touch',
+      button_link: '/contact'
+    }
+  }
+}
+
 onMounted(() => {
   fetchFeaturedProjects()
   fetchHomepageData()
   fetchHeroData()
   fetchBrandStatements()
+  fetchMissionVisionData()
+  fetchJourneyData()
+  fetchCoreValuesData()
+  fetchContactCtaData()
 })
 
 const filteredProjects = computed(() => {
@@ -276,16 +427,19 @@ const formatBrandTitle = (title) => {
   return parts.join(`<span class="text-industrial-blue">${highlightedWord}</span>`)
 }
 
-// Mission & Vision from About page - now using dynamic data
+// Mission & Vision from About page - now using dynamic data from dedicated API
 const missionVision = computed(() => {
-  if (!homepageData.value?.mission_vision) {
-    // Default values if no data
+  // Use dedicated API data if available
+  if (missionVisionData.value) {
+    const mv = missionVisionData.value
+    console.log('Using dedicated mission-vision API data:', mv)
+
     return [
       {
         icon: Zap,
-        title: 'Our Mission',
-        description: 'To deliver reliable, efficient, and sustainable power solutions that drive Bangladesh\'s industrial growth and infrastructure development.',
-        points: [
+        title: mv.mission?.title || 'Our Mission',
+        description: mv.mission?.description || 'To deliver reliable, efficient, and sustainable power solutions that drive Bangladesh\'s industrial growth and infrastructure development.',
+        points: mv.mission?.points || [
           'Powering Bangladesh\'s development through innovative energy solutions',
           'Ensuring energy security for future generations',
           'Building sustainable infrastructure nationwide'
@@ -293,9 +447,9 @@ const missionVision = computed(() => {
       },
       {
         icon: Target,
-        title: 'Our Vision',
-        description: 'To be the leading engineering conglomerate in South Asia, recognized globally for excellence in power infrastructure and renewable energy solutions.',
-        points: [
+        title: mv.vision?.title || 'Our Vision',
+        description: mv.vision?.description || 'To be the leading engineering conglomerate in South Asia, recognized globally for excellence in power infrastructure and renewable energy solutions.',
+        points: mv.vision?.points || [
           'Regional leadership in sustainable infrastructure development',
           'Global recognition for engineering excellence',
           'Pioneering renewable energy adoption'
@@ -304,61 +458,127 @@ const missionVision = computed(() => {
     ]
   }
 
-  // Dynamic data from API
-  const mv = homepageData.value.mission_vision
+  // Fallback to homepageData for backwards compatibility
+  if (homepageData.value?.mission_vision) {
+    const mv = homepageData.value.mission_vision
+    console.log('Using homepageData mission_vision as fallback:', mv)
+
+    return [
+      {
+        icon: Zap,
+        title: mv.mission?.title || 'Our Mission',
+        description: mv.mission?.description || 'To deliver reliable, efficient, and sustainable power solutions...',
+        points: mv.mission?.points || []
+      },
+      {
+        icon: Target,
+        title: mv.vision?.title || 'Our Vision',
+        description: mv.vision?.description || 'To be the leading engineering conglomerate...',
+        points: mv.vision?.points || []
+      }
+    ]
+  }
+
+  // Default values if no data
+  console.log('Using default mission & vision values')
   return [
     {
       icon: Zap,
-      title: mv.mission?.title || 'Our Mission',
-      description: mv.mission?.description || 'To deliver reliable, efficient, and sustainable power solutions...',
-      points: mv.mission?.points || []
+      title: 'Our Mission',
+      description: 'To deliver reliable, efficient, and sustainable power solutions that drive Bangladesh\'s industrial growth and infrastructure development.',
+      points: [
+        'Powering Bangladesh\'s development through innovative energy solutions',
+        'Ensuring energy security for future generations',
+        'Building sustainable infrastructure nationwide'
+      ]
     },
     {
       icon: Target,
-      title: mv.vision?.title || 'Our Vision',
-      description: mv.vision?.description || 'To be the leading engineering conglomerate...',
-      points: mv.vision?.points || []
+      title: 'Our Vision',
+      description: 'To be the leading engineering conglomerate in South Asia, recognized globally for excellence in power infrastructure and renewable energy solutions.',
+      points: [
+        'Regional leadership in sustainable infrastructure development',
+        'Global recognition for engineering excellence',
+        'Pioneering renewable energy adoption'
+      ]
     }
   ]
 })
 
-// Timeline from About page (abbreviated)
-const timeline = [
-  { year: '1980', title: 'Foundation', description: 'Influx Group established as a small electrical contractor' },
-  { year: '1995', title: 'Expansion', description: 'Entered power transmission and distribution sector' },
-  { year: '2005', title: 'Manufacturing', description: 'Started manufacturing transformers and switchgear' },
-  { year: '2015', title: 'Renewables', description: 'Diversified into solar and wind energy solutions' },
-  { year: '2026', title: 'Regional Hub', description: 'Expanded operations across South Asia' }
-]
+// Timeline from About page - now using dynamic data from dedicated API
+const timeline = computed(() => {
+  // Use dedicated API data if available
+  if (journeyData.value?.milestones) {
+    console.log('Using journey API data:', journeyData.value)
+    return journeyData.value.milestones
+  }
+
+  // Fallback to homepageData for backwards compatibility
+  if (homepageData.value?.journey?.milestones) {
+    console.log('Using homepageData journey as fallback:', homepageData.value.journey)
+    return homepageData.value.journey.milestones
+  }
+
+  // Default values if no data
+  console.log('Using default journey timeline values')
+  return [
+    { year: '1980', title: 'Foundation', description: 'Influx Group established as a small electrical contractor' },
+    { year: '1995', title: 'Expansion', description: 'Entered power transmission and distribution sector' },
+    { year: '2005', title: 'Manufacturing', description: 'Started manufacturing transformers and switchgear' },
+    { year: '2015', title: 'Renewables', description: 'Diversified into solar and wind energy solutions' },
+    { year: '2026', title: 'Regional Hub', description: 'Expanded operations across South Asia' }
+  ]
+})
 
 // Core Values from admin panel - now using SVG data
 const coreValues = computed(() => {
-  if (!homepageData.value?.core_values) {
+  // Use dedicated API data if available
+  if (coreValuesData.value?.values) {
+    console.log('Using core values API data:', coreValuesData.value)
+    const cv = coreValuesData.value
     return {
-      title: 'Core Values',
-      subtitle: 'The principles that guide everything we do',
-      list: [
-        { icon: ShieldCheck, title: 'Safety First', description: 'Zero-compromise approach to workplace and operational safety' },
-        { icon: Award, title: 'Quality Excellence', description: 'ISO 9001:2015 certified processes and international standards' },
-        { icon: Users, title: 'Customer Focus', description: 'Dedicated to delivering beyond client expectations' },
-        { icon: TrendingUp, title: 'Innovation Driven', description: 'Continuous investment in R&D and cutting-edge technology' }
-      ]
+      title: cv.title || 'Core Values',
+      subtitle: cv.subtitle || 'The principles that guide everything we do',
+      list: cv.values.map(v => ({
+        title: v.title || '',
+        description: v.description || '',
+        // If icon contains SVG, use it as component, otherwise map icon names
+        icon: v.icon?.includes('<svg') ? {
+          template: v.icon
+        } : (iconMap[v.icon] || ShieldCheck)
+      }))
     }
   }
 
-  const cv = homepageData.value.core_values
+  // Fallback to homepageData for backwards compatibility
+  if (homepageData.value?.core_values) {
+    console.log('Using homepageData core values as fallback:', homepageData.value.core_values)
+    const cv = homepageData.value.core_values
+    return {
+      title: cv.title || 'Core Values',
+      subtitle: cv.subtitle || 'The principles that guide everything we do',
+      list: cv.list.map(v => ({
+        title: v.title || '',
+        description: v.description || '',
+        // If icon contains SVG, use it as component, otherwise map icon names
+        icon: v.icon?.includes('<svg') ? {
+          template: v.icon
+        } : (iconMap[v.icon] || ShieldCheck)
+      }))
+    }
+  }
 
+  // Default values if no data
+  console.log('Using default core values')
   return {
-    title: cv.title || 'Core Values',
-    subtitle: cv.subtitle || 'The principles that guide everything we do',
-    list: cv.list.map(v => ({
-      title: v.title || '',
-      description: v.description || '',
-      // If icon contains SVG, use it as component, otherwise map icon names
-      icon: v.icon?.includes('<svg') ? {
-        template: v.icon
-      } : (iconMap[v.icon] || ShieldCheck)
-    }))
+    title: 'Core Values',
+    subtitle: 'The principles that guide everything we do',
+    list: [
+      { icon: ShieldCheck, title: 'Safety First', description: 'Zero-compromise approach to workplace and operational safety' },
+      { icon: Award, title: 'Quality Excellence', description: 'ISO 9001:2015 certified processes and international standards' },
+      { icon: Users, title: 'Customer Focus', description: 'Dedicated to delivering beyond client expectations' },
+      { icon: TrendingUp, title: 'Innovation Driven', description: 'Continuous investment in R&D and cutting-edge technology' }
+    ]
   }
 })
 
@@ -508,6 +728,40 @@ const partners = computed(() => {
     title: p.title || 'Trusted by Industry Leaders',
     subtitle: p.subtitle || 'Proud partner to government agencies, multinational corporations, and leading enterprises',
     list: p.list
+  }
+})
+
+const contactCta = computed(() => {
+  // Use dedicated API data if available
+  if (contactCtaData.value?.title) {
+    console.log('Using contact CTA API data:', contactCtaData.value)
+    return {
+      title: contactCtaData.value.title || 'Ready to Power Your Success?',
+      description: contactCtaData.value.description || "Let's discuss how Influx Group can deliver the power infrastructure solutions your organization needs.",
+      button_text: contactCtaData.value.button_text || 'Get in Touch',
+      button_link: contactCtaData.value.button_link || '/contact'
+    }
+  }
+
+  // Fallback to homepageData for backwards compatibility
+  if (homepageData.value?.cta_section) {
+    console.log('Using homepageData contact CTA as fallback:', homepageData.value.cta_section)
+    const cta = homepageData.value.cta_section
+    return {
+      title: cta.title || 'Ready to Power Your Success?',
+      description: cta.description || "Let's discuss how Influx Group can deliver the power infrastructure solutions your organization needs.",
+      button_text: cta.button_text || 'Get in Touch',
+      button_link: cta.button_link || '/contact'
+    }
+  }
+
+  // Default values if no data
+  console.log('Using default contact CTA values')
+  return {
+    title: 'Ready to Power Your Success?',
+    description: "Let's discuss how Influx Group can deliver the power infrastructure solutions your organization needs. Our team is ready to provide expert consultation and tailored solutions.",
+    button_text: 'Get in Touch',
+    button_link: '/contact'
   }
 })
 </script>
@@ -746,10 +1000,10 @@ const partners = computed(() => {
       <div class="max-w-7xl mx-auto px-6">
         <div class="text-center mb-16" v-motion-slide-visible-bottom>
           <h2 class="text-4xl md:text-5xl font-display font-black uppercase italic mb-6 text-industrial-dark">
-            Our <span class="text-industrial-blue">Journey</span>
+            {{ journeyData?.title?.split(' ')[0] || homepageData?.journey?.title?.split(' ')[0] || 'Our' }} <span class="text-industrial-blue">{{ journeyData?.title?.split(' ').slice(1).join(' ') || homepageData?.journey?.title?.split(' ').slice(1).join(' ') || 'Journey' }}</span>
           </h2>
           <p class="text-slate-600 text-lg max-w-2xl mx-auto">
-            Four decades of excellence in powering Bangladesh's development
+            {{ journeyData?.subtitle || homepageData?.journey?.subtitle || 'Four decades of excellence in powering Bangladesh\'s development' }}
           </p>
         </div>
 
@@ -1156,7 +1410,11 @@ const partners = computed(() => {
             v-motion-slide-visible-bottom
             :delay="index * 100"
           >
-            <div class="text-4xl md:text-5xl mb-3 group-hover:scale-110 transition-transform">{{ partner.logo }}</div>
+            <img
+              :src="getImageUrl(partner.logo)"
+              :alt="partner.name"
+              class="h-12 md:h-16 w-auto object-contain mb-3 group-hover:scale-110 transition-transform"
+            />
             <div class="font-black uppercase text-xs md:text-sm tracking-wider text-slate-700 group-hover:text-industrial-blue transition-colors">{{ partner.name }}</div>
           </div>
         </div>
@@ -1169,14 +1427,14 @@ const partners = computed(() => {
       <div class="max-w-4xl mx-auto px-6 text-center relative z-10">
         <div v-motion-slide-visible-bottom>
           <h2 class="text-4xl md:text-5xl font-display font-black uppercase italic mb-8">
-            {{ homepageData?.cta_section?.title || 'Ready to Power Your Success?' }}
+            {{ contactCta.title }}
           </h2>
           <p class="text-lg md:text-xl mb-12 text-industrial-100 max-w-3xl mx-auto">
-            {{ homepageData?.cta_section?.description || "Let's discuss how Influx Group can deliver the power infrastructure solutions your organization needs. Our team is ready to provide expert consultation and tailored solutions." }}
+            {{ contactCta.description }}
           </p>
           <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a :href="homepageData?.cta_section?.button_link || '/contact?type=quote'" class="inline-flex items-center justify-center gap-3 bg-white text-industrial-blue px-8 md:px-12 py-4 md:py-5 rounded-sm font-black uppercase tracking-widest text-xs hover:bg-industrial-dark hover:text-white transition-all shadow-2xl">
-              {{ homepageData?.cta_section?.button_text || 'Request a Quote' }} <Briefcase class="w-5 h-5" />
+            <a :href="contactCta.button_link" class="inline-flex items-center justify-center gap-3 bg-white text-industrial-blue px-8 md:px-12 py-4 md:py-5 rounded-sm font-black uppercase tracking-widest text-xs hover:bg-industrial-dark hover:text-white transition-all shadow-2xl">
+              {{ contactCta.button_text }} <Briefcase class="w-5 h-5" />
             </a>
             <a href="/contact" class="inline-flex items-center justify-center gap-3 bg-transparent border-2 border-white text-white px-8 md:px-12 py-4 md:py-5 rounded-sm font-black uppercase tracking-widest text-xs hover:bg-white hover:text-industrial-blue transition-all">
               Contact Us <Phone class="w-5 h-5" />

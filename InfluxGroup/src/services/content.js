@@ -253,6 +253,126 @@ export const brandService = {
   },
 }
 
+/**
+ * Mission Vision Service
+ */
+export const missionVisionService = {
+  /**
+   * Get mission & vision data
+   */
+  async getMissionVisionData() {
+    try {
+      console.log('missionVisionService: Fetching from', API_ENDPOINTS.MISSION_VISION)
+      const response = await api.get(API_ENDPOINTS.MISSION_VISION)
+      console.log('missionVisionService: Response received', response)
+      return response
+    } catch (error) {
+      console.error('missionVisionService: Error fetching mission vision data', error)
+      throw error
+    }
+  },
+}
+
+/**
+ * Journey Timeline Service
+ */
+export const journeyService = {
+  /**
+   * Get journey timeline data
+   */
+  async getJourneyData() {
+    try {
+      console.log('journeyService: Fetching from', API_ENDPOINTS.JOURNEY)
+      const response = await api.get(API_ENDPOINTS.JOURNEY)
+      console.log('journeyService: Response received', response)
+      return response
+    } catch (error) {
+      console.error('journeyService: Error fetching journey data', error)
+      throw error
+    }
+  },
+}
+
+/**
+ * Core Values Service
+ */
+export const coreValuesService = {
+  /**
+   * Get core values data
+   */
+  async getCoreValuesData() {
+    try {
+      console.log('coreValuesService: Fetching from', API_ENDPOINTS.CORE_VALUES)
+      const response = await api.get(API_ENDPOINTS.CORE_VALUES)
+      console.log('coreValuesService: Response received', response)
+      return response
+    } catch (error) {
+      console.error('coreValuesService: Error fetching core values data', error)
+      throw error
+    }
+  },
+}
+
+/**
+ * Contact CTA Service
+ */
+export const contactCtaService = {
+  /**
+   * Get contact CTA data
+   */
+  async getContactCtaData() {
+    try {
+      console.log('contactCtaService: Fetching from', API_ENDPOINTS.CONTACT_CTA)
+      const response = await api.get(API_ENDPOINTS.CONTACT_CTA)
+      console.log('contactCtaService: Response received', response)
+      return response
+    } catch (error) {
+      console.error('contactCtaService: Error fetching contact CTA data', error)
+      throw error
+    }
+  },
+}
+
+/**
+ * Career CTA Service
+ */
+export const careerCtaService = {
+  /**
+   * Get career CTA data
+   */
+  async getCareerCtaData() {
+    try {
+      console.log('careerCtaService: Fetching from', API_ENDPOINTS.CAREER_CTA)
+      const response = await api.get(API_ENDPOINTS.CAREER_CTA)
+      console.log('careerCtaService: Response received', response)
+      return response
+    } catch (error) {
+      console.error('careerCtaService: Error fetching career CTA data', error)
+      throw error
+    }
+  },
+}
+
+/**
+ * Contact Section Service
+ */
+export const contactSectionService = {
+  /**
+   * Get contact section data
+   */
+  async getContactSectionData() {
+    try {
+      console.log('contactSectionService: Fetching from', API_ENDPOINTS.CONTACT_SECTION)
+      const response = await api.get(API_ENDPOINTS.CONTACT_SECTION)
+      console.log('contactSectionService: Response received', response)
+      return response
+    } catch (error) {
+      console.error('contactSectionService: Error fetching contact section data', error)
+      throw error
+    }
+  },
+}
+
 // Export all services as a combined object
 export const contentService = {
   products: productService,
@@ -268,6 +388,12 @@ export const contentService = {
   company: companyService,
   hero: heroService,
   brand: brandService,
+  missionVision: missionVisionService,
+  journey: journeyService,
+  coreValues: coreValuesService,
+  contactCta: contactCtaService,
+  careerCta: careerCtaService,
+  contactSection: contactSectionService,
 }
 
 export default contentService

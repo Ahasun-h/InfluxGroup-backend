@@ -41,73 +41,6 @@ class CoreValuesController extends Controller
             ]
         );
 
-        // Get or create core value items (dynamically create up to 6 default values)
-        $defaultValues = [
-            [
-                'title' => 'Integrity',
-                'description' => 'We maintain the highest standards of ethical conduct in all our business operations.',
-                'icon' => '<svg class="w-6 h-6 text-[#007bff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>'
-            ],
-            [
-                'title' => 'Excellence',
-                'description' => 'We deliver exceptional quality and technical precision in every project we undertake.',
-                'icon' => '<svg class="w-6 h-6 text-[#007bff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8l-4 4m0 0l4 4m-4-4h12M8 12H4M12 2v4M12 18v4M8 8l4-4M16 8l-4 4"></path></svg>'
-            ],
-            [
-                'title' => 'Collaboration',
-                'description' => 'We work together with clients and partners to achieve shared success.',
-                'icon' => '<svg class="w-6 h-6 text-[#007bff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>'
-            ],
-            [
-                'title' => 'Innovation',
-                'description' => 'We embrace cutting-edge technology and creative solutions for complex challenges.',
-                'icon' => '<svg class="w-6 h-6 text-[#007bff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>'
-            ]
-        ];
-
-        for ($i = 1; $i <= count($defaultValues); $i++) {
-            $valueData = $defaultValues[$i - 1];
-
-            // Create title
-            ContentManagement::firstOrCreate(
-                [
-                    'section_name' => 'core_values',
-                    'section_item_name' => "core_value_{$i}_title"
-                ],
-                [
-                    'section_content' => $valueData['title'],
-                    'attributes' => null,
-                    'media_files' => null
-                ]
-            );
-
-            // Create description
-            ContentManagement::firstOrCreate(
-                [
-                    'section_name' => 'core_values',
-                    'section_item_name' => "core_value_{$i}_description"
-                ],
-                [
-                    'section_content' => $valueData['description'],
-                    'attributes' => null,
-                    'media_files' => null
-                ]
-            );
-
-            // Create icon with SVG
-            ContentManagement::firstOrCreate(
-                [
-                    'section_name' => 'core_values',
-                    'section_item_name' => "core_value_{$i}_icon"
-                ],
-                [
-                    'section_content' => $valueData['icon'],
-                    'attributes' => null,
-                    'media_files' => null
-                ]
-            );
-        }
-
         // Fetch all core values section items
         $data = ContentManagement::where('section_name', 'core_values')
             ->get()
@@ -118,30 +51,97 @@ class CoreValuesController extends Controller
             'subtitle' => $data['core_values_subtitle']->section_content ?? 'The principles that guide everything we do',
         ];
 
+        // Try new JSON format first (core_value_1, core_value_2, etc.)
         $values = [];
         $i = 1;
-        while (isset($data["core_value_{$i}_title"])) {
-            $iconValue = $data["core_value_{$i}_icon"]->section_content ?? '';
+        while (isset($data["core_value_{$i}"]) && $data["core_value_{$i}"]->section_content) {
+            $jsonData = json_decode($data["core_value_{$i}"]->section_content, true);
+            if ($jsonData && isset($jsonData['title'])) {
+                $iconValue = $jsonData['icon'] ?? '';
 
-            // Convert old icon names to SVG if needed
-            $iconSvg = $iconValue;
-            if (in_array($iconValue, ['ShieldCheck', 'Award', 'Users', 'TrendingUp', 'Zap', 'Target'])) {
-                $iconSvg = $this->getIconSvg($iconValue);
+                // Convert old icon names to SVG if needed
+                $iconSvg = $iconValue;
+                if (in_array($iconValue, ['ShieldCheck', 'Award', 'Users', 'TrendingUp', 'Zap', 'Target'])) {
+                    $iconSvg = $this->getIconSvg($iconValue);
+                }
+
+                // Sanitize SVG to prevent rendering errors
+                $iconSvg = $this->sanitizeSvg($iconSvg);
+
+                $values[] = [
+                    'id' => $i,
+                    'title' => $jsonData['title'] ?? '',
+                    'description' => $jsonData['description'] ?? '',
+                    'icon' => $iconSvg,
+                ];
             }
-
-            // Sanitize SVG to prevent rendering errors
-            $iconSvg = $this->sanitizeSvg($iconSvg);
-
-            $values[] = [
-                'id' => $i,
-                'title' => $data["core_value_{$i}_title"]->section_content ?? '',
-                'description' => $data["core_value_{$i}_description"]->section_content ?? '',
-                'icon' => $iconSvg,
-            ];
             $i++;
         }
 
-        return view('admin.core-values.index', compact('content', 'values'));
+        // If no JSON items found, try old format (core_value_X_title, core_value_X_description, core_value_X_icon)
+        if (empty($values)) {
+            $i = 1;
+            while (isset($data["core_value_{$i}_title"])) {
+                $iconValue = $data["core_value_{$i}_icon"]->section_content ?? '';
+
+                // Convert old icon names to SVG if needed
+                $iconSvg = $iconValue;
+                if (in_array($iconValue, ['ShieldCheck', 'Award', 'Users', 'TrendingUp', 'Zap', 'Target'])) {
+                    $iconSvg = $this->getIconSvg($iconValue);
+                }
+
+                // Sanitize SVG to prevent rendering errors
+                $iconSvg = $this->sanitizeSvg($iconSvg);
+
+                $values[] = [
+                    'id' => $i,
+                    'title' => $data["core_value_{$i}_title"]->section_content ?? '',
+                    'description' => $data["core_value_{$i}_description"]->section_content ?? '',
+                    'icon' => $iconSvg,
+                ];
+                $i++;
+            }
+        }
+
+        // If still no values, create defaults
+        if (empty($values)) {
+            $defaultValues = [
+                [
+                    'title' => 'Safety First',
+                    'description' => 'Zero-compromise approach to workplace and operational safety',
+                    'icon' => 'ShieldCheck'
+                ],
+                [
+                    'title' => 'Quality Excellence',
+                    'description' => 'ISO 9001:2015 certified processes and international standards',
+                    'icon' => 'Award'
+                ],
+                [
+                    'title' => 'Customer Focus',
+                    'description' => 'Dedicated to delivering beyond client expectations',
+                    'icon' => 'Users'
+                ],
+                [
+                    'title' => 'Innovation Driven',
+                    'description' => 'Continuous investment in R&D and cutting-edge technology',
+                    'icon' => 'TrendingUp'
+                ]
+            ];
+
+            foreach ($defaultValues as $idx => $val) {
+                $id = $idx + 1;
+                $iconSvg = $this->getIconSvg($val['icon']);
+
+                $values[] = [
+                    'id' => $id,
+                    'title' => $val['title'],
+                    'description' => $val['description'],
+                    'icon' => $iconSvg,
+                ];
+            }
+        }
+
+        return view('admin.cms-section.core-values-section', compact('content', 'values'));
     }
 
     /**
@@ -156,58 +156,46 @@ class CoreValuesController extends Controller
 
                 \Log::info('Deleting core value ID: ' . $deleteId);
 
-                $currentData = ContentManagement::where('section_name', 'core_values')
-                    ->where('section_item_name', 'like', 'core_value_%')
+                // Get all current core value items in JSON format
+                $currentItems = ContentManagement::where('section_name', 'core_values')
+                    ->where('section_item_name', 'regexp', '^core_value_[0-9]+$')
                     ->get()
-                    ->groupBy(function($item) {
-                        preg_match('/core_value_(\d+)_/', $item->section_item_name, $matches);
-                        return $matches[1] ?? 0;
+                    ->sortBy(function($item) {
+                        preg_match('/core_value_(\d+)$/', $item->section_item_name, $matches);
+                        return (int)($matches[1] ?? 0);
                     });
 
-                \Log::info('Current data count: ' . count($currentData));
-
                 $remainingItems = [];
-                foreach ($currentData as $id => $rows) {
-                    if ((int)$id !== $deleteId && (int)$id > 0) {
-                        $rowsByKey = $rows->keyBy('section_item_name');
-                        $remainingItems[] = [
-                            'title' => $rowsByKey["core_value_{$id}_title"]->section_content ?? '',
-                            'description' => $rowsByKey["core_value_{$id}_description"]->section_content ?? '',
-                            'icon' => $rowsByKey["core_value_{$id}_icon"]->section_content ?? '',
-                        ];
+                foreach ($currentItems as $item) {
+                    preg_match('/core_value_(\d+)$/', $item->section_item_name, $matches);
+                    $id = (int)($matches[1] ?? 0);
+
+                    if ($id !== $deleteId && $id > 0) {
+                        $jsonData = json_decode($item->section_content, true);
+                        if ($jsonData) {
+                            $remainingItems[] = $jsonData;
+                        }
                     }
                 }
 
+                // Delete ALL current core_value items to rebuild cleanly
                 ContentManagement::where('section_name', 'core_values')
-                    ->where('section_item_name', 'like', 'core_value_%')
+                    ->where('section_item_name', 'regexp', '^core_value_[0-9]+$')
                     ->delete();
 
+                // Re-insert remaining items with new indices
                 foreach ($remainingItems as $idx => $item) {
                     $newId = $idx + 1;
                     ContentManagement::create([
                         'section_name' => 'core_values',
-                        'section_item_name' => "core_value_{$newId}_title",
-                        'section_content' => $item['title'],
-                        'attributes' => null,
-                        'media_files' => null
-                    ]);
-                    ContentManagement::create([
-                        'section_name' => 'core_values',
-                        'section_item_name' => "core_value_{$newId}_description",
-                        'section_content' => $item['description'],
-                        'attributes' => null,
-                        'media_files' => null
-                    ]);
-                    ContentManagement::create([
-                        'section_name' => 'core_values',
-                        'section_item_name' => "core_value_{$newId}_icon",
-                        'section_content' => $item['icon'],
+                        'section_item_name' => "core_value_{$newId}",
+                        'section_content' => json_encode($item),
                         'attributes' => null,
                         'media_files' => null
                     ]);
                 }
 
-                return redirect()->route('admin.core-values.index')->with('success', 'Core value deleted successfully.');
+                return redirect()->route('admin.cms-section.core-values-section')->with('success', 'Core value deleted successfully.');
             }
         }
 
@@ -248,37 +236,23 @@ class CoreValuesController extends Controller
             foreach ($request->values as $id => $val) {
                 \Log::info("Processing value ID: {$id}", ['value' => $val]);
 
-                ContentManagement::updateOrCreate(
-                    [
-                        'section_name' => 'core_values',
-                        'section_item_name' => "core_value_{$id}_title"
-                    ],
-                    [
-                        'section_content' => $val['title'] ?? '',
-                        'attributes' => null,
-                        'media_files' => null
-                    ]
-                );
+                // Store icon name only, not full SVG
+                $iconName = $val['icon'] ?? 'ShieldCheck';
+
+                $coreValueData = [
+                    'title' => $val['title'] ?? '',
+                    'description' => $val['description'] ?? '',
+                    'icon' => $iconName,
+                    'order' => (int)$id
+                ];
 
                 ContentManagement::updateOrCreate(
                     [
                         'section_name' => 'core_values',
-                        'section_item_name' => "core_value_{$id}_description"
+                        'section_item_name' => "core_value_{$id}"
                     ],
                     [
-                        'section_content' => $val['description'] ?? '',
-                        'attributes' => null,
-                        'media_files' => null
-                    ]
-                );
-
-                ContentManagement::updateOrCreate(
-                    [
-                        'section_name' => 'core_values',
-                        'section_item_name' => "core_value_{$id}_icon"
-                    ],
-                    [
-                        'section_content' => $val['icon'] ?? '',
+                        'section_content' => json_encode($coreValueData),
                         'attributes' => null,
                         'media_files' => null
                     ]
@@ -286,7 +260,7 @@ class CoreValuesController extends Controller
             }
         }
 
-        return redirect()->route('admin.core-values.index')->with('success', 'Core values updated successfully.');
+        return redirect()->route('admin.cms-section.core-values-section')->with('success', 'Core values updated successfully.');
     }
 
     /**

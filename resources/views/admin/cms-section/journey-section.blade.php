@@ -22,13 +22,23 @@
                         <p class="text-sm text-gray-500 dark:text-gray-400">Click on any text to edit it directly</p>
                     </div>
                 </div>
+                <div>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                          Home Page
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                          About Page
+                    </span>
+                </div>
             </div>
 
             <!-- Journey Timeline Preview -->
             <section class="py-20 md:py-32 bg-industrial-light rounded-xl border border-gray-200 dark:border-surface-600">
                 <div class="max-w-7xl mx-auto px-6">
                     <div class="text-center mb-16">
-                        <h2 class="text-4xl md:text-5xl font-display font-black uppercase italic mb-6 text-industrial-dark editable-title" data-field="title">
+                        <h2 class="text-4xl md:text-5xl font-display font-black uppercase italic mb-6 editable-title" data-field="title">
                             {{ $journeyItems['journey_section_title']->section_content ?? 'Our Journey' }}
                             <button onclick="editField('title')" class="ml-2 p-1 text-brand-500 hover:text-brand-700 transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,15 +112,15 @@
         <div class="glass-card p-8 bg-gradient-to-r from-brand-50 to-blue-50 dark:from-brand-500/10 dark:to-blue-500/10">
             <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Quick Links</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <a href="{{ route('admin.homepage.index') }}" class="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-xl hover:shadow-md transition-all">
+                <a href="{{ route('admin.brand-statements.index') }}" class="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-xl hover:shadow-md transition-all">
                     <div class="w-10 h-10 rounded-lg bg-brand-100 dark:bg-brand-500/10 flex items-center justify-center">
                         <svg class="w-5 h-5 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                         </svg>
                     </div>
                     <div>
-                        <p class="font-bold text-gray-900 dark:text-white">Homepage Content</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Manage other homepage sections</p>
+                        <p class="font-bold text-gray-900 dark:text-white">Brand Statements</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Manage brand statements content</p>
                     </div>
                 </a>
 
@@ -204,205 +214,208 @@
         </div>
     </div>
 
-    <script>
-        // Field editing functions
-        function editField(fieldName) {
-            const modal = document.getElementById('field-modal');
-            const input = document.getElementById('field-input');
-            const title = document.getElementById('field-modal-title');
-            const label = document.getElementById('field-label');
-            const fieldNameInput = document.getElementById('current-field-name');
+    <x-slot:scripts>
+        <script>
+            // Field editing functions
+            function editField(fieldName) {
+                const modal = document.getElementById('field-modal');
+                const input = document.getElementById('field-input');
+                const title = document.getElementById('field-modal-title');
+                const label = document.getElementById('field-label');
+                const fieldNameInput = document.getElementById('current-field-name');
 
-            fieldNameInput.value = fieldName;
+                fieldNameInput.value = fieldName;
 
-            const titles = {
-                'title': 'Edit Title',
-                'description': 'Edit Description'
-            };
+                const titles = {
+                    'title': 'Edit Title',
+                    'description': 'Edit Description'
+                };
 
-            const labels = {
-                'title': 'Title',
-                'description': 'Description'
-            };
+                const labels = {
+                    'title': 'Title',
+                    'description': 'Description'
+                };
 
-            title.textContent = titles[fieldName] || 'Edit Field';
-            label.textContent = labels[fieldName] || 'Field Value';
+                title.textContent = titles[fieldName] || 'Edit Field';
+                label.textContent = labels[fieldName] || 'Field Value';
 
-            // Get current value from the page
-            const element = document.querySelector(`[data-field="${fieldName}"]`);
-            if (element) {
-                input.value = element.textContent.trim();
+                // Get current value from the page
+                const element = document.querySelector(`[data-field="${fieldName}"]`);
+                if (element) {
+                    input.value = element.textContent.trim();
+                }
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
             }
 
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeFieldModal() {
-            const modal = document.getElementById('field-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        function saveField() {
-            const fieldName = document.getElementById('current-field-name').value;
-            const value = document.getElementById('field-input').value;
-
-            // Update the preview
-            const element = document.querySelector(`[data-field="${fieldName}"]`);
-            if (element) {
-                element.textContent = value;
+            function closeFieldModal() {
+                const modal = document.getElementById('field-modal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
             }
 
-            // Update the form value
-            const formInput = document.querySelector(`#journey-form [name="${fieldName}"]`);
-            if (formInput) {
-                formInput.value = value;
+            function saveField() {
+                const fieldName = document.getElementById('current-field-name').value;
+                const value = document.getElementById('field-input').value;
+
+                // Update the preview
+                const element = document.querySelector(`[data-field="${fieldName}"]`);
+                if (element) {
+                    element.textContent = value;
+                }
+
+                // Update the form value
+                const formInput = document.querySelector(`#journey-form [name="${fieldName}"]`);
+                if (formInput) {
+                    formInput.value = value;
+                }
+
+                closeFieldModal();
+
+                // Auto-submit the form
+                document.getElementById('journey-form').submit();
             }
 
-            closeFieldModal();
+            // Timeline editing functions
+            function editTimeline(timelineId) {
+                const modal = document.getElementById('timeline-modal');
+                const yearInput = document.getElementById('timeline-year');
+                const titleInput = document.getElementById('timeline-title');
+                const descriptionInput = document.getElementById('timeline-description');
+                const timelineInput = document.getElementById('current-timeline');
+                const modalTitle = document.getElementById('timeline-modal-title');
 
-            // Auto-submit the form
-            document.getElementById('journey-form').submit();
-        }
+                timelineInput.value = timelineId;
+                modalTitle.textContent = 'Edit Timeline ' + timelineId;
 
-        // Timeline editing functions
-        function editTimeline(timelineId) {
-            const modal = document.getElementById('timeline-modal');
-            const yearInput = document.getElementById('timeline-year');
-            const titleInput = document.getElementById('timeline-title');
-            const descriptionInput = document.getElementById('timeline-description');
-            const timelineInput = document.getElementById('current-timeline');
-            const modalTitle = document.getElementById('timeline-modal-title');
+                // Get current values
+                yearInput.value = document.querySelector(`[data-field="Journey_${timelineId}_year"]`)?.textContent || '';
+                titleInput.value = document.querySelector(`[data-field="Journey_${timelineId}_title"]`)?.textContent || '';
+                descriptionInput.value = document.querySelector(`[data-field="Journey_${timelineId}_description"]`)?.textContent || '';
 
-            timelineInput.value = timelineId;
-            modalTitle.textContent = 'Edit Timeline ' + timelineId;
-
-            // Get current values
-            yearInput.value = document.querySelector(`[data-field="Journey_${timelineId}_year"]`)?.textContent || '';
-            titleInput.value = document.querySelector(`[data-field="Journey_${timelineId}_title"]`)?.textContent || '';
-            descriptionInput.value = document.querySelector(`[data-field="Journey_${timelineId}_description"]`)?.textContent || '';
-
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeTimelineModal() {
-            const modal = document.getElementById('timeline-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        function saveTimeline() {
-            const timelineId = document.getElementById('current-timeline').value;
-            const year = document.getElementById('timeline-year').value;
-            const title = document.getElementById('timeline-title').value;
-            const description = document.getElementById('timeline-description').value;
-
-            // Update the preview
-            const yearElement = document.querySelector(`[data-field="Journey_${timelineId}_year"]`);
-            const titleElement = document.querySelector(`[data-field="Journey_${timelineId}_title"]`);
-            const descriptionElement = document.querySelector(`[data-field="Journey_${timelineId}_description"]`);
-
-            if (yearElement) yearElement.textContent = year;
-            if (titleElement) titleElement.textContent = title;
-            if (descriptionElement) descriptionElement.textContent = description;
-
-            // Update the form values
-            let yearInput = document.querySelector(`input[name="timeline${timelineId}_year"]`);
-            let titleInput = document.querySelector(`input[name="timeline${timelineId}_title"]`);
-            let descriptionInput = document.querySelector(`input[name="timeline${timelineId}_description"]`);
-
-            if (!yearInput) {
-                // Create new inputs if they don't exist (for newly added items)
-                const form = document.getElementById('journey-form');
-                yearInput = document.createElement('input');
-                yearInput.type = 'hidden';
-                yearInput.name = `timeline${timelineId}_year`;
-                form.appendChild(yearInput);
-
-                titleInput = document.createElement('input');
-                titleInput.type = 'hidden';
-                titleInput.name = `timeline${timelineId}_title`;
-                form.appendChild(titleInput);
-
-                descriptionInput = document.createElement('input');
-                descriptionInput.type = 'hidden';
-                descriptionInput.name = `timeline${timelineId}_description`;
-                form.appendChild(descriptionInput);
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
             }
 
-            yearInput.value = year;
-            titleInput.value = title;
-            descriptionInput.value = description;
-
-            closeTimelineModal();
-
-            // Auto-submit the form
-            document.getElementById('journey-form').submit();
-        }
-
-        function deleteTimeline(timelineId) {
-            if (confirm('Are you sure you want to delete this journey milestone?')) {
-                const form = document.getElementById('journey-form');
-                
-                // Add a hidden input to indicate deletion
-                const deleteInput = document.createElement('input');
-                deleteInput.type = 'hidden';
-                deleteInput.name = `delete_timeline`;
-                deleteInput.value = timelineId;
-                form.appendChild(deleteInput);
-                
-                form.submit();
-            }
-        }
-
-        function addTimeline() {
-            const timelineItemsCount = {{ count($timelineItems) }};
-            const nextId = timelineItemsCount + 1;
-            
-            const modal = document.getElementById('timeline-modal');
-            const timelineInput = document.getElementById('current-timeline');
-            const modalTitle = document.getElementById('timeline-modal-title');
-            
-            // Clear inputs
-            document.getElementById('timeline-year').value = new Date().getFullYear();
-            document.getElementById('timeline-title').value = '';
-            document.getElementById('timeline-description').value = '';
-            
-            timelineInput.value = nextId;
-            modalTitle.textContent = 'Add New Timeline Milestone';
-            
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        // Close modals on outside click
-        document.addEventListener('DOMContentLoaded', function() {
-            const fieldModal = document.getElementById('field-modal');
-            if (fieldModal) {
-                fieldModal.addEventListener('click', function(e) {
-                    if (e.target === this) {
-                        closeFieldModal();
-                    }
-                });
+            function closeTimelineModal() {
+                const modal = document.getElementById('timeline-modal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
             }
 
-            const timelineModal = document.getElementById('timeline-modal');
-            if (timelineModal) {
-                timelineModal.addEventListener('click', function(e) {
-                    if (e.target === this) {
-                        closeTimelineModal();
-                    }
-                });
-            }
-        });
+            function saveTimeline() {
+                const timelineId = document.getElementById('current-timeline').value;
+                const year = document.getElementById('timeline-year').value;
+                const title = document.getElementById('timeline-title').value;
+                const description = document.getElementById('timeline-description').value;
 
-        // Show success message if any
-        @if(session('success'))
+                // Update the preview
+                const yearElement = document.querySelector(`[data-field="Journey_${timelineId}_year"]`);
+                const titleElement = document.querySelector(`[data-field="Journey_${timelineId}_title"]`);
+                const descriptionElement = document.querySelector(`[data-field="Journey_${timelineId}_description"]`);
+
+                if (yearElement) yearElement.textContent = year;
+                if (titleElement) titleElement.textContent = title;
+                if (descriptionElement) descriptionElement.textContent = description;
+
+                // Update the form values
+                let yearInput = document.querySelector(`input[name="timeline${timelineId}_year"]`);
+                let titleInput = document.querySelector(`input[name="timeline${timelineId}_title"]`);
+                let descriptionInput = document.querySelector(`input[name="timeline${timelineId}_description"]`);
+
+                if (!yearInput) {
+                    // Create new inputs if they don't exist (for newly added items)
+                    const form = document.getElementById('journey-form');
+                    yearInput = document.createElement('input');
+                    yearInput.type = 'hidden';
+                    yearInput.name = `timeline${timelineId}_year`;
+                    form.appendChild(yearInput);
+
+                    titleInput = document.createElement('input');
+                    titleInput.type = 'hidden';
+                    titleInput.name = `timeline${timelineId}_title`;
+                    form.appendChild(titleInput);
+
+                    descriptionInput = document.createElement('input');
+                    descriptionInput.type = 'hidden';
+                    descriptionInput.name = `timeline${timelineId}_description`;
+                    form.appendChild(descriptionInput);
+                }
+
+                yearInput.value = year;
+                titleInput.value = title;
+                descriptionInput.value = description;
+
+                closeTimelineModal();
+
+                // Auto-submit the form
+                document.getElementById('journey-form').submit();
+            }
+
+            function deleteTimeline(timelineId) {
+                if (confirm('Are you sure you want to delete this journey milestone?')) {
+                    const form = document.getElementById('journey-form');
+
+                    // Add a hidden input to indicate deletion
+                    const deleteInput = document.createElement('input');
+                    deleteInput.type = 'hidden';
+                    deleteInput.name = `delete_timeline`;
+                    deleteInput.value = timelineId;
+                    form.appendChild(deleteInput);
+
+                    form.submit();
+                }
+            }
+
+            function addTimeline() {
+                const timelineItemsCount = {{ count($timelineItems) }};
+                const nextId = timelineItemsCount + 1;
+
+                const modal = document.getElementById('timeline-modal');
+                const timelineInput = document.getElementById('current-timeline');
+                const modalTitle = document.getElementById('timeline-modal-title');
+
+                // Clear inputs
+                document.getElementById('timeline-year').value = new Date().getFullYear();
+                document.getElementById('timeline-title').value = '';
+                document.getElementById('timeline-description').value = '';
+
+                timelineInput.value = nextId;
+                modalTitle.textContent = 'Add New Timeline Milestone';
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+
+            // Close modals on outside click
+            document.addEventListener('DOMContentLoaded', function() {
+                const fieldModal = document.getElementById('field-modal');
+                if (fieldModal) {
+                    fieldModal.addEventListener('click', function(e) {
+                        if (e.target === this) {
+                            closeFieldModal();
+                        }
+                    });
+                }
+
+                const timelineModal = document.getElementById('timeline-modal');
+                if (timelineModal) {
+                    timelineModal.addEventListener('click', function(e) {
+                        if (e.target === this) {
+                            closeTimelineModal();
+                        }
+                    });
+                }
+            });
+
+            // Show success message if any
+            @if(session('success'))
             setTimeout(() => {
                 alert('{{ session('success') }}');
             }, 100);
-        @endif
-    </script>
+            @endif
+        </script>
+    </x-slot:scripts>
+
 </x-layouts.app>

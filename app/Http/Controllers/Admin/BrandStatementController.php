@@ -7,6 +7,8 @@ use App\Models\ContentManagement;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class BrandStatementController extends Controller
 {
@@ -130,7 +132,7 @@ class BrandStatementController extends Controller
             ->get()
             ->keyBy('section_item_name');
 
-        return view('admin.brand-statements.index', compact('brandItems'));
+        return view('admin.cms-section.brand-statements', compact('brandItems'));
     }
 
     /**
@@ -168,15 +170,79 @@ class BrandStatementController extends Controller
             );
         }
 
-        // Handle image URL update
+        // Handle image URL update or file upload
         if ($request->has('image_url')) {
+            $imageUrl = $request->image_url;
+
+            // Check if it's a base64 data URL (file upload)
+            if (preg_match('/^data:image\/(\w+);base64,/i', $imageUrl)) {
+                try {
+                    // Extract the image data
+                    preg_match('/^data:image\/(\w+);base64,(.+)/i', $imageUrl, $matches);
+                    $extension = strtolower($matches[1]);
+                    $base64Data = $matches[2];
+
+                    // Validate extension
+                    $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+                    if (!in_array($extension, $allowedExtensions)) {
+                        throw new \Exception("Invalid image format: {$extension}");
+                    }
+
+                    // Decode base64 data
+                    $imageData = base64_decode($base64Data);
+
+                    if ($imageData === false) {
+                        throw new \Exception("Failed to decode image data");
+                    }
+
+                    // Validate file size (max 5MB)
+                    if (strlen($imageData) > 5 * 1024 * 1024) {
+                        throw new \Exception("Image file too large. Maximum size is 5MB.");
+                    }
+
+                    // Validate image dimensions (optional)
+                    $imageInfo = getimagesizefromstring($imageData);
+                    if ($imageInfo === false) {
+                        throw new \Exception("Invalid image data");
+                    }
+
+                    $maxWidth = 4000;
+                    $maxHeight = 4000;
+                    if ($imageInfo[0] > $maxWidth || $imageInfo[1] > $maxHeight) {
+                        throw new \Exception("Image dimensions too large. Maximum size is {$maxWidth}x{$maxHeight}px.");
+                    }
+
+                    // Create directory if it doesn't exist
+                    $directory = public_path('uploads/brand-statements');
+                    if (!File::exists($directory)) {
+                        File::makeDirectory($directory, 0755, true, true);
+                    }
+
+                    // Generate unique filename
+                    $filename = 'brand-statements-' . time() . '-' . uniqid() . '.' . $extension;
+                    $filepath = $directory . '/' . $filename;
+
+                    // Save the file
+                    File::put($filepath, $imageData);
+
+                    // Store the public URL in database
+                    $imageUrl = '/uploads/brand-statements/' . $filename;
+
+                    \Log::info("Image saved successfully: {$filepath}");
+                } catch (\Exception $e) {
+                    \Log::error("Failed to process image upload: " . $e->getMessage());
+                    return redirect()->back()
+                        ->with('error', "Failed to process image: {$e->getMessage()}");
+                }
+            }
+
             ContentManagement::updateOrCreate(
                 [
                     'section_name' => 'brand_statements_section',
                     'section_item_name' => 'brand_statements_image'
                 ],
                 [
-                    'section_content' => $request->image_url,
+                    'section_content' => $imageUrl,
                     'attributes' => null,
                     'media_files' => null
                 ]
@@ -269,7 +335,7 @@ class BrandStatementController extends Controller
             }
         }
 
-        return redirect()->route('admin.brand-statements.index')
+        return redirect()->route('admin.cms-section.brand-statements')
             ->with('success', 'Brand statement updated successfully.');
     }
 }

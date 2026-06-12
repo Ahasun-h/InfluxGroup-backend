@@ -53,4 +53,22 @@ export const API_ENDPOINTS = {
 
   // CMS Brand Statements
   BRAND_STATEMENTS: '/cms/brand-statements',
+
+  // CMS Mission Vision
+  MISSION_VISION: '/cms/mission-vision',
+
+  // CMS Journey Timeline
+  JOURNEY: '/cms/journey',
+
+  // CMS Core Values
+  CORE_VALUES: '/cms/core-values',
+
+  // CMS Contact CTA
+  CONTACT_CTA: '/cms/contact-cta',
+
+  // CMS Career CTA
+  CAREER_CTA: '/cms/career-cta',
+
+  // CMS Contact Section
+  CONTACT_SECTION: '/cms/contact',
 }

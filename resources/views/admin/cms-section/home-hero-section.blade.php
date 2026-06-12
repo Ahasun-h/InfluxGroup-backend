@@ -9,12 +9,17 @@
             return null;
         }
     @endphp
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Dropify CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropify/0.2.2/css/dropify.min.css">
-    <!-- Dropify JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropify/0.2.2/js/dropify.min.js"></script>
+
+    <x-slot:styles>
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <!-- Dropify CSS -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropify/0.2.2/css/dropify.min.css">
+        <!-- Dropify JS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dropify/0.2.2/js/dropify.min.js"></script>
+    </x-slot:styles>
+
+
 
     <div class="space-y-8 pb-10">
         <!-- Page Header -->
@@ -44,6 +49,12 @@
                         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Live Preview</h2>
                         <p class="text-sm text-gray-500 dark:text-gray-400">Click on any text to edit it directly</p>
                     </div>
+                </div>
+                <div>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                          Home Page
+                    </span>
                 </div>
             </div>
 
@@ -259,7 +270,7 @@
             class="glass-card p-8 bg-gradient-to-r from-brand-50 to-blue-50 dark:from-brand-500/10 dark:to-blue-500/10">
             <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Quick Links</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <a href="{{ route('admin.homepage.index') }}"
+                <a href="{{ route('admin.brand-statements.index') }}"
                     class="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-xl hover:shadow-md transition-all">
                     <div
                         class="w-10 h-10 rounded-lg bg-brand-100 dark:bg-brand-500/10 flex items-center justify-center">
@@ -271,8 +282,8 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="font-bold text-gray-900 dark:text-white">Homepage Content</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Manage other homepage sections</p>
+                        <p class="font-bold text-gray-900 dark:text-white">Brand Statements</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Manage brand statements content</p>
                     </div>
                 </a>
 
@@ -577,425 +588,427 @@
         </div>
     </div>
 
-    <script>
-        // Debug: Check if required libraries are loaded
-        console.log('jQuery loaded:', typeof $ !== 'undefined');
-        console.log('Dropify loaded:', typeof $.fn.dropify !== 'undefined');
+    <x-slot:scripts>
+        <script>
+            // Debug: Check if required libraries are loaded
+            console.log('jQuery loaded:', typeof $ !== 'undefined');
+            console.log('Dropify loaded:', typeof $.fn.dropify !== 'undefined');
 
-        // Initialize Dropify after a short delay to ensure library is fully loaded
-        setTimeout(function () {
-            if (typeof $.fn.dropify === 'function' && $('.dropify').length) {
-                console.log('Initializing Dropify on page load...');
-                initializeDropify();
+            // Initialize Dropify after a short delay to ensure library is fully loaded
+            setTimeout(function () {
+                if (typeof $.fn.dropify === 'function' && $('.dropify').length) {
+                    console.log('Initializing Dropify on page load...');
+                    initializeDropify();
+                }
+            }, 500);
+
+            // Background modal functions
+            function openBackgroundModal() {
+                console.log('Opening background modal');
+                const modal = document.getElementById('background-modal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                    console.log('Modal opened successfully');
+
+                    // Set current background image in the URL input
+                    const currentBgImage = document.getElementById('hero-background-image').src;
+                    const urlInput = document.getElementById('background_url_input');
+                    if (urlInput && currentBgImage) {
+                        urlInput.value = currentBgImage;
+                        document.getElementById('background_image_url').value = currentBgImage;
+                    }
+
+                    // Initialize Dropify when modal opens (element is now visible)
+                    initializeDropify();
+                } else {
+                    console.error('Background modal not found');
+                }
             }
-        }, 500);
 
-        // Background modal functions
-        function openBackgroundModal() {
-            console.log('Opening background modal');
-            const modal = document.getElementById('background-modal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                console.log('Modal opened successfully');
+            // Separate function to initialize Dropify
+            function initializeDropify() {
+                // Check if Dropify is available and element exists
+                if (typeof $.fn.dropify === 'function' && $('.dropify').length && !$('.dropify').data('dropify')) {
+                    $('.dropify').dropify({
+                        defaultFile: '{{ getBackgroundImage($heroItems) ? asset(getBackgroundImage($heroItems)) : '' }}',
+                        showRemove: true,
+                        showErrors: true,
+                        errorsPosition: 'overlay',
+                        messages: {
+                            'default': 'Drag and drop a file here or click',
+                            'replace': 'Drag and drop or click to replace',
+                            'remove': 'Remove',
+                            'error': 'Ooops, something wrong happened.'
+                        }
+                    });
+                    console.log('Dropify initialized successfully');
+                } else if ($('.dropify').data('dropify')) {
+                    console.log('Dropify already initialized');
+                } else {
+                    console.error('Dropify library not loaded or element not found');
+                }
+            }
 
-                // Set current background image in the URL input
-                const currentBgImage = document.getElementById('hero-background-image').src;
+            function updateBackgroundImage(imageUrl) {
+                // Update the preview
+                const bgImage = document.getElementById('hero-background-image');
+                if (bgImage) {
+                    bgImage.src = imageUrl;
+                }
+                // Update the hidden form field
+                const hiddenInput = document.getElementById('background_image_url');
+                if (hiddenInput) {
+                    hiddenInput.value = imageUrl;
+                }
+                // Update the URL input
                 const urlInput = document.getElementById('background_url_input');
-                if (urlInput && currentBgImage) {
-                    urlInput.value = currentBgImage;
-                    document.getElementById('background_image_url').value = currentBgImage;
+                if (urlInput) {
+                    urlInput.value = imageUrl;
+                }
+            }
+
+            function closeBackgroundModal() {
+                const modal = document.getElementById('background-modal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+
+            // Handle background URL input changes
+            document.addEventListener('DOMContentLoaded', function () {
+                const urlInput = document.getElementById('background_url_input');
+                if (urlInput) {
+                    urlInput.addEventListener('input', function (e) {
+                        updateBackgroundImage(e.target.value);
+                    });
                 }
 
-                // Initialize Dropify when modal opens (element is now visible)
-                initializeDropify();
-            } else {
-                console.error('Background modal not found');
-            }
-        }
+                // Handle background form submission
+                const bgForm = document.getElementById('background-form');
+                if (bgForm) {
+                    bgForm.addEventListener('submit', function (e) {
+                        // Update the preview with the new image URL before submission
+                        const newImageUrl = document.getElementById('background_image_url').value;
+                        if (newImageUrl) {
+                            updateBackgroundImage(newImageUrl);
+                        }
+                        // Form will submit normally to the server
+                    });
+                }
+            });
 
-        // Separate function to initialize Dropify
-        function initializeDropify() {
-            // Check if Dropify is available and element exists
-            if (typeof $.fn.dropify === 'function' && $('.dropify').length && !$('.dropify').data('dropify')) {
-                $('.dropify').dropify({
-                    defaultFile: '{{ getBackgroundImage($heroItems) ? asset(getBackgroundImage($heroItems)) : '' }}',
-                    showRemove: true,
-                    showErrors: true,
-                    errorsPosition: 'overlay',
-                    messages: {
-                        'default': 'Drag and drop a file here or click',
-                        'replace': 'Drag and drop or click to replace',
-                        'remove': 'Remove',
-                        'error': 'Ooops, something wrong happened.'
-                    }
-                });
-                console.log('Dropify initialized successfully');
-            } else if ($('.dropify').data('dropify')) {
-                console.log('Dropify already initialized');
-            } else {
-                console.error('Dropify library not loaded or element not found');
-            }
-        }
+            // Close background modal on outside click
+            document.addEventListener('DOMContentLoaded', function () {
+                const bgModal = document.getElementById('background-modal');
+                if (bgModal) {
+                    bgModal.addEventListener('click', function (e) {
+                        if (e.target === this) {
+                            closeBackgroundModal();
+                        }
+                    });
+                }
+            });
 
-        function updateBackgroundImage(imageUrl) {
-            // Update the preview
-            const bgImage = document.getElementById('hero-background-image');
-            if (bgImage) {
-                bgImage.src = imageUrl;
-            }
-            // Update the hidden form field
-            const hiddenInput = document.getElementById('background_image_url');
-            if (hiddenInput) {
-                hiddenInput.value = imageUrl;
-            }
-            // Update the URL input
-            const urlInput = document.getElementById('background_url_input');
-            if (urlInput) {
-                urlInput.value = imageUrl;
-            }
-        }
+            // CTA button editing functions
+            function editCtaButton(textField, linkField) {
+                const modal = document.getElementById('cta-modal');
+                const title = document.getElementById('cta-modal-title');
+                const textInput = document.getElementById('cta-button-text');
+                const linkInput = document.getElementById('cta-button-link');
+                const textFieldInput = document.getElementById('current-cta-text-field');
+                const linkFieldInput = document.getElementById('current-cta-link-field');
 
-        function closeBackgroundModal() {
-            const modal = document.getElementById('background-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
+                textFieldInput.value = textField;
+                linkFieldInput.value = linkField;
 
-        // Handle background URL input changes
-        document.addEventListener('DOMContentLoaded', function () {
-            const urlInput = document.getElementById('background_url_input');
-            if (urlInput) {
-                urlInput.addEventListener('input', function (e) {
-                    updateBackgroundImage(e.target.value);
-                });
+                const titles = {
+                    'cta_button_text': 'Edit Primary Button',
+                    'secondary_button_text': 'Edit Secondary Button'
+                };
+
+                title.textContent = titles[textField] || 'Edit Button';
+
+                // Get current values
+                const textElement = document.querySelector(`[data-field="${textField}"]`);
+                const linkElement = document.querySelector(`input[name="${linkField}"]`);
+
+                if (textElement) {
+                    const textNode = textElement.childNodes[0] || textElement;
+                    textInput.value = textNode.textContent || textElement.textContent;
+                }
+                if (linkElement) {
+                    linkInput.value = linkElement.value;
+                }
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
             }
 
-            // Handle background form submission
-            const bgForm = document.getElementById('background-form');
-            if (bgForm) {
-                bgForm.addEventListener('submit', function (e) {
-                    // Update the preview with the new image URL before submission
-                    const newImageUrl = document.getElementById('background_image_url').value;
-                    if (newImageUrl) {
-                        updateBackgroundImage(newImageUrl);
-                    }
-                    // Form will submit normally to the server
-                });
-            }
-        });
-
-        // Close background modal on outside click
-        document.addEventListener('DOMContentLoaded', function () {
-            const bgModal = document.getElementById('background-modal');
-            if (bgModal) {
-                bgModal.addEventListener('click', function (e) {
-                    if (e.target === this) {
-                        closeBackgroundModal();
-                    }
-                });
-            }
-        });
-
-        // CTA button editing functions
-        function editCtaButton(textField, linkField) {
-            const modal = document.getElementById('cta-modal');
-            const title = document.getElementById('cta-modal-title');
-            const textInput = document.getElementById('cta-button-text');
-            const linkInput = document.getElementById('cta-button-link');
-            const textFieldInput = document.getElementById('current-cta-text-field');
-            const linkFieldInput = document.getElementById('current-cta-link-field');
-
-            textFieldInput.value = textField;
-            linkFieldInput.value = linkField;
-
-            const titles = {
-                'cta_button_text': 'Edit Primary Button',
-                'secondary_button_text': 'Edit Secondary Button'
-            };
-
-            title.textContent = titles[textField] || 'Edit Button';
-
-            // Get current values
-            const textElement = document.querySelector(`[data-field="${textField}"]`);
-            const linkElement = document.querySelector(`input[name="${linkField}"]`);
-
-            if (textElement) {
-                const textNode = textElement.childNodes[0] || textElement;
-                textInput.value = textNode.textContent || textElement.textContent;
-            }
-            if (linkElement) {
-                linkInput.value = linkElement.value;
+            function closeCtaModal() {
+                const modal = document.getElementById('cta-modal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
             }
 
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
+            function saveCtaButton() {
+                const textField = document.getElementById('current-cta-text-field').value;
+                const linkField = document.getElementById('current-cta-link-field').value;
+                const buttonText = document.getElementById('cta-button-text').value;
+                const buttonLink = document.getElementById('cta-button-link').value;
 
-        function closeCtaModal() {
-            const modal = document.getElementById('cta-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
+                // Update the preview
+                const textElement = document.querySelector(`[data-field="${textField}"]`);
+                if (textElement) {
+                    const textNode = textElement.childNodes[0] || textElement;
+                    textNode.textContent = buttonText;
+                }
 
-        function saveCtaButton() {
-            const textField = document.getElementById('current-cta-text-field').value;
-            const linkField = document.getElementById('current-cta-link-field').value;
-            const buttonText = document.getElementById('cta-button-text').value;
-            const buttonLink = document.getElementById('cta-button-link').value;
+                // Update the link href
+                const linkElement = textElement?.closest('a');
+                if (linkElement) {
+                    linkElement.href = buttonLink;
+                }
 
-            // Update the preview
-            const textElement = document.querySelector(`[data-field="${textField}"]`);
-            if (textElement) {
-                const textNode = textElement.childNodes[0] || textElement;
-                textNode.textContent = buttonText;
+                // Update the form values
+                document.querySelector(`input[name="${textField}"]`).value = buttonText;
+                document.querySelector(`input[name="${linkField}"]`).value = buttonLink;
+
+                closeCtaModal();
+
+                // Auto-submit the form
+                document.getElementById('hero-form').submit();
             }
 
-            // Update the link href
-            const linkElement = textElement?.closest('a');
-            if (linkElement) {
-                linkElement.href = buttonLink;
+            // Close CTA modal on outside click
+            document.addEventListener('DOMContentLoaded', function () {
+                const ctaModal = document.getElementById('cta-modal');
+                if (ctaModal) {
+                    ctaModal.addEventListener('click', function (e) {
+                        if (e.target === this) {
+                            closeCtaModal();
+                        }
+                    });
+                }
+            });
+
+            // Field editing functions
+            function editField(fieldName) {
+                const modal = document.getElementById('field-modal');
+                const input = document.getElementById('field-input');
+                const title = document.getElementById('field-modal-title');
+                const label = document.getElementById('field-label');
+                const fieldNameInput = document.getElementById('current-field-name');
+
+                fieldNameInput.value = fieldName;
+
+                const titles = {
+                    'badge': 'Edit Badge Text',
+                    'title': 'Edit Main Title',
+                    'description': 'Edit Description',
+                    'cta_button_text': 'Edit CTA Button Text',
+                    'secondary_button_text': 'Edit Secondary Button Text',
+                    'cat1_title': 'Edit Category 1 Title',
+                    'cat1_subtitle': 'Edit Category 1 Subtitle',
+                    'cat2_title': 'Edit Category 2 Title',
+                    'cat2_subtitle': 'Edit Category 2 Subtitle',
+                    'cat3_title': 'Edit Category 3 Title',
+                    'cat3_subtitle': 'Edit Category 3 Subtitle',
+                    'cat4_title': 'Edit Category 4 Title',
+                    'cat4_subtitle': 'Edit Category 4 Subtitle'
+                };
+
+                const labels = {
+                    'badge': 'Badge Text',
+                    'title': 'Main Title',
+                    'description': 'Description',
+                    'cta_button_text': 'CTA Button Text',
+                    'secondary_button_text': 'Secondary Button Text',
+                    'cat1_title': 'Category 1 Title',
+                    'cat1_subtitle': 'Category 1 Subtitle',
+                    'cat2_title': 'Category 2 Title',
+                    'cat2_subtitle': 'Category 2 Subtitle',
+                    'cat3_title': 'Category 3 Title',
+                    'cat3_subtitle': 'Category 3 Subtitle',
+                    'cat4_title': 'Category 4 Title',
+                    'cat4_subtitle': 'Category 4 Subtitle'
+                };
+
+                title.textContent = titles[fieldName] || 'Edit Field';
+                label.textContent = labels[fieldName] || 'Field Value';
+
+                // Get current value from the page
+                const element = document.querySelector(`[data-field="${fieldName}"]`);
+                if (element) {
+                    const textElement = element.childNodes[0] || element;
+                    input.value = textElement.textContent || element.textContent;
+                }
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
             }
 
-            // Update the form values
-            document.querySelector(`input[name="${textField}"]`).value = buttonText;
-            document.querySelector(`input[name="${linkField}"]`).value = buttonLink;
-
-            closeCtaModal();
-
-            // Auto-submit the form
-            document.getElementById('hero-form').submit();
-        }
-
-        // Close CTA modal on outside click
-        document.addEventListener('DOMContentLoaded', function () {
-            const ctaModal = document.getElementById('cta-modal');
-            if (ctaModal) {
-                ctaModal.addEventListener('click', function (e) {
-                    if (e.target === this) {
-                        closeCtaModal();
-                    }
-                });
-            }
-        });
-
-        // Field editing functions
-        function editField(fieldName) {
-            const modal = document.getElementById('field-modal');
-            const input = document.getElementById('field-input');
-            const title = document.getElementById('field-modal-title');
-            const label = document.getElementById('field-label');
-            const fieldNameInput = document.getElementById('current-field-name');
-
-            fieldNameInput.value = fieldName;
-
-            const titles = {
-                'badge': 'Edit Badge Text',
-                'title': 'Edit Main Title',
-                'description': 'Edit Description',
-                'cta_button_text': 'Edit CTA Button Text',
-                'secondary_button_text': 'Edit Secondary Button Text',
-                'cat1_title': 'Edit Category 1 Title',
-                'cat1_subtitle': 'Edit Category 1 Subtitle',
-                'cat2_title': 'Edit Category 2 Title',
-                'cat2_subtitle': 'Edit Category 2 Subtitle',
-                'cat3_title': 'Edit Category 3 Title',
-                'cat3_subtitle': 'Edit Category 3 Subtitle',
-                'cat4_title': 'Edit Category 4 Title',
-                'cat4_subtitle': 'Edit Category 4 Subtitle'
-            };
-
-            const labels = {
-                'badge': 'Badge Text',
-                'title': 'Main Title',
-                'description': 'Description',
-                'cta_button_text': 'CTA Button Text',
-                'secondary_button_text': 'Secondary Button Text',
-                'cat1_title': 'Category 1 Title',
-                'cat1_subtitle': 'Category 1 Subtitle',
-                'cat2_title': 'Category 2 Title',
-                'cat2_subtitle': 'Category 2 Subtitle',
-                'cat3_title': 'Category 3 Title',
-                'cat3_subtitle': 'Category 3 Subtitle',
-                'cat4_title': 'Category 4 Title',
-                'cat4_subtitle': 'Category 4 Subtitle'
-            };
-
-            title.textContent = titles[fieldName] || 'Edit Field';
-            label.textContent = labels[fieldName] || 'Field Value';
-
-            // Get current value from the page
-            const element = document.querySelector(`[data-field="${fieldName}"]`);
-            if (element) {
-                const textElement = element.childNodes[0] || element;
-                input.value = textElement.textContent || element.textContent;
+            function closeFieldModal() {
+                const modal = document.getElementById('field-modal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
             }
 
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
+            function saveField() {
+                const fieldName = document.getElementById('current-field-name').value;
+                const value = document.getElementById('field-input').value;
 
-        function closeFieldModal() {
-            const modal = document.getElementById('field-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
+                // Update the preview
+                const element = document.querySelector(`[data-field="${fieldName}"]`);
+                if (element) {
+                    const textElement = element.childNodes[0] || element;
+                    textElement.textContent = value;
+                }
 
-        function saveField() {
-            const fieldName = document.getElementById('current-field-name').value;
-            const value = document.getElementById('field-input').value;
+                // Update the form value
+                const formInput = document.querySelector(`#hero-form [name="${fieldName}"]`);
+                if (formInput) {
+                    formInput.value = value;
+                }
 
-            // Update the preview
-            const element = document.querySelector(`[data-field="${fieldName}"]`);
-            if (element) {
-                const textElement = element.childNodes[0] || element;
-                textElement.textContent = value;
+                closeFieldModal();
+
+                // Auto-submit the form
+                document.getElementById('hero-form').submit();
             }
 
-            // Update the form value
-            const formInput = document.querySelector(`#hero-form [name="${fieldName}"]`);
-            if (formInput) {
-                formInput.value = value;
-            }
+            // Close modal on outside click
+            document.addEventListener('DOMContentLoaded', function () {
+                const fieldModal = document.getElementById('field-modal');
+                if (fieldModal) {
+                    fieldModal.addEventListener('click', function (e) {
+                        if (e.target === this) {
+                            closeFieldModal();
+                        }
+                    });
+                }
 
-            closeFieldModal();
+                const categoryModal = document.getElementById('category-modal');
+                if (categoryModal) {
+                    categoryModal.addEventListener('click', function (e) {
+                        if (e.target === this) {
+                            closeCategoryModal();
+                        }
+                    });
+                }
+            });
 
-            // Auto-submit the form
-            document.getElementById('hero-form').submit();
-        }
-
-        // Close modal on outside click
-        document.addEventListener('DOMContentLoaded', function () {
-            const fieldModal = document.getElementById('field-modal');
-            if (fieldModal) {
-                fieldModal.addEventListener('click', function (e) {
-                    if (e.target === this) {
-                        closeFieldModal();
-                    }
-                });
-            }
-
-            const categoryModal = document.getElementById('category-modal');
-            if (categoryModal) {
-                categoryModal.addEventListener('click', function (e) {
-                    if (e.target === this) {
-                        closeCategoryModal();
-                    }
-                });
-            }
-        });
-
-        // Show success message if any
-        @if(session('success'))
+            // Show success message if any
+            @if(session('success'))
             setTimeout(() => {
                 alert('{{ session('success') }}');
             }, 100);
-        @endif
+            @endif
 
-        // Icon SVG presets
-        const iconPresets = {
-            'zap': '<svg class="w-6 h-6 md:w-8 md:h-8 text-industrial-blue group-hover:text-industrial-red transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>',
-            'settings': '<svg class="w-6 h-6 md:w-8 md:h-8 text-industrial-blue group-hover:text-industrial-red transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg>',
-            'wind': '<svg class="w-6 h-6 md:w-8 md:h-8 text-industrial-blue group-hover:text-industrial-red transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.8 19.6A2 2 0 1 0 14 16H2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.5 8a2.5 2.5 0 1 1 2 4H2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.8 4.4A2 2 0 1 1 11 8H2"></path></svg>',
-            'cpu': '<svg class="w-6 h-6 md:w-8 md:h-8 text-industrial-blue group-hover:text-industrial-red transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20v2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20v2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 2v2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 12h2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 17h2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 7h2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12h2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 17h2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7h2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20v2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 2v2"></path><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="8" y="8" width="8" height="8" rx="1"></rect></svg>',
-            'shield': '<svg class="w-6 h-6 md:w-8 md:h-8 text-industrial-blue group-hover:text-industrial-red transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg>',
-            'activity': '<svg class="w-6 h-6 md:w-8 md:h-8 text-industrial-blue group-hover:text-industrial-red transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path></svg>'
-        };
-
-        // Category editing functions
-        function editCategory(categoryId) {
-            const modal = document.getElementById('category-modal');
-            const nameInput = document.getElementById('category-title');
-            const countInput = document.getElementById('category-subtitle');
-            const iconInput = document.getElementById('category-icon');
-            const categoryInput = document.getElementById('current-category');
-            const modalTitle = document.getElementById('category-modal-title');
-
-            // Convert numeric ID to cat1, cat2, etc.
-            const catId = 'cat' + categoryId;
-            categoryInput.value = catId;
-
-            const titles = {
-                'cat1': 'Edit Category 1',
-                'cat2': 'Edit Category 2',
-                'cat3': 'Edit Category 3',
-                'cat4': 'Edit Category 4'
+            // Icon SVG presets
+            const iconPresets = {
+                'zap': '<svg class="w-6 h-6 md:w-8 md:h-8 text-industrial-blue group-hover:text-industrial-red transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>',
+                'settings': '<svg class="w-6 h-6 md:w-8 md:h-8 text-industrial-blue group-hover:text-industrial-red transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg>',
+                'wind': '<svg class="w-6 h-6 md:w-8 md:h-8 text-industrial-blue group-hover:text-industrial-red transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.8 19.6A2 2 0 1 0 14 16H2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.5 8a2.5 2.5 0 1 1 2 4H2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.8 4.4A2 2 0 1 1 11 8H2"></path></svg>',
+                'cpu': '<svg class="w-6 h-6 md:w-8 md:h-8 text-industrial-blue group-hover:text-industrial-red transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20v2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20v2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 2v2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 12h2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 17h2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 7h2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12h2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 17h2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7h2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20v2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 2v2"></path><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="8" y="8" width="8" height="8" rx="1"></rect></svg>',
+                'shield': '<svg class="w-6 h-6 md:w-8 md:h-8 text-industrial-blue group-hover:text-industrial-red transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg>',
+                'activity': '<svg class="w-6 h-6 md:w-8 md:h-8 text-industrial-blue group-hover:text-industrial-red transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path></svg>'
             };
 
-            modalTitle.textContent = titles[catId] || 'Edit Category';
+            // Category editing functions
+            function editCategory(categoryId) {
+                const modal = document.getElementById('category-modal');
+                const nameInput = document.getElementById('category-title');
+                const countInput = document.getElementById('category-subtitle');
+                const iconInput = document.getElementById('category-icon');
+                const categoryInput = document.getElementById('current-category');
+                const modalTitle = document.getElementById('category-modal-title');
 
-            // Get current values using the correct catId format
-            nameInput.value = document.querySelector(`[data-field="${catId}_name"]`)?.textContent || '';
-            const countText = document.querySelector(`[data-field="${catId}_count"]`)?.textContent || '';
-            countInput.value = countText.replace(' Models', '').trim();
-            iconInput.value = document.querySelector(`input[name="${catId}_icon"]`)?.value || '';
+                // Convert numeric ID to cat1, cat2, etc.
+                const catId = 'cat' + categoryId;
+                categoryInput.value = catId;
 
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
+                const titles = {
+                    'cat1': 'Edit Category 1',
+                    'cat2': 'Edit Category 2',
+                    'cat3': 'Edit Category 3',
+                    'cat4': 'Edit Category 4'
+                };
 
-        function closeCategoryModal() {
-            const modal = document.getElementById('category-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
+                modalTitle.textContent = titles[catId] || 'Edit Category';
 
-        function selectIcon(iconName) {
-            document.getElementById('category-icon').value = iconPresets[iconName];
-        }
+                // Get current values using the correct catId format
+                nameInput.value = document.querySelector(`[data-field="${catId}_name"]`)?.textContent || '';
+                const countText = document.querySelector(`[data-field="${catId}_count"]`)?.textContent || '';
+                countInput.value = countText.replace(' Models', '').trim();
+                iconInput.value = document.querySelector(`input[name="${catId}_icon"]`)?.value || '';
 
-        function saveCategory() {
-            const catId = document.getElementById('current-category').value; // Already in cat1, cat2 format
-            const name = document.getElementById('category-title').value;
-            const count = document.getElementById('category-subtitle').value;
-            const icon = document.getElementById('category-icon').value;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
 
-            // Update the preview
-            const nameElement = document.querySelector(`[data-field="${catId}_name"]`);
-            const countElement = document.querySelector(`[data-field="${catId}_count"]`);
-            const iconElement = document.querySelector(`[data-field="${catId}_icon"]`);
+            function closeCategoryModal() {
+                const modal = document.getElementById('category-modal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
 
-            if (nameElement) nameElement.textContent = name;
-            if (countElement) countElement.textContent = count + ' Models';
-            if (iconElement) iconElement.innerHTML = icon;
+            function selectIcon(iconName) {
+                document.getElementById('category-icon').value = iconPresets[iconName];
+            }
 
-            // Update the form values with null checks
-            const nameInput = document.querySelector(`input[name="${catId}_name"]`);
-            const countInput = document.querySelector(`input[name="${catId}_count"]`);
-            const iconInput = document.querySelector(`input[name="${catId}_icon"]`);
+            function saveCategory() {
+                const catId = document.getElementById('current-category').value; // Already in cat1, cat2 format
+                const name = document.getElementById('category-title').value;
+                const count = document.getElementById('category-subtitle').value;
+                const icon = document.getElementById('category-icon').value;
 
-            if (nameInput) nameInput.value = name;
-            if (countInput) countInput.value = count;
-            if (iconInput) iconInput.value = icon;
+                // Update the preview
+                const nameElement = document.querySelector(`[data-field="${catId}_name"]`);
+                const countElement = document.querySelector(`[data-field="${catId}_count"]`);
+                const iconElement = document.querySelector(`[data-field="${catId}_icon"]`);
 
-            closeCategoryModal();
+                if (nameElement) nameElement.textContent = name;
+                if (countElement) countElement.textContent = count + ' Models';
+                if (iconElement) iconElement.innerHTML = icon;
 
-            // Auto-submit the form
-            document.getElementById('hero-form').submit();
-        }
+                // Update the form values with null checks
+                const nameInput = document.querySelector(`input[name="${catId}_name"]`);
+                const countInput = document.querySelector(`input[name="${catId}_count"]`);
+                const iconInput = document.querySelector(`input[name="${catId}_icon"]`);
 
-        // Handle Dropify events (using event delegation since element is in modal)
-        $(document).ready(function () {
-            // Use event delegation for Dropify events
-            $(document).on('dropify.afterClear', '.dropify', function (event, element) {
-                document.getElementById('background_image_url').value = '';
+                if (nameInput) nameInput.value = name;
+                if (countInput) countInput.value = count;
+                if (iconInput) iconInput.value = icon;
+
+                closeCategoryModal();
+
+                // Auto-submit the form
+                document.getElementById('hero-form').submit();
+            }
+
+            // Handle Dropify events (using event delegation since element is in modal)
+            $(document).ready(function () {
+                // Use event delegation for Dropify events
+                $(document).on('dropify.afterClear', '.dropify', function (event, element) {
+                    document.getElementById('background_image_url').value = '';
+                });
+
+                $(document).on('dropify.fileSelected', '.dropify', function (event, element) {
+                    const input = element.input[0];
+                    if (input.files && input.files[0]) {
+                        const file = input.files[0];
+                        // Create a temporary URL for preview
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            // Update the preview with the uploaded file using the helper function
+                            updateBackgroundImage(e.target.result);
+                        };
+                        reader.readAsDataURL(file);
+                        // Set a placeholder value for the form submission
+                        document.getElementById('background_image_url').value = '/temp-uploads/' + file.name;
+                    }
+                });
             });
-
-            $(document).on('dropify.fileSelected', '.dropify', function (event, element) {
-                const input = element.input[0];
-                if (input.files && input.files[0]) {
-                    const file = input.files[0];
-                    // Create a temporary URL for preview
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        // Update the preview with the uploaded file using the helper function
-                        updateBackgroundImage(e.target.result);
-                    };
-                    reader.readAsDataURL(file);
-                    // Set a placeholder value for the form submission
-                    document.getElementById('background_image_url').value = '/temp-uploads/' + file.name;
-                }
-            });
-        });
-    </script>
+        </script>
+    </x-slot:scripts>
 </x-layouts.app>

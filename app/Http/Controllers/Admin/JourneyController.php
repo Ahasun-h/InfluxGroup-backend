@@ -26,17 +26,36 @@ class JourneyController extends Controller
             'journey_section_description' => (object)['section_content' => $journeyItemsData['journey_description']->section_content ?? 'Four decades of excellence in powering Bangladesh\'s development'],
         ];
 
-        // Fetch all timeline items by looking for Journey_X_year keys in the database rows
+        // Fetch timeline items - check if using new JSON format or old format
         $timelineItems = [];
+
+        // Try new JSON format first (Journey_1, Journey_2, etc.)
         $i = 1;
-        while (isset($journeyItemsData["Journey_{$i}_year"]) || isset($journeyItemsData["Journey_{$i}_title"])) {
-            $timelineItems[] = [
-                'order' => $i,
-                'year' => $journeyItemsData["Journey_{$i}_year"]->section_content ?? '',
-                'title' => $journeyItemsData["Journey_{$i}_title"]->section_content ?? '',
-                'description' => $journeyItemsData["Journey_{$i}_description"]->section_content ?? '',
-            ];
+        while (isset($journeyItemsData["Journey_{$i}"]) && $journeyItemsData["Journey_{$i}"]->section_content) {
+            $jsonData = json_decode($journeyItemsData["Journey_{$i}"]->section_content, true);
+            if ($jsonData && isset($jsonData['year'])) {
+                $timelineItems[] = [
+                    'order' => $i,
+                    'year' => $jsonData['year'] ?? '',
+                    'title' => $jsonData['title'] ?? '',
+                    'description' => $jsonData['description'] ?? '',
+                ];
+            }
             $i++;
+        }
+
+        // If no JSON items found, try old format (Journey_X_year, Journey_X_title, Journey_X_description)
+        if (empty($timelineItems)) {
+            $i = 1;
+            while (isset($journeyItemsData["Journey_{$i}_year"]) || isset($journeyItemsData["Journey_{$i}_title"])) {
+                $timelineItems[] = [
+                    'order' => $i,
+                    'year' => $journeyItemsData["Journey_{$i}_year"]->section_content ?? '',
+                    'title' => $journeyItemsData["Journey_{$i}_title"]->section_content ?? '',
+                    'description' => $journeyItemsData["Journey_{$i}_description"]->section_content ?? '',
+                ];
+                $i++;
+            }
         }
 
         // If no timeline items found, create defaults if table is empty for this section
@@ -60,7 +79,7 @@ class JourneyController extends Controller
             }
         }
 
-        return view('admin.journey.index', compact('journeyItems', 'timelineItems'));
+        return view('admin.cms-section.journey-section', compact('journeyItems', 'timelineItems'));
     }
 
     /**
@@ -71,42 +90,48 @@ class JourneyController extends Controller
         // Handle deletion if requested
         if ($request->has('delete_timeline')) {
             $deleteId = (int) $request->delete_timeline;
-            
-            // Get all current timeline items
+
+            // Get all current timeline items in JSON format
             $currentItems = ContentManagement::where('section_name', 'journey')
-                ->where('section_item_name', 'like', 'Journey_%')
+                ->where('section_item_name', 'regexp', '^Journey_[0-9]+$')
                 ->get()
-                ->groupBy(function($item) {
-                    preg_match('/Journey_(\d+)_/', $item->section_item_name, $matches);
-                    return $matches[1] ?? 0;
+                ->sortBy(function($item) {
+                    preg_match('/Journey_(\d+)$/', $item->section_item_name, $matches);
+                    return (int)($matches[1] ?? 0);
                 });
 
             $items = [];
-            foreach ($currentItems as $id => $rows) {
-                if ((int)$id !== $deleteId && (int)$id > 0) {
-                    $rowsByKey = $rows->keyBy('section_item_name');
-                    $items[] = [
-                        'year' => $rowsByKey["Journey_{$id}_year"]->section_content ?? '',
-                        'title' => $rowsByKey["Journey_{$id}_title"]->section_content ?? '',
-                        'description' => $rowsByKey["Journey_{$id}_description"]->section_content ?? '',
-                    ];
+            foreach ($currentItems as $item) {
+                preg_match('/Journey_(\d+)$/', $item->section_item_name, $matches);
+                $id = (int)($matches[1] ?? 0);
+
+                if ($id !== $deleteId && $id > 0) {
+                    $jsonData = json_decode($item->section_content, true);
+                    if ($jsonData) {
+                        $items[] = $jsonData;
+                    }
                 }
             }
-            
+
             // Delete ALL current Journey items to rebuild cleanly
             ContentManagement::where('section_name', 'journey')
-                ->where('section_item_name', 'like', 'Journey_%')
+                ->where('section_item_name', 'regexp', '^Journey_[0-9]+$')
                 ->delete();
-            
+
             // Re-insert remaining items with new indices
             foreach ($items as $idx => $item) {
                 $newId = $idx + 1;
-                ContentManagement::create(['section_name' => 'journey', 'section_item_name' => "Journey_{$newId}_year", 'section_content' => $item['year']]);
-                ContentManagement::create(['section_name' => 'journey', 'section_item_name' => "Journey_{$newId}_title", 'section_content' => $item['title']]);
-                ContentManagement::create(['section_name' => 'journey', 'section_item_name' => "Journey_{$newId}_description", 'section_content' => $item['description']]);
+                $item['order'] = $newId;
+                ContentManagement::create([
+                    'section_name' => 'journey',
+                    'section_item_name' => "Journey_{$newId}",
+                    'section_content' => json_encode($item),
+                    'attributes' => null,
+                    'media_files' => null
+                ]);
             }
-            
-            return redirect()->route('admin.journey.index')
+
+            return redirect()->route('admin.cms-section.journey-section')
                 ->with('success', 'Journey milestone deleted and timeline re-ordered.');
         }
 
@@ -114,14 +139,14 @@ class JourneyController extends Controller
         if ($request->has('title')) {
             ContentManagement::updateOrCreate(
                 ['section_name' => 'journey', 'section_item_name' => 'journey_title'],
-                ['section_content' => $request->title]
+                ['section_content' => $request->title, 'attributes' => null, 'media_files' => null]
             );
         }
 
         if ($request->has('description')) {
             ContentManagement::updateOrCreate(
                 ['section_name' => 'journey', 'section_item_name' => 'journey_description'],
-                ['section_content' => $request->description]
+                ['section_content' => $request->description, 'attributes' => null, 'media_files' => null]
             );
         }
 
@@ -136,27 +161,31 @@ class JourneyController extends Controller
         $maxIndex = !empty($timelineIndices) ? max($timelineIndices) : 0;
 
         for ($i = 1; $i <= $maxIndex; $i++) {
-            if ($request->has("timeline{$i}_year")) {
+            $year = $request->input("timeline{$i}_year");
+            $title = $request->input("timeline{$i}_title");
+            $description = $request->input("timeline{$i}_description");
+
+            // Only create/update if at least one field has data
+            if ($year || $title || $description) {
+                $journeyData = [
+                    'year' => $year ?? '',
+                    'title' => $title ?? '',
+                    'description' => $description ?? '',
+                    'order' => $i
+                ];
+
                 ContentManagement::updateOrCreate(
-                    ['section_name' => 'journey', 'section_item_name' => "Journey_{$i}_year"],
-                    ['section_content' => $request->input("timeline{$i}_year")]
-                );
-            }
-            if ($request->has("timeline{$i}_title")) {
-                ContentManagement::updateOrCreate(
-                    ['section_name' => 'journey', 'section_item_name' => "Journey_{$i}_title"],
-                    ['section_content' => $request->input("timeline{$i}_title")]
-                );
-            }
-            if ($request->has("timeline{$i}_description")) {
-                ContentManagement::updateOrCreate(
-                    ['section_name' => 'journey', 'section_item_name' => "Journey_{$i}_description"],
-                    ['section_content' => $request->input("timeline{$i}_description")]
+                    ['section_name' => 'journey', 'section_item_name' => "Journey_{$i}"],
+                    [
+                        'section_content' => json_encode($journeyData),
+                        'attributes' => null,
+                        'media_files' => null
+                    ]
                 );
             }
         }
 
-        return redirect()->route('admin.journey.index')
+        return redirect()->route('admin.cms-section.journey-section')
             ->with('success', 'Journey section updated successfully.');
     }
 }

@@ -356,22 +356,40 @@ class ContentController extends Controller
      */
     public function getJourneyTimeline()
     {
-        $journeyItems = \App\Models\ContentManagement::where('section_name', 'journey_section')
+        $journeyItems = \App\Models\ContentManagement::where('section_name', 'journey')
             ->get()
             ->keyBy('section_item_name');
 
         $title = $journeyItems['journey_title']->section_content ?? 'Our Journey';
-        $subtitle = $journeyItems['journey_subtitle']->section_content ?? 'Building Tomorrow\'s Infrastructure Today';
+        $description = $journeyItems['journey_description']->section_content ?? 'Four decades of excellence in powering Bangladesh\'s development';
 
         $milestones = [];
-        for ($i = 1; $i <= 10; $i++) {
-            $year = $journeyItems["journey_milestone_{$i}_year"]->section_content ?? null;
-            if ($year) {
+
+        // Try new JSON format first (Journey_1, Journey_2, etc.)
+        $i = 1;
+        while (isset($journeyItems["Journey_{$i}"]) && $journeyItems["Journey_{$i}"]->section_content) {
+            $jsonData = json_decode($journeyItems["Journey_{$i}"]->section_content, true);
+            if ($jsonData && isset($jsonData['year'])) {
                 $milestones[] = [
-                    'year' => $year,
-                    'title' => $journeyItems["journey_milestone_{$i}_title"]->section_content ?? '',
-                    'description' => $journeyItems["journey_milestone_{$i}_description"]->section_content ?? ''
+                    'year' => $jsonData['year'] ?? '',
+                    'title' => $jsonData['title'] ?? '',
+                    'description' => $jsonData['description'] ?? ''
                 ];
+            }
+            $i++;
+        }
+
+        // If no JSON items found, try old format (Journey_X_year, Journey_X_title, Journey_X_description)
+        if (empty($milestones)) {
+            for ($i = 1; $i <= 10; $i++) {
+                $year = $journeyItems["Journey_{$i}_year"]->section_content ?? null;
+                if ($year) {
+                    $milestones[] = [
+                        'year' => $year,
+                        'title' => $journeyItems["Journey_{$i}_title"]->section_content ?? '',
+                        'description' => $journeyItems["Journey_{$i}_description"]->section_content ?? ''
+                    ];
+                }
             }
         }
 
@@ -379,7 +397,8 @@ class ContentController extends Controller
             'success' => true,
             'data' => [
                 'title' => $title,
-                'subtitle' => $subtitle,
+                'subtitle' => $description, // Include subtitle for frontend compatibility
+                'description' => $description,
                 'milestones' => $milestones
             ]
         ]);
@@ -428,14 +447,32 @@ class ContentController extends Controller
         $subtitle = $cvItems['core_values_subtitle']->section_content ?? '';
 
         $values = [];
-        for ($i = 1; $i <= 6; $i++) {
-            $valueTitle = $cvItems["core_value_{$i}_title"]->section_content ?? null;
-            if ($valueTitle) {
+
+        // Try new JSON format first (core_value_1, core_value_2, etc.)
+        $i = 1;
+        while (isset($cvItems["core_value_{$i}"]) && $cvItems["core_value_{$i}"]->section_content) {
+            $jsonData = json_decode($cvItems["core_value_{$i}"]->section_content, true);
+            if ($jsonData && isset($jsonData['title'])) {
                 $values[] = [
-                    'title' => $valueTitle,
-                    'description' => $cvItems["core_value_{$i}_description"]->section_content ?? '',
-                    'icon' => $cvItems["core_value_{$i}_icon"]->section_content ?? 'ShieldCheck'
+                    'title' => $jsonData['title'] ?? '',
+                    'description' => $jsonData['description'] ?? '',
+                    'icon' => $jsonData['icon'] ?? 'ShieldCheck'
                 ];
+            }
+            $i++;
+        }
+
+        // If no JSON items found, try old format (core_value_X_title, core_value_X_description, core_value_X_icon)
+        if (empty($values)) {
+            for ($i = 1; $i <= 6; $i++) {
+                $valueTitle = $cvItems["core_value_{$i}_title"]->section_content ?? null;
+                if ($valueTitle) {
+                    $values[] = [
+                        'title' => $valueTitle,
+                        'description' => $cvItems["core_value_{$i}_description"]->section_content ?? '',
+                        'icon' => $cvItems["core_value_{$i}_icon"]->section_content ?? 'ShieldCheck'
+                    ];
+                }
             }
         }
 
@@ -501,6 +538,96 @@ class ContentController extends Controller
         return response()->json([
             'success' => true,
             'data' => $cta
+        ]);
+    }
+
+    /**
+     * Get Career CTA Section Data
+     */
+    public function getCareerCTA()
+    {
+        $careerCtaItems = \App\Models\ContentManagement::where('section_name', 'career_cta_section')
+            ->get()
+            ->keyBy('section_item_name');
+
+        $careerCta = [
+            'title' => $careerCtaItems['career_cta_title']->section_content ?? 'Join Our <span class="text-yellow-400">Mission</span>',
+            'description' => $careerCtaItems['career_cta_description']->section_content ?? 'Be part of Bangladesh\'s engineering excellence story',
+            'button_text' => $careerCtaItems['career_cta_button_text']->section_content ?? 'Career Opportunities',
+            'button_link' => $careerCtaItems['career_cta_button_link']->section_content ?? '/contact'
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data' => $careerCta
+        ]);
+    }
+
+    /**
+     * Get Contact Section Content
+     */
+    public function getContactSection()
+    {
+        $contactItems = \App\Models\ContentManagement::where('section_name', 'contact_section')
+            ->get()
+            ->keyBy('section_item_name');
+
+        // Get phone numbers
+        $phones = [];
+        for ($i = 1; $i <= 2; $i++) {
+            $phone = $contactItems->get("contact_phone_{$i}");
+            if ($phone && $phone->section_content) {
+                $phones[] = $phone->section_content;
+            }
+        }
+
+        // Get email addresses
+        $emails = [];
+        for ($i = 1; $i <= 2; $i++) {
+            $email = $contactItems->get("contact_email_{$i}");
+            if ($email && $email->section_content) {
+                $emails[] = $email->section_content;
+            }
+        }
+
+        // Get office hours
+        $officeHours = [
+            'weekdays' => $contactItems->get('contact_office_hours_weekdays')->section_content ?? 'Saturday - Thursday: 9:00 AM - 6:00 PM',
+            'friday' => $contactItems->get('contact_office_hours_friday')->section_content ?? 'Friday: Closed'
+        ];
+
+        // Get office locations
+        $offices = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $officeKey = "contact_office_{$i}";
+            $office = $contactItems->get($officeKey);
+
+            if ($office && $office->section_content) {
+                $officeData = json_decode($office->section_content, true);
+                if ($officeData && isset($officeData['city'])) {
+                    $offices[] = [
+                        'city' => $officeData['city'],
+                        'type' => $officeData['type'] ?? '',
+                        'address' => $officeData['address'] ?? '',
+                        'phone' => $officeData['phone'] ?? '',
+                        'email' => $officeData['email'] ?? '',
+                        'order' => $officeData['order'] ?? $i
+                    ];
+                }
+            }
+        }
+        $offices = collect($offices)->sortBy('order')->values()->all();
+
+        $contact = [
+            'phones' => $phones,
+            'emails' => $emails,
+            'office_hours' => $officeHours,
+            'offices' => $offices
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data' => $contact
         ]);
     }
 

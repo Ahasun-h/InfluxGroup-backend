@@ -50,29 +50,16 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('/contact-cta', [\App\Http\Controllers\Admin\ContactCtaController::class, 'index'])->name('contact-cta.index');
     Route::put('/contact-cta', [\App\Http\Controllers\Admin\ContactCtaController::class, 'update'])->name('contact-cta.update');
 
-    // Homepage content management
-    Route::get('homepage', [\App\Http\Controllers\Admin\HomepageController::class, 'index'])->name('homepage.index');
-    Route::post('homepage', [\App\Http\Controllers\Admin\HomepageController::class, 'update'])->name('homepage.update');
-    Route::get('homepage/preview', [\App\Http\Controllers\Admin\HomepageController::class, 'preview'])->name('homepage.preview');
+    // Career CTA Routes
+    Route::get('/career-cta', [\App\Http\Controllers\Admin\CareerCtaController::class, 'index'])->name('career-cta-section.index');
+    Route::put('/career-cta', [\App\Http\Controllers\Admin\CareerCtaController::class, 'update'])->name('career-cta-section.update');
 
-    // Homepage items management
-    Route::prefix('homepage')->name('homepage.')->group(function () {
-        // Services
-        Route::get('services', [\App\Http\Controllers\Admin\HomepageController::class, 'getServices'])->name('services');
-        Route::post('services', [\App\Http\Controllers\Admin\HomepageController::class, 'storeService'])->name('services.store');
-        Route::delete('services/{id}', [\App\Http\Controllers\Admin\HomepageController::class, 'deleteService'])->name('services.delete');
-
-        // Projects
-        Route::get('projects', [\App\Http\Controllers\Admin\HomepageController::class, 'getProjects'])->name('projects');
-        Route::post('projects', [\App\Http\Controllers\Admin\HomepageController::class, 'storeProject'])->name('projects.store');
-        Route::delete('projects/{id}', [\App\Http\Controllers\Admin\HomepageController::class, 'deleteProject'])->name('projects.delete');
-        Route::post('projects/{id}/toggle-featured', [\App\Http\Controllers\Admin\HomepageController::class, 'toggleProjectFeatured'])->name('projects.toggle-featured');
-
-        // Testimonials
-        Route::get('testimonials', [\App\Http\Controllers\Admin\HomepageController::class, 'getTestimonials'])->name('testimonials');
-        Route::post('testimonials', [\App\Http\Controllers\Admin\HomepageController::class, 'storeTestimonial'])->name('testimonials.store');
-        Route::delete('testimonials/{id}', [\App\Http\Controllers\Admin\HomepageController::class, 'deleteTestimonial'])->name('testimonials.delete');
-        Route::post('testimonials/{id}/toggle-featured', [\App\Http\Controllers\Admin\HomepageController::class, 'toggleTestimonialFeatured'])->name('testimonials.toggle-featured');
+    // CMS Section Routes
+    Route::prefix('cms-section')->name('cms-section.')->group(function () {
+        Route::get('/home-hero-section', [\App\Http\Controllers\Admin\HeroController::class, 'index'])->name('home-hero-section');
+        Route::put('/home-hero-section', [\App\Http\Controllers\Admin\HeroController::class, 'update'])->name('home-hero-section.update');
+        Route::get('/contact-section', [\App\Http\Controllers\Admin\ContactController::class, 'index'])->name('contact-section');
+        Route::put('/contact-section', [\App\Http\Controllers\Admin\ContactController::class, 'update'])->name('contact-section.update');
     });
 });
 

@@ -76,7 +76,7 @@ class ContactCtaController extends Controller
             'button_link' => $data['cta_button_link']->section_content ?? '/contact',
         ];
 
-        return view('admin.contact-cta.index', compact('content'));
+        return view('admin.cms-section.contact-cta-section', compact('content'));
     }
 
     /**
@@ -144,7 +144,7 @@ class ContactCtaController extends Controller
             );
         }
 
-        return redirect()->route('admin.contact-cta.index')
+        return redirect()->route('admin.cms-section.contact-cta-section')
             ->with('success', 'Contact CTA section updated successfully.');
     }
 }
