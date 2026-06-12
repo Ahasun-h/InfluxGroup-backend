@@ -335,7 +335,7 @@ class BrandStatementController extends Controller
             }
         }
 
-        return redirect()->route('admin.cms-section.brand-statements')
+        return redirect()->route('admin.brand-statements.index')
             ->with('success', 'Brand statement updated successfully.');
     }
 }

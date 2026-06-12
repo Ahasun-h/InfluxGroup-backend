@@ -1,11 +1,20 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { Zap, Settings, Wind, Cpu, Filter, ArrowRight, Package, SlidersHorizontal } from 'lucide-vue-next'
+import { ref, onMounted, computed, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import {
+  Zap,
+  Settings,
+  Wind,
+  Cpu,
+  Filter,
+  ArrowRight,
+  SlidersHorizontal,
+  Package
+} from 'lucide-vue-next'
 import { productService } from '../services/content'
 import { API_CONFIG } from '../config/api'
 
-const router = useRouter()
+const route = useRoute()
 
 const products = ref([])
 const categories = ref([])
@@ -26,6 +35,18 @@ const getImageUrl = (path) => {
   return `${API_CONFIG.baseURL.replace('/api', '')}${path}`
 }
 
+const currentCategory = computed(() => {
+  return route.params.category || 'all'
+})
+
+const categoryTitle = computed(() => {
+  if (currentCategory.value === 'all') {
+    return 'All Products'
+  }
+  const category = categories.value.find(c => c.slug === currentCategory.value)
+  return category ? category.name : 'Products'
+})
+
 const fetchCategories = async () => {
   try {
     const response = await productService.getCategories()
@@ -38,7 +59,11 @@ const fetchCategories = async () => {
 const fetchProducts = async () => {
   try {
     isLoading.value = true
-    const response = await productService.getProducts({ limit: 100 })
+    const params = currentCategory.value !== 'all'
+      ? { category: currentCategory.value, limit: 100 }
+      : { limit: 100 }
+
+    const response = await productService.getProducts(params)
     products.value = response.products || response.data || []
   } catch (err) {
     console.error('Failed to fetch products:', err)
@@ -48,12 +73,10 @@ const fetchProducts = async () => {
   }
 }
 
-const filterByCategory = (categoryId) => {
-  if (categoryId === 'all') {
-    return products.value
-  }
-  return products.value.filter(p => p.category === categoryId || p.category_slug === categoryId)
-}
+// Watch for route changes to update products
+watch(() => route.params.category, () => {
+  fetchProducts()
+}, { immediate: true })
 
 onMounted(async () => {
   await Promise.all([fetchCategories(), fetchProducts()])
@@ -69,13 +92,22 @@ onMounted(async () => {
         <div v-motion-slide-visible-left>
           <div class="flex items-center gap-3 mb-6">
             <div class="h-px w-12 bg-industrial-blue"></div>
-            <span class="text-industrial-blue font-black uppercase tracking-[0.5em] text-xs">Our Products</span>
+            <span class="text-industrial-blue font-black uppercase tracking-[0.5em] text-xs">
+              {{ currentCategory === 'all' ? 'Our Products' : categoryTitle }}
+            </span>
           </div>
           <h1 class="text-5xl md:text-7xl font-display font-black uppercase italic leading-[0.9] mb-8">
-            ENGINEERING <span class="text-industrial-blue">EXCELLENCE</span>
+            {{ currentCategory === 'all' ? 'ENGINEERING' : '' }}
+            <span class="text-industrial-blue">
+              {{ currentCategory === 'all' ? 'EXCELLENCE' : categoryTitle }}
+            </span>
           </h1>
           <p class="text-xl text-slate-300 max-w-3xl leading-relaxed">
-            Comprehensive portfolio of power systems and equipment designed for reliability, efficiency, and sustainability.
+            {{
+              currentCategory === 'all'
+                ? 'Comprehensive portfolio of power systems and equipment designed for reliability, efficiency, and sustainability.'
+                : `Explore our range of ${categoryTitle.toLowerCase()} designed for optimal performance and reliability.`
+            }}
           </p>
         </div>
       </div>
@@ -89,7 +121,7 @@ onMounted(async () => {
           <router-link
             to="/products"
             class="flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-sm font-bold uppercase text-[10px] md:text-xs tracking-wider transition-all"
-            :class="$route.path === '/products' ? 'bg-industrial-blue text-white' : 'bg-industrial-light text-industrial-dark hover:bg-industrial-blue/10'"
+            :class="currentCategory === 'all' ? 'bg-industrial-blue text-white' : 'bg-industrial-light text-industrial-dark hover:bg-industrial-blue/10'"
           >
             <Filter class="w-4 h-4" />
             <span class="hidden sm:inline">All Products</span>
@@ -102,7 +134,7 @@ onMounted(async () => {
             :key="category.id || category.slug"
             :to="`/products/category/${category.slug}`"
             class="flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-sm font-bold uppercase text-[10px] md:text-xs tracking-wider transition-all"
-            :class="$route.path === `/products/category/${category.slug}` ? 'bg-industrial-blue text-white' : 'bg-industrial-light text-industrial-dark hover:bg-industrial-blue/10'"
+            :class="currentCategory === category.slug ? 'bg-industrial-blue text-white' : 'bg-industrial-light text-industrial-dark hover:bg-industrial-blue/10'"
           >
             <component
               :is="categoryIcons[category.slug] || categoryIcons.default"
@@ -130,7 +162,7 @@ onMounted(async () => {
             <SlidersHorizontal class="w-16 h-16 text-slate-400" />
             <div>
               <p class="text-xl text-slate-500 font-medium mb-2">No products found</p>
-              <p class="text-slate-400">Check back soon for new products</p>
+              <p class="text-slate-400">Try selecting a different category</p>
             </div>
           </div>
         </div>
@@ -145,7 +177,7 @@ onMounted(async () => {
             :delay="index * 100"
           >
             <!-- Image -->
-            <div class="relative h-64 overflow-hidden cursor-pointer" @click="router.push(`/products/${product.slug}`)">
+            <div class="relative h-64 overflow-hidden cursor-pointer" @click="$router.push(`/products/${product.slug}`)">
               <img
                 :src="getImageUrl(product.image)"
                 :alt="product.name"
@@ -161,7 +193,7 @@ onMounted(async () => {
             <div class="p-6">
               <h3
                 class="text-xl font-display font-black uppercase italic mb-3 group-hover:text-industrial-blue transition-colors cursor-pointer"
-                @click="router.push(`/products/${product.slug}`)"
+                @click="$router.push(`/products/${product.slug}`)"
               >
                 {{ product.name }}
               </h3>
@@ -171,7 +203,9 @@ onMounted(async () => {
 
               <!-- Specifications -->
               <div v-if="product.specifications && product.specifications.length" class="mb-4">
-                <h4 class="text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Key Specifications</h4>
+                <h4 class="text-xs font-black uppercase tracking-wider text-slate-500 mb-2">
+                  Key Specifications
+                </h4>
                 <div class="flex flex-wrap gap-2">
                   <span
                     v-for="(spec, idx) in product.specifications.slice(0, 3)"
@@ -183,27 +217,12 @@ onMounted(async () => {
                 </div>
               </div>
 
-              <!-- Features -->
-              <div v-if="product.features && product.features.length" class="mb-6">
-                <h4 class="text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Features</h4>
-                <ul class="space-y-1">
-                  <li
-                    v-for="(feature, idx) in product.features.slice(0, 3)"
-                    :key="idx"
-                    class="flex items-center gap-2 text-xs text-slate-600"
-                  >
-                    <div class="w-1.5 h-1.5 rounded-full bg-industrial-blue"></div>
-                    {{ feature }}
-                  </li>
-                </ul>
-              </div>
-
               <!-- CTA -->
               <button
-                @click="router.push(`/products/${product.slug}`)"
+                @click="$router.push(`/products/${product.slug}`)"
                 class="w-full bg-industrial-blue text-white py-3 rounded-sm font-black uppercase tracking-widest text-xs hover:bg-industrial-red transition-colors flex items-center justify-center gap-2 group-hover:gap-4"
               >
-                Learn More <ArrowRight class="w-4 h-4" />
+                View Details <ArrowRight class="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -211,7 +230,12 @@ onMounted(async () => {
 
         <!-- Products Count -->
         <div v-if="!isLoading && products.length > 0" class="mt-8 text-center">
-          <p class="text-slate-600 text-sm">Showing {{ products.length }} products</p>
+          <p class="text-slate-600 text-sm">
+            Showing {{ products.length }} product{{ products.length !== 1 ? 's' : '' }}
+            <span v-if="currentCategory !== 'all'">
+              in {{ categoryTitle }}
+            </span>
+          </p>
         </div>
       </div>
     </section>
@@ -225,9 +249,12 @@ onMounted(async () => {
         <p class="text-xl mb-12 text-slate-300">
           Our engineering team can design and manufacture products to meet your specific requirements
         </p>
-        <button class="bg-industrial-blue hover:bg-industrial-red text-white px-12 py-5 rounded-sm font-black uppercase tracking-widest text-xs transition-all shadow-2xl">
+        <router-link
+          to="/contact"
+          class="inline-block bg-industrial-blue hover:bg-industrial-red text-white px-12 py-5 rounded-sm font-black uppercase tracking-widest text-xs transition-all shadow-2xl"
+        >
           Contact Our Team
-        </button>
+        </router-link>
       </div>
     </section>
   </div>

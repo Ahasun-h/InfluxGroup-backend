@@ -425,7 +425,7 @@ onMounted(() => {
               <div class="w-5/12" :class="index % 2 === 0 ? 'text-right pr-12' : 'text-left pl-12'">
                 <div class="bg-white p-8 rounded-lg shadow-xl hover:shadow-2xl transition-shadow">
                   <div class="text-industrial-blue font-black text-2xl mb-2">{{ item.year }}</div>
-                  <h3 class="text-xl font-bold mb-3">{{ item.title }}</h3>
+                  <h3 class="text-lg md:text-xl font-bold mb-3 text-industrial-dark">{{ item.title }}</h3>
                   <p class="text-slate-600">{{ item.description }}</p>
                 </div>
               </div>

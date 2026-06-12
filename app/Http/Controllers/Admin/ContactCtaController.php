@@ -144,7 +144,7 @@ class ContactCtaController extends Controller
             );
         }
 
-        return redirect()->route('admin.cms-section.contact-cta-section')
+        return redirect()->route('admin.contact-cta.index')
             ->with('success', 'Contact CTA section updated successfully.');
     }
 }

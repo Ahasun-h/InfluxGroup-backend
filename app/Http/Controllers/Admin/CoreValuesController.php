@@ -195,7 +195,7 @@ class CoreValuesController extends Controller
                     ]);
                 }
 
-                return redirect()->route('admin.cms-section.core-values-section')->with('success', 'Core value deleted successfully.');
+                return redirect()->route('admin.core-values.index')->with('success', 'Core value deleted successfully.');
             }
         }
 
@@ -260,7 +260,7 @@ class CoreValuesController extends Controller
             }
         }
 
-        return redirect()->route('admin.cms-section.core-values-section')->with('success', 'Core values updated successfully.');
+        return redirect()->route('admin.core-values.index')->with('success', 'Core values updated successfully.');
     }
 
     /**

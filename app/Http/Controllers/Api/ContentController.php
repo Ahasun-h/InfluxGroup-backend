@@ -618,11 +618,44 @@ class ContentController extends Controller
         }
         $offices = collect($offices)->sortBy('order')->values()->all();
 
+        // Get Google Maps embed URL
+        $mapEmbedUrl = $contactItems->get('contact_map_embed_url')
+            ? $contactItems->get('contact_map_embed_url')->section_content
+            : 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3648.3832277878897!2d90.4125!3d23.8104!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjPCsDQ4JzM3LjQiTiA5MMKwMjQnNDUuMCJF!5e0!3m2!1sen!2sbd!4v1620000000000!5m2!1sen!2sbd';
+
+        // Get Emergency Support section
+        $emergency = [
+            'title' => $contactItems->get('emergency_title')
+                ? $contactItems->get('emergency_title')->section_content
+                : 'Emergency <span class="text-industrial-red">Support</span>',
+            'description' => $contactItems->get('emergency_description')
+                ? $contactItems->get('emergency_description')->section_content
+                : '24/7 emergency support available for critical power infrastructure issues',
+            'primary_button' => [
+                'text' => $contactItems->get('emergency_primary_text')
+                    ? $contactItems->get('emergency_primary_text')->section_content
+                    : 'Emergency Line',
+                'link' => $contactItems->get('emergency_primary_link')
+                    ? $contactItems->get('emergency_primary_link')->section_content
+                    : 'tel:+88029876543'
+            ],
+            'secondary_button' => [
+                'text' => $contactItems->get('emergency_secondary_text')
+                    ? $contactItems->get('emergency_secondary_text')->section_content
+                    : 'Email Support',
+                'link' => $contactItems->get('emergency_secondary_link')
+                    ? $contactItems->get('emergency_secondary_link')->section_content
+                    : 'mailto:support@influxgroup.com'
+            ]
+        ];
+
         $contact = [
             'phones' => $phones,
             'emails' => $emails,
             'office_hours' => $officeHours,
-            'offices' => $offices
+            'offices' => $offices,
+            'map_embed_url' => $mapEmbedUrl,
+            'emergency' => $emergency
         ];
 
         return response()->json([

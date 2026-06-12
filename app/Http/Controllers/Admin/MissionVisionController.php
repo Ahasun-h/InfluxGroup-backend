@@ -88,7 +88,7 @@ class MissionVisionController extends Controller
             );
         }
 
-        return redirect()->route('admin.cms-section.mission-vision-section')
+        return redirect()->route('admin.mission-vision.index')
             ->with('success', 'Mission & Vision updated successfully.');
     }
 }

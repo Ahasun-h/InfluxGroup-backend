@@ -131,7 +131,7 @@ class JourneyController extends Controller
                 ]);
             }
 
-            return redirect()->route('admin.cms-section.journey-section')
+            return redirect()->route('admin.journey.index')
                 ->with('success', 'Journey milestone deleted and timeline re-ordered.');
         }
 
@@ -185,7 +185,7 @@ class JourneyController extends Controller
             }
         }
 
-        return redirect()->route('admin.cms-section.journey-section')
+        return redirect()->route('admin.journey.index')
             ->with('success', 'Journey section updated successfully.');
     }
 }

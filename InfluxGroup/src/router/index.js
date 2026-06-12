@@ -29,6 +29,24 @@ const routes = [
     }
   },
   {
+    path: '/products/category/:category',
+    name: 'ProductCategory',
+    component: () => import('../pages/ProductCategory.vue'),
+    meta: {
+      title: 'Product Category | Influx Group',
+      transition: 'fade'
+    }
+  },
+  {
+    path: '/products/:slug',
+    name: 'ProductDetail',
+    component: () => import('../pages/ProductDetail.vue'),
+    meta: {
+      title: 'Product Details | Influx Group',
+      transition: 'slide'
+    }
+  },
+  {
     path: '/projects',
     name: 'Projects',
     component: () => import('../pages/Projects.vue'),
@@ -98,7 +116,18 @@ const router = createRouter({
 
 // Update page title
 router.beforeEach((to, from, next) => {
-  document.title = to.meta.title || 'Influx Group'
+  let title = to.meta.title || 'Influx Group'
+
+  // Dynamic title for product category
+  if (to.name === 'ProductCategory' && to.params.category) {
+    const categoryName = to.params.category
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+    title = `${categoryName} | Influx Group`
+  }
+
+  document.title = title
   next()
 })
 

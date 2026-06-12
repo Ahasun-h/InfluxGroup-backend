@@ -174,7 +174,7 @@ class PartnersController extends Controller
                     ]);
                 }
 
-                return redirect()->route('admin.cms-section.partners-section')->with('success', 'Partner deleted successfully.');
+                return redirect()->route('admin.partners.index')->with('success', 'Partner deleted successfully.');
             }
         }
 
@@ -232,14 +232,14 @@ class PartnersController extends Controller
 
                     // Validate file size (max 10MB per file)
                     if ($file->getSize() > 10 * 1024 * 1024) {
-                        return redirect()->route('admin.cms-section.partners-section')
+                        return redirect()->route('admin.partners.index')
                             ->with('error', 'File size must be less than 10MB.');
                     }
 
                     // Validate file type
                     $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
                     if (!in_array($file->getMimeType(), $allowedTypes)) {
-                        return redirect()->route('admin.cms-section.partners-section')
+                        return redirect()->route('admin.partners.index')
                             ->with('error', 'Only JPEG, PNG, GIF, and WebP images are allowed.');
                     }
 
@@ -268,6 +268,6 @@ class PartnersController extends Controller
             }
         }
 
-        return redirect()->route('admin.cms-section.partners-section')->with('success', 'Partners updated successfully.');
+        return redirect()->route('admin.partners.index')->with('success', 'Partners updated successfully.');
     }
 }

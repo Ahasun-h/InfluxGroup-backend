@@ -129,6 +129,92 @@ class ContactController extends Controller
             ]
         );
 
+        // Get or create Google Maps embed URL
+        $mapEmbedUrl = ContentManagement::firstOrCreate(
+            [
+                'section_name' => 'contact_section',
+                'section_item_name' => 'contact_map_embed_url'
+            ],
+            [
+                'section_content' => 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3648.3832277878897!2d90.4125!3d23.8104!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjPCsDQ4JzM3LjQiTiA5MMKwMjQnNDUuMCJF!5e0!3m2!1sen!2sbd!4v1620000000000!5m2!1sen!2sbd',
+                'attributes' => null,
+                'media_files' => null
+            ]
+        );
+
+        // Get or create Emergency Support section content
+        $emergencyTitle = ContentManagement::firstOrCreate(
+            [
+                'section_name' => 'contact_section',
+                'section_item_name' => 'emergency_title'
+            ],
+            [
+                'section_content' => 'Emergency <span class="text-industrial-red">Support</span>',
+                'attributes' => null,
+                'media_files' => null
+            ]
+        );
+
+        $emergencyDescription = ContentManagement::firstOrCreate(
+            [
+                'section_name' => 'contact_section',
+                'section_item_name' => 'emergency_description'
+            ],
+            [
+                'section_content' => '24/7 emergency support available for critical power infrastructure issues',
+                'attributes' => null,
+                'media_files' => null
+            ]
+        );
+
+        $emergencyPrimaryText = ContentManagement::firstOrCreate(
+            [
+                'section_name' => 'contact_section',
+                'section_item_name' => 'emergency_primary_text'
+            ],
+            [
+                'section_content' => 'Emergency Line',
+                'attributes' => null,
+                'media_files' => null
+            ]
+        );
+
+        $emergencyPrimaryLink = ContentManagement::firstOrCreate(
+            [
+                'section_name' => 'contact_section',
+                'section_item_name' => 'emergency_primary_link'
+            ],
+            [
+                'section_content' => 'tel:+88029876543',
+                'attributes' => null,
+                'media_files' => null
+            ]
+        );
+
+        $emergencySecondaryText = ContentManagement::firstOrCreate(
+            [
+                'section_name' => 'contact_section',
+                'section_item_name' => 'emergency_secondary_text'
+            ],
+            [
+                'section_content' => 'Email Support',
+                'attributes' => null,
+                'media_files' => null
+            ]
+        );
+
+        $emergencySecondaryLink = ContentManagement::firstOrCreate(
+            [
+                'section_name' => 'contact_section',
+                'section_item_name' => 'emergency_secondary_link'
+            ],
+            [
+                'section_content' => 'mailto:support@influxgroup.com',
+                'attributes' => null,
+                'media_files' => null
+            ]
+        );
+
         // Get all contact section items for the view
         $contactItems = ContentManagement::where('section_name', 'contact_section')
             ->get()
@@ -212,6 +298,116 @@ class ContactController extends Controller
                 ],
                 [
                     'section_content' => $request->office_hours_friday,
+                    'attributes' => null,
+                    'media_files' => null
+                ]
+            );
+        }
+
+        // Handle Google Maps embed URL
+        if ($request->has('map_embed_url')) {
+            ContentManagement::updateOrCreate(
+                [
+                    'section_name' => 'contact_section',
+                    'section_item_name' => 'contact_map_embed_url'
+                ],
+                [
+                    'section_content' => $request->map_embed_url,
+                    'attributes' => null,
+                    'media_files' => null
+                ]
+            );
+        }
+
+        // Handle deleted offices
+        if ($request->has('deleted_offices') && $request->deleted_offices) {
+            $deletedOfficeIds = explode(',', $request->deleted_offices);
+            foreach ($deletedOfficeIds as $officeId) {
+                ContentManagement::where('section_name', 'contact_section')
+                    ->where('section_item_name', 'contact_office_' . trim($officeId))
+                    ->delete();
+            }
+        }
+
+        // Handle Emergency Support section updates
+        if ($request->has('emergency_title')) {
+            ContentManagement::updateOrCreate(
+                [
+                    'section_name' => 'contact_section',
+                    'section_item_name' => 'emergency_title'
+                ],
+                [
+                    'section_content' => $request->emergency_title,
+                    'attributes' => null,
+                    'media_files' => null
+                ]
+            );
+        }
+
+        if ($request->has('emergency_description')) {
+            ContentManagement::updateOrCreate(
+                [
+                    'section_name' => 'contact_section',
+                    'section_item_name' => 'emergency_description'
+                ],
+                [
+                    'section_content' => $request->emergency_description,
+                    'attributes' => null,
+                    'media_files' => null
+                ]
+            );
+        }
+
+        if ($request->has('emergency_primary_text')) {
+            ContentManagement::updateOrCreate(
+                [
+                    'section_name' => 'contact_section',
+                    'section_item_name' => 'emergency_primary_text'
+                ],
+                [
+                    'section_content' => $request->emergency_primary_text,
+                    'attributes' => null,
+                    'media_files' => null
+                ]
+            );
+        }
+
+        if ($request->has('emergency_primary_link')) {
+            ContentManagement::updateOrCreate(
+                [
+                    'section_name' => 'contact_section',
+                    'section_item_name' => 'emergency_primary_link'
+                ],
+                [
+                    'section_content' => $request->emergency_primary_link,
+                    'attributes' => null,
+                    'media_files' => null
+                ]
+            );
+        }
+
+        if ($request->has('emergency_secondary_text')) {
+            ContentManagement::updateOrCreate(
+                [
+                    'section_name' => 'contact_section',
+                    'section_item_name' => 'emergency_secondary_text'
+                ],
+                [
+                    'section_content' => $request->emergency_secondary_text,
+                    'attributes' => null,
+                    'media_files' => null
+                ]
+            );
+        }
+
+        if ($request->has('emergency_secondary_link')) {
+            ContentManagement::updateOrCreate(
+                [
+                    'section_name' => 'contact_section',
+                    'section_item_name' => 'emergency_secondary_link'
+                ],
+                [
+                    'section_content' => $request->emergency_secondary_link,
                     'attributes' => null,
                     'media_files' => null
                 ]

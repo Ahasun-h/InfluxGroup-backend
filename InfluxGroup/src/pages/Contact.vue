@@ -18,7 +18,20 @@ const contactData = ref({
     weekdays: '',
     friday: ''
   },
-  offices: []
+  offices: [],
+  map_embed_url: '',
+  emergency: {
+    title: '',
+    description: '',
+    primary_button: {
+      text: '',
+      link: ''
+    },
+    secondary_button: {
+      text: '',
+      link: ''
+    }
+  }
 })
 
 const loading = ref(true)
@@ -66,14 +79,14 @@ onMounted(async () => {
         <div class="grid lg:grid-cols-2 gap-16">
           <!-- Contact Form -->
           <div v-motion-slide-visible-left>
-            <h2 class="text-3xl font-display font-black uppercase italic mb-8">
+            <h2 class="text-3xl font-display text-industrial-dark uppercase italic mb-8">
               Send Us a <span class="text-industrial-blue">Message</span>
             </h2>
 
             <form @submit.prevent class="space-y-6">
               <div class="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Full Name *</label>
+                  <label class="block text-xs text-industrial-dark uppercase tracking-wider text-slate-500 mb-2">Full Name *</label>
                   <input
                     v-model="contactForm.name"
                     type="text"
@@ -143,7 +156,7 @@ onMounted(async () => {
 
           <!-- Contact Information -->
           <div v-motion-slide-visible-right>
-            <h2 class="text-3xl font-display font-black uppercase italic mb-8">
+            <h2 class="text-3xl font-display text-industrial-dark uppercase italic mb-8">
               Contact <span class="text-industrial-blue">Information</span>
             </h2>
 
@@ -161,7 +174,7 @@ onMounted(async () => {
                   <Phone class="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 class="font-bold text-lg mb-2">Phone</h3>
+                  <h3 class="font-bold text-lg text-industrial-dark mb-2">Phone</h3>
                   <p v-for="(phone, index) in contactData.phones" :key="index" class="text-slate-600">
                     {{ phone }}
                   </p>
@@ -173,7 +186,7 @@ onMounted(async () => {
                   <Mail class="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 class="font-bold text-lg mb-2">Email</h3>
+                  <h3 class="font-bold text-industrial-dark text-lg mb-2">Email</h3>
                   <p v-for="(email, index) in contactData.emails" :key="index" class="text-slate-600">
                     {{ email }}
                   </p>
@@ -185,7 +198,7 @@ onMounted(async () => {
                   <Clock class="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 class="font-bold text-lg mb-2">Office Hours</h3>
+                  <h3 class="font-bold text-industrial-dark text-lg mb-2">Office Hours</h3>
                   <p class="text-slate-600">{{ contactData.office_hours.weekdays }}</p>
                   <p class="text-slate-600">{{ contactData.office_hours.friday }}</p>
                 </div>
@@ -193,7 +206,7 @@ onMounted(async () => {
             </div>
 
             <!-- Office Locations -->
-            <h3 class="text-xl font-bold mb-6">Our Offices</h3>
+            <h3 class="text-xl text-industrial-dark mb-6">Our Offices</h3>
             <div class="space-y-6">
               <div
                 v-for="(office, index) in contactData.offices"
@@ -203,7 +216,7 @@ onMounted(async () => {
                 <div class="flex items-start gap-4 mb-4">
                   <Building2 class="w-6 h-6 text-industrial-blue flex-shrink-0 mt-1" />
                   <div>
-                    <h4 class="font-bold text-lg mb-1">{{ office.city }}</h4>
+                    <h4 class="font-bold text-industrial-dark text-lg mb-1">{{ office.city }}</h4>
                     <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">{{ office.type }}</p>
                     <p class="text-slate-600 text-sm mb-2">{{ office.address }}</p>
                     <p class="text-slate-600 text-sm">{{ office.phone }}</p>
@@ -220,7 +233,7 @@ onMounted(async () => {
     <!-- Map Section -->
     <section class="h-96 bg-slate-200">
       <iframe
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3648.3832277878897!2d90.4125!3d23.8104!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjPCsDQ4JzM3LjQiTiA5MMKwMjQnNDUuMCJF!5e0!3m2!1sen!2sbd!4v1620000000000!5m2!1sen!2sbd"
+        :src="contactData.map_embed_url || 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3648.3832277878897!2d90.4125!3d23.8104!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjPCsDQ4JzM3LjQiTiA5MMKwMjQnNDUuMCJF!5e0!3m2!1sen!2sbd!4v1620000000000!5m2!1sen!2sbd'"
         width="100%"
         height="100%"
         style="border:0;"
@@ -232,20 +245,19 @@ onMounted(async () => {
     <!-- Quick Contact -->
     <section class="py-32 bg-industrial-dark text-white">
       <div class="max-w-4xl mx-auto px-6 text-center">
-        <h2 class="text-4xl md:text-5xl font-display font-black uppercase italic mb-8">
-          Emergency <span class="text-industrial-red">Support</span>
+        <h2 class="text-4xl md:text-5xl font-display font-black uppercase italic mb-8" v-html="contactData.emergency?.title || 'Emergency <span class=\'text-industrial-red\'>Support</span>'">
         </h2>
         <p class="text-xl mb-12 text-slate-300">
-          24/7 emergency support available for critical power infrastructure issues
+          {{ contactData.emergency?.description || '24/7 emergency support available for critical power infrastructure issues' }}
         </p>
         <div class="flex flex-col sm:flex-row gap-6 justify-center">
-          <a href="tel:+88029876543" class="bg-industrial-red hover:bg-red-700 text-white px-12 py-5 rounded-sm font-black uppercase tracking-widest text-xs transition-colors flex items-center justify-center gap-3">
+          <a :href="contactData.emergency?.primary_button?.link || 'tel:+88029876543'" class="bg-industrial-red hover:bg-red-700 text-white px-12 py-5 rounded-sm font-black uppercase tracking-widest text-xs transition-colors flex items-center justify-center gap-3">
             <Phone class="w-5 h-5" />
-            Emergency Line
+            {{ contactData.emergency?.primary_button?.text || 'Emergency Line' }}
           </a>
-          <a href="mailto:support@influxgroup.com" class="bg-white text-industrial-dark hover:bg-industrial-light px-12 py-5 rounded-sm font-black uppercase tracking-widest text-xs transition-colors flex items-center justify-center gap-3">
+          <a :href="contactData.emergency?.secondary_button?.link || 'mailto:support@influxgroup.com'" class="bg-white text-industrial-dark hover:bg-industrial-light px-12 py-5 rounded-sm font-black uppercase tracking-widest text-xs transition-colors flex items-center justify-center gap-3">
             <Mail class="w-5 h-5" />
-            Email Support
+            {{ contactData.emergency?.secondary_button?.text || 'Email Support' }}
           </a>
         </div>
       </div>
