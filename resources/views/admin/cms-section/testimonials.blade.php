@@ -367,7 +367,7 @@
             document.getElementById('errorState').style.display = 'none';
             document.getElementById('testimonialsGrid').style.display = 'none';
 
-            fetch('/api/testimonials')
+            fetch('/api/cms/testimonials')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Failed to fetch testimonials');

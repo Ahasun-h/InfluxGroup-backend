@@ -405,18 +405,19 @@ const fetchContactCtaData = async () => {
 
 const fetchTestimonials = async () => {
   try {
-    console.log('Fetching testimonials from /api/cms/testimonials...')
     const response = await testimonialService.getTestimonials()
-    console.log('Testimonials response:', response)
 
-    if (response && response.data) {
-      testimonialsData.value = response.data
-      console.log('Testimonials loaded successfully:', testimonialsData.value)
-    } else if (response) {
+    // Handle response structure - service returns data directly
+    if (response && typeof response === 'object') {
       testimonialsData.value = response
-      console.log('Testimonials loaded (direct):', testimonialsData.value)
     } else {
-      console.warn('Testimonials response is empty or invalid')
+      // Set default testimonials as fallback
+      testimonialsData.value = {
+        subtitle: 'Testimonials',
+        title: 'What Our Clients Say',
+        description: 'Trusted by leading organizations across Bangladesh and beyond',
+        testimonials: []
+      }
     }
   } catch (error) {
     console.error('Failed to fetch testimonials:', error)
@@ -1075,7 +1076,12 @@ const industries = computed(() => {
 
 // Testimonials (new section) - using dynamic data from API
 const testimonials = computed(() => {
-  return testimonialsData.value?.testimonials || []
+  const testimonialList = testimonialsData.value?.testimonials || []
+  // Convert rating from string to number for proper v-for loop
+  return testimonialList.map(testimonial => ({
+    ...testimonial,
+    rating: parseInt(testimonial.rating) || 5
+  }))
 })
 
 // Partners/Clients - now using dynamic data
@@ -1768,6 +1774,11 @@ const contactCta = computed(() => {
               <div class="text-[10px] md:text-xs text-industrial-blue font-medium">{{ testimonial.company }}</div>
             </div>
           </div>
+        </div>
+
+        <!-- Show message if no testimonials -->
+        <div v-if="testimonials.length === 0" class="text-center py-12 bg-gray-100 rounded-lg">
+          <p class="text-gray-600">No testimonials available yet. Please check back later!</p>
         </div>
       </div>
     </section>

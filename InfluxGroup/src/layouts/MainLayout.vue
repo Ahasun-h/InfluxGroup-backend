@@ -250,13 +250,18 @@ const performSearch = () => {
 const handleScroll = () => {
   const currentScrollY = window.scrollY
 
-  // Add scrolled class
-  scrolled.value = currentScrollY > 50
+  // Add scrolled class with better threshold
+  scrolled.value = currentScrollY > 100
 
-  // Hide/show header based on scroll direction
-  if (currentScrollY > lastScrollY.value && currentScrollY > 200) {
+  // Improved hide/show logic with better thresholds and debounce
+  if (currentScrollY > lastScrollY.value && currentScrollY > 300 && Math.abs(currentScrollY - lastScrollY.value) > 5) {
+    // Only hide when scrolling down significantly
     isHeaderHidden.value = true
-  } else {
+  } else if (currentScrollY < lastScrollY.value && currentScrollY < 100) {
+    // Only show when near top
+    isHeaderHidden.value = false
+  } else if (currentScrollY < lastScrollY.value && Math.abs(currentScrollY - lastScrollY.value) > 10) {
+    // Show when scrolling up significantly
     isHeaderHidden.value = false
   }
 
@@ -333,13 +338,27 @@ onMounted(() => {
   fetchFooterData()
   fetchSettingsData()
 
-  window.addEventListener('scroll', handleScroll, { passive: true })
+  // Add scroll listener with throttling for better performance
+  let scrollTimeout
+  const throttledHandleScroll = () => {
+    if (scrollTimeout) return
+    scrollTimeout = setTimeout(() => {
+      handleScroll()
+      scrollTimeout = null
+    }, 10)
+  }
+
+  window.addEventListener('scroll', throttledHandleScroll, { passive: true })
   window.addEventListener('resize', updateNavigationForScreenSize)
+
+  // Store throttled function for cleanup
+  window._throttledHandleScroll = throttledHandleScroll
 })
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
+  window.removeEventListener('scroll', window._throttledHandleScroll)
   window.removeEventListener('resize', updateNavigationForScreenSize)
+  delete window._throttledHandleScroll
 })
 </script>
 
@@ -347,7 +366,7 @@ onUnmounted(() => {
   <div class="min-h-screen bg-industrial-dark text-slate-100">
     <!-- Top Bar -->
     <div
-      class="hidden xl:block bg-industrial-dark border-b border-white/10 py-2 transition-transform duration-300"
+      class="hidden xl:block bg-industrial-dark border-b border-white/10 py-2 transition-all duration-500 ease-in-out"
       :class="scrolled ? 'opacity-0 -translate-y-full' : 'opacity-100 translate-y-0'"
     >
       <div class="max-w-7xl mx-auto px-6">
@@ -382,9 +401,9 @@ onUnmounted(() => {
 
     <!-- Main Header -->
     <header
-      class="fixed w-full z-50 transition-all duration-300"
+      class="fixed w-full z-50 transition-all duration-500 ease-in-out"
       :class="[
-        scrolled ? 'bg-white/98 backdrop-blur-md shadow-xl py-2' : 'bg-transparent py-4',
+        scrolled ? 'bg-white/98 backdrop-blur-md shadow-xl py-3' : 'bg-transparent py-4',
         isHeaderHidden ? '-translate-y-full' : 'translate-y-0'
       ]"
     >
@@ -701,16 +720,16 @@ onUnmounted(() => {
 
     <!-- Breadcrumb (visible on inner pages) -->
     <Transition
-      enter-active-class="transition-all duration-300"
+      enter-active-class="transition-all duration-500 ease-in-out"
       enter-from-class="opacity-0 -translate-y-4"
       enter-to-class="opacity-100 translate-y-0"
-      leave-active-class="transition-all duration-200"
+      leave-active-class="transition-all duration-300 ease-in-out"
       leave-from-class="opacity-100 translate-y-0"
       leave-to-class="opacity-0 -translate-y-4"
     >
       <div
         v-if="currentPath !== '/' && scrolled"
-        class="fixed top-[52px] lg:top-[60px] left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-b border-slate-200 py-1.5 xl:py-2"
+        class="fixed top-[60px] lg:top-[68px] left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-b border-slate-200 py-1.5 xl:py-2"
       >
         <div class="max-w-7xl mx-auto px-4 xl:px-6">
           <nav class="flex items-center gap-2 text-[10px] xl:text-xs font-bold uppercase tracking-wider">
@@ -725,7 +744,7 @@ onUnmounted(() => {
     </Transition>
 
     <!-- Main Content Area -->
-    <main :class="scrolled && currentPath !== '/' ? 'pt-24 lg:pt-28' : 'pt-16 lg:pt-20'">
+    <main :class="currentPath === '/' ? '' : (scrolled ? 'pt-28 lg:pt-32' : 'pt-16 lg:pt-20')">
       <slot />
     </main>
 
