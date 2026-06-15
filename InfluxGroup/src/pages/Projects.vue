@@ -1,20 +1,25 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { MapPin, Zap, Building2, Calendar, Filter, ArrowRight } from 'lucide-vue-next'
 import { projectService } from '../services/content'
 import { API_CONFIG } from '../config/api'
 
+const router = useRouter()
 const activeFilter = ref('all')
 const projects = ref([])
+const categories = ref([])
 const isLoading = ref(true)
 
-const filters = [
-  { id: 'all', name: 'All Projects' },
-  { id: 'power', name: 'Power Plants' },
-  { id: 'transmission', name: 'Transmission' },
-  { id: 'renewable', name: 'Renewable Energy' },
-  { id: 'industrial', name: 'Industrial' }
-]
+const filters = computed(() => {
+  return [
+    { id: 'all', name: 'All Projects' },
+    ...categories.value.map(cat => ({
+      id: cat.slug,
+      name: cat.name
+    }))
+  ]
+})
 
 const getImageUrl = (path) => {
   if (!path) return 'https://images.unsplash.com/photo-1466611653911-95282fc3656b?auto=format&fit=crop&q=80&w=1200'
@@ -34,12 +39,35 @@ const fetchProjects = async () => {
   }
 }
 
+const fetchCategories = async () => {
+  try {
+    const response = await projectService.getProjectCategories()
+    categories.value = response
+  } catch (error) {
+    console.error('Failed to fetch project categories:', error)
+  }
+}
+
 const filteredProjects = computed(() => {
   if (activeFilter.value === 'all') return projects.value
-  return projects.value.filter(p => p.category === activeFilter.value || p.type === activeFilter.value)
+  return projects.value.filter(p => {
+    // Check if it matches by category slug, category name, or type
+    return p.category === activeFilter.value ||
+           p.projectCategory?.slug === activeFilter.value ||
+           p.projectCategory?.name === activeFilter.value ||
+           p.type === activeFilter.value
+  })
 })
 
-onMounted(fetchProjects)
+const viewProjectDetails = (project) => {
+  if (project.slug) {
+    router.push(`/projects/${project.slug}`)
+  }
+}
+
+onMounted(async () => {
+  await Promise.all([fetchProjects(), fetchCategories()])
+})
 </script>
 
 <template>
@@ -163,7 +191,10 @@ onMounted(fetchProjects)
               </div>
 
               <!-- CTA -->
-              <button class="w-full bg-industrial-blue text-white py-3 rounded-sm font-black uppercase tracking-widest text-xs hover:bg-industrial-red transition-colors flex items-center justify-center gap-2 group-hover:gap-4">
+              <button
+                @click="viewProjectDetails(project)"
+                class="w-full bg-industrial-blue text-white py-3 rounded-sm font-black uppercase tracking-widest text-xs hover:bg-industrial-red transition-colors flex items-center justify-center gap-2 group-hover:gap-4"
+              >
                 View Details <ArrowRight class="w-4 h-4" />
               </button>
             </div>

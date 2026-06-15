@@ -57,6 +57,14 @@ export const projectService = {
     const { data } = await api.get(API_ENDPOINTS.PROJECT_BY_SLUG(slug))
     return data
   },
+
+  /**
+   * Get project categories
+   */
+  async getProjectCategories(params = {}) {
+    const { data } = await api.get(API_ENDPOINTS.PROJECT_CATEGORIES, params)
+    return data
+  },
 }
 
 /**

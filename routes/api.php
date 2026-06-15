@@ -17,6 +17,7 @@ Route::prefix('products')->group(function () {
 
 Route::prefix('projects')->group(function () {
     Route::get('/', [ContentController::class, 'getProjects']);
+    Route::get('/categories', [ContentController::class, 'getProjectCategories']);
     Route::get('/featured', [ContentController::class, 'getFeaturedProjects']);
     Route::get('/{project:slug}', [ContentController::class, 'getProject']);
 });

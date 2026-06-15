@@ -56,6 +56,15 @@ const routes = [
     }
   },
   {
+    path: '/projects/:slug',
+    name: 'ProjectDetail',
+    component: () => import('../pages/ProjectDetail.vue'),
+    meta: {
+      title: 'Project Details | Influx Group',
+      transition: 'slide'
+    }
+  },
+  {
     path: '/services',
     name: 'Services',
     component: () => import('../pages/Services.vue'),

@@ -17,6 +17,7 @@ export const API_ENDPOINTS = {
 
   // Projects
   PROJECTS: '/projects',
+  PROJECT_CATEGORIES: '/projects/categories',
   FEATURED_PROJECTS: '/projects/featured',
   PROJECT_BY_SLUG: (slug) => `/projects/${slug}`,
 

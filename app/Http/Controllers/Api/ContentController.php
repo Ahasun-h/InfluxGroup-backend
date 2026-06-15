@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Project;
+use App\Models\ProjectCategory;
 use App\Models\News;
 use App\Models\Gallery;
 use App\Models\Service;
@@ -113,6 +114,14 @@ class ContentController extends Controller
         return response()->json([
             'success' => true,
             'data' => $project
+        ]);
+    }
+
+    public function getProjectCategories()
+    {
+        return response()->json([
+            'success' => true,
+            'data' => ProjectCategory::active()->ordered()->get()
         ]);
     }
 

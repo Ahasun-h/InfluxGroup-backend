@@ -44,4 +44,12 @@ class Project extends Model
     {
         return $this->hasMany(Gallery::class);
     }
+
+    /**
+     * Get the category that owns the project.
+     */
+    public function projectCategory()
+    {
+        return $this->belongsTo(ProjectCategory::class, 'category_id');
+    }
 }

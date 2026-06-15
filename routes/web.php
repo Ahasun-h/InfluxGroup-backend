@@ -16,6 +16,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::post('products/{product}/remove-gallery-image', [\App\Http\Controllers\Admin\ProductController::class, 'removeGalleryImage'])->name('products.remove-gallery-image');
     Route::post('product-categories/update-order', [\App\Http\Controllers\Admin\ProductCategoryController::class, 'updateOrder'])->name('product-categories.update-order');
     Route::resource('projects', \App\Http\Controllers\Admin\ProjectController::class);
+    Route::resource('project-categories', \App\Http\Controllers\Admin\ProjectCategoryController::class);
+    Route::post('project-categories/update-order', [\App\Http\Controllers\Admin\ProjectCategoryController::class, 'updateOrder'])->name('project-categories.update-order');
     Route::resource('news', \App\Http\Controllers\Admin\NewsController::class);
     Route::resource('services', \App\Http\Controllers\Admin\ServiceController::class);
     Route::resource('gallery', \App\Http\Controllers\Admin\GalleryController::class);
