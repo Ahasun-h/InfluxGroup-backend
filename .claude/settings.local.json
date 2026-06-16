@@ -32,7 +32,9 @@
       "Bash(sed -i '' '316,354d' About.vue)",
       "Bash(sed -i '' '315r /Users/bdcalling/Herd/InfluxGroup-backend/About_temp.vue' About.vue)",
       "Bash(cd D:\\\\Herd\\\\InfluxGroup-backend:)",
-      "Bash(cd D:\\\\Herd\\\\InfluxGroup-backend:*)"
+      "Bash(cd D:\\\\Herd\\\\InfluxGroup-backend:*)",
+      "Bash(C:\\\\Users\\\\habib\\\\.config\\\\herd\\\\bin\\\\php.bat artisan:*)",
+      "Bash(\"/c/Users/habib/.config/herd/bin/php.bat\" artisan:*)"
     ]
   }
 }

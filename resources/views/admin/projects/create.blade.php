@@ -1,5 +1,5 @@
 <x-layouts.app title="Create Project">
-    <div class="max-w-5xl mx-auto space-y-8">
+    <div class="space-y-8">
         <!-- Page Header -->
         <div class="flex items-center gap-4">
             <a href="{{ route('admin.projects.index') }}" class="p-2 rounded-xl bg-white dark:bg-surface-800 border border-gray-100 dark:border-white/10 text-gray-500 hover:text-brand-500 transition-all">
@@ -15,13 +15,13 @@
 
         <form action="{{ route('admin.projects.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
             @csrf
-            
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Main Info -->
                 <div class="lg:col-span-2 space-y-6">
                     <div class="glass-card p-6 sm:p-8 space-y-6">
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white font-outfit">Project Details</h3>
-                        
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="md:col-span-2">
                                 <label for="title" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Project Title</label>
@@ -102,8 +102,8 @@
                     </div>
 
                     <!-- Dynamic Sections (Scope, Highlights, Stats) -->
-                    <div class="space-y-6" x-data="{ 
-                        scopes: [''], 
+                    <div class="space-y-6" x-data="{
+                        scopes: [''],
                         highlights: [''],
                         stats: [{label: '', value: ''}]
                     }">

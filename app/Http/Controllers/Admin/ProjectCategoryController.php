@@ -22,10 +22,11 @@ class ProjectCategoryController extends Controller
 
     /**
      * Show the form for creating a new project category.
+     * Note: Using modal in index page instead
      */
-    public function create(): View
+    public function create(): RedirectResponse
     {
-        return view('admin.project-categories.create');
+        return redirect()->route('admin.project-categories.index');
     }
 
     /**
@@ -33,12 +34,16 @@ class ProjectCategoryController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Debug: Log incoming request data
+        \Log::info('Project Category Store Request', [
+            'request_data' => $request->all(),
+            'has_is_active' => $request->has('is_active'),
+            'is_active_value' => $request->input('is_active'),
+        ]);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'icon' => 'nullable|string|max:5000',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-            'is_active' => 'boolean',
             'order' => 'nullable|integer|min:0',
         ]);
 
@@ -46,11 +51,7 @@ class ProjectCategoryController extends Controller
         $validated['is_active'] = $request->has('is_active');
         $validated['order'] = $request->order ?? 0;
 
-        // Handle image upload
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('project-categories', 'public');
-            $validated['image'] = '/storage/' . $path;
-        }
+        \Log::info('Project Category Validated Data', ['validated' => $validated]);
 
         ProjectCategory::create($validated);
 
@@ -60,10 +61,11 @@ class ProjectCategoryController extends Controller
 
     /**
      * Show the form for editing the specified project category.
+     * Note: Using modal in index page instead
      */
-    public function edit(ProjectCategory $projectCategory): View
+    public function edit(ProjectCategory $projectCategory): RedirectResponse
     {
-        return view('admin.project-categories.edit', compact('projectCategory'));
+        return redirect()->route('admin.project-categories.index');
     }
 
     /**
@@ -74,26 +76,12 @@ class ProjectCategoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'icon' => 'nullable|string|max:5000',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-            'is_active' => 'boolean',
             'order' => 'nullable|integer|min:0',
         ]);
 
         $validated['slug'] = Str::slug($request->name);
         $validated['is_active'] = $request->has('is_active');
         $validated['order'] = $request->order ?? 0;
-
-        // Handle image upload
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('project-categories', 'public');
-            $validated['image'] = '/storage/' . $path;
-
-            // Delete old image
-            if ($projectCategory->image && file_exists(public_path($projectCategory->image))) {
-                unlink(public_path($projectCategory->image));
-            }
-        }
 
         $projectCategory->update($validated);
 
@@ -106,11 +94,6 @@ class ProjectCategoryController extends Controller
      */
     public function destroy(ProjectCategory $projectCategory): RedirectResponse
     {
-        // Delete category image
-        if ($projectCategory->image && file_exists(public_path($projectCategory->image))) {
-            unlink(public_path($projectCategory->image));
-        }
-
         $projectCategory->delete();
 
         return redirect()->route('admin.project-categories.index')

@@ -13,8 +13,6 @@ class ProjectCategory extends Model
         'name',
         'slug',
         'description',
-        'icon',
-        'image',
         'is_active',
         'order',
     ];
