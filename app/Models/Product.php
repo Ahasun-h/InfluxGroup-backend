@@ -37,9 +37,9 @@ class Product extends Model
     /**
      * Get the category that owns the product.
      */
-    public function productCategory()
+    public function category()
     {
-        return $this->belongsTo(ProductCategory::class, 'category_id');
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     /**
@@ -63,7 +63,7 @@ class Product extends Model
      */
     public function scopeByCategory($query, $categorySlug)
     {
-        return $query->whereHas('productCategory', function ($query) use ($categorySlug) {
+        return $query->whereHas('category', function ($query) use ($categorySlug) {
             $query->where('slug', $categorySlug);
         });
     }

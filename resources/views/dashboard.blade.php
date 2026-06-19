@@ -78,13 +78,13 @@
             <div class="glass-card p-6 border-l-4 border-purple-500">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Active Jobs</p>
-                        <p class="text-3xl font-extrabold text-gray-900 dark:text-white mt-2">{{ $stats['jobs'] }}</p>
-                        <p class="text-sm font-semibold text-purple-600 mt-2">Open Positions</p>
+                        <p class="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Categories</p>
+                        <p class="text-3xl font-extrabold text-gray-900 dark:text-white mt-2">{{ $stats['categories'] }}</p>
+                        <p class="text-sm font-semibold text-purple-600 mt-2">Total Categories</p>
                     </div>
                     <div class="w-14 h-14 rounded-2xl bg-purple-100 dark:bg-purple-500/10 flex items-center justify-center">
                         <svg class="w-7 h-7 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 12h.01M7 17h.01M12 7h.01M12 12h.01M12 17h.01M17 7h.01M17 12h.01M17 17h.01z"></path>
                         </svg>
                     </div>
                 </div>
@@ -269,71 +269,6 @@
                         @endforelse
                     </div>
                 </div>
-
-                <!-- Active Job Openings -->
-                @if($activeJobs->count() > 0)
-                <div class="glass-card p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white font-outfit">Active Jobs</h3>
-                        <a href="{{ route('admin.jobs.index') }}" class="text-xs font-bold text-brand-600 hover:underline">View all</a>
-                    </div>
-                    <div class="space-y-3">
-                        @foreach($activeJobs as $job)
-                        <div class="p-3 rounded-lg bg-purple-50 dark:bg-purple-500/10 border border-purple-100 dark:border-purple-500/20">
-                            <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $job->title }}</p>
-                            <div class="flex items-center gap-2 mt-1">
-                                <span class="text-xs font-semibold text-purple-600 dark:text-purple-400">{{ $job->location }}</span>
-                                <span class="text-xs text-gray-400">•</span>
-                                <span class="text-xs font-semibold text-gray-500 dark:text-gray-400">{{ $job->type }}</span>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
-
-                <!-- Recent News -->
-                @if($recentNews->count() > 0)
-                <div class="glass-card p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white font-outfit">Recent News</h3>
-                        <a href="{{ route('admin.news.index') }}" class="text-xs font-bold text-brand-600 hover:underline">View all</a>
-                    </div>
-                    <div class="space-y-3">
-                        @foreach($recentNews as $news)
-                        <div class="flex gap-3">
-                            <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-100 to-cyan-200 dark:from-cyan-500/20 dark:to-cyan-500/10 flex items-center justify-center flex-shrink-0">
-                                <svg class="w-5 h-5 text-cyan-600 dark:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-bold text-gray-900 dark:text-white line-clamp-2">{{ $news->title }}</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $news->created_at->diffForHumans() }}</p>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
-
-                <!-- Recent Testimonials -->
-                @if($recentTestimonials->count() > 0)
-                <div class="glass-card p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white font-outfit">Testimonials</h3>
-                        <a href="{{ route('admin.testimonials.index') }}" class="text-xs font-bold text-brand-600 hover:underline">View all</a>
-                    </div>
-                    <div class="space-y-3">
-                        @foreach($recentTestimonials as $testimonial)
-                        <div class="p-3 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20">
-                            <p class="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">"{{ $testimonial->content }}"</p>
-                            <p class="text-sm font-bold text-gray-900 dark:text-white mt-2">{{ $testimonial->name }}</p>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
             </div>
         </div>
     </div>

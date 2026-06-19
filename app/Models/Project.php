@@ -38,6 +38,7 @@ class Project extends Model
         'featured' => 'boolean',
         'start_date' => 'date',
         'expected_completion' => 'date',
+        'value' => 'decimal:2',
     ];
 
     public function gallery()
@@ -48,8 +49,8 @@ class Project extends Model
     /**
      * Get the category that owns the project.
      */
-    public function projectCategory()
+    public function category()
     {
-        return $this->belongsTo(ProjectCategory::class, 'category_id');
+        return $this->belongsTo(Category::class, 'category_id');
     }
 }

@@ -4,11 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\Product;
-use App\Models\News;
-use App\Models\Service;
-use App\Models\Gallery;
-use App\Models\JobOpening;
-use App\Models\Testimonial;
+use App\Models\Category;
 
 class DashboardController extends Controller
 {
@@ -20,14 +16,10 @@ class DashboardController extends Controller
                 'total' => Project::count(),
                 'active' => Project::where('status', 'active')->count(),
                 'completed' => Project::where('status', 'completed')->count(),
-                'total_value' => Project::sum('value'),
+                'total_value' => (float) Project::sum('value'),
             ],
             'products' => Product::count(),
-            'news' => News::count(),
-            'services' => Service::count(),
-            'gallery' => Gallery::count(),
-            'jobs' => JobOpening::where('status', 'active')->count(),
-            'testimonials' => Testimonial::count(),
+            'categories' => Category::count(),
         ];
 
         // Get recent projects
@@ -53,18 +45,6 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Get recent news
-        $recentNews = News::latest()->take(3)->get();
-
-        // Get active job openings
-        $activeJobs = JobOpening::where('status', 'active')
-            ->latest()
-            ->take(3)
-            ->get();
-
-        // Get recent testimonials
-        $recentTestimonials = Testimonial::latest()->take(3)->get();
-
         // Project completion data for chart
         $projectCompletion = Project::select('title', 'completion')
             ->where('status', 'active')
@@ -78,9 +58,6 @@ class DashboardController extends Controller
             'projectsByStatus',
             'projectsByCategory',
             'upcomingDeadlines',
-            'recentNews',
-            'activeJobs',
-            'recentTestimonials',
             'projectCompletion'
         ));
     }

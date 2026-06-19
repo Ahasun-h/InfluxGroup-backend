@@ -1,4 +1,59 @@
 <x-layouts.app title="Create Project">
+    <x-slot:styles>
+        <!-- Load Dropify dependencies -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <link rel="stylesheet" href="{{ asset('css/dropify.min.css') }}">
+        <script src="{{ asset('js/dropify.min.js') }}"></script>
+
+        <style>
+            /* Dropify custom styling for dark theme */
+            .dropify-wrapper {
+                background: #121828;
+                border: 2px dashed #1a1f2e;
+                border-radius: 0.75rem;
+                transition: all 0.2s ease;
+                overflow: hidden;
+            }
+
+            .dropify-wrapper:hover {
+                border-color: #0d9488;
+                background: rgba(13, 148, 136, 0.05);
+            }
+
+            .dropify-message {
+                padding: 2rem 1rem;
+                color: #9ca3af;
+            }
+
+            .dropify-message span {
+                font-size: 0.7rem;
+                font-weight: 500;
+            }
+
+            .dropify-preview {
+                background: #0a0e17;
+            }
+
+            .dropify-clear {
+                background: rgba(239, 68, 68, 0.9);
+                color: white;
+                border: none;
+                border-radius: 0.375rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .dropify-clear:hover {
+                background: rgb(220, 38, 38);
+            }
+
+            .dropify-error {
+                background: rgba(239, 68, 68, 0.1);
+                border-color: #ef4444;
+                color: #fca5a5;
+            }
+        </style>
+    </x-slot:styles>
+
     <div class="space-y-8">
         <!-- Page Header -->
         <div class="flex items-center gap-4">
@@ -83,7 +138,7 @@
 
                             <div>
                                 <label for="value" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Project Value</label>
-                                <input type="text" name="value" id="value" value="{{ old('value') }}" placeholder="e.g. $50M"
+                                <input type="number" name="value" id="value" value="{{ old('value') }}" placeholder="e.g. 50000000" step="0.01"
                                     class="w-full px-4 py-2.5 bg-gray-50/50 dark:bg-surface-900/50 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all dark:text-white">
                             </div>
 
@@ -183,28 +238,24 @@
                 <div class="space-y-6">
                     <div class="glass-card p-6 sm:p-8 space-y-6">
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white font-outfit">Featured Image</h3>
-                        <div class="relative group aspect-video">
-                            <div class="w-full h-full rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/10 flex flex-col items-center justify-center gap-2 text-gray-400 group-hover:border-brand-500 transition-all overflow-hidden relative">
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                                <span class="text-xs font-semibold text-center px-4">Upload main image</span>
-                                <input type="file" name="image" class="absolute inset-0 opacity-0 cursor-pointer">
-                            </div>
+                        <div>
+                            <input type="file" name="image" id="project-image" class="dropify" accept="image/*" />
+                            <x-input-error :messages="$errors->get('image')" class="mt-2" />
                         </div>
-                        <x-input-error :messages="$errors->get('image')" class="mt-2" />
                     </div>
 
                     <div class="glass-card p-6 sm:p-8 space-y-6">
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white font-outfit">Project Gallery</h3>
-                        <div class="relative group h-24">
-                            <div class="w-full h-full rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/10 flex flex-col items-center justify-center gap-2 text-gray-400 group-hover:border-brand-500 transition-all overflow-hidden relative">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        <div>
+                            <div class="w-full aspect-square rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/10 flex flex-col items-center justify-center gap-2 text-gray-400 hover:border-brand-500 transition-all relative" id="gallery-dropzone">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
-                                <span class="text-[10px] font-bold uppercase tracking-wider">Add Multiple Images</span>
-                                <input type="file" name="additional_images[]" multiple class="absolute inset-0 opacity-0 cursor-pointer">
+                                <span class="text-xs font-semibold">Upload Gallery Images</span>
+                                <input type="file" name="additional_images[]" id="project-gallery" multiple accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer">
                             </div>
+                            <div id="gallery-preview" class="grid grid-cols-3 gap-2 mt-3"></div>
+                            <p class="text-xs text-gray-500 mt-2 text-center">Multiple files allowed (up to 10MB each)</p>
                         </div>
                     </div>
 
@@ -231,4 +282,77 @@
             </div>
         </form>
     </div>
+
+    <x-slot:scripts>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for jQuery and Dropify to load
+            var checkJQuery = setInterval(function() {
+                if (typeof jQuery !== 'undefined') {
+                    clearInterval(checkJQuery);
+                    var $ = jQuery;
+
+                    // Wait for Dropify to load
+                    var checkDropify = setInterval(function() {
+                        if (typeof $.fn.dropify !== 'undefined') {
+                            clearInterval(checkDropify);
+                            console.log('Dropify loaded! Initializing...');
+
+                            // Initialize Dropify for project featured image
+                            $('#project-image').dropify({
+                                showRemove: true,
+                                showErrors: true,
+                                errorsPosition: 'outside',
+                                messages: {
+                                    'default': 'Drag and drop a file here or click',
+                                    'replace': 'Drag and drop or click to replace',
+                                    'remove': 'Remove',
+                                    'error': 'Ooops, something wrong happened.'
+                                }
+                            });
+
+                            console.log('Dropify initialized on project form elements');
+
+                            // Gallery preview functionality
+                            const galleryInput = document.getElementById('project-gallery');
+                            const galleryPreview = document.getElementById('gallery-preview');
+
+                            if (galleryInput && galleryPreview) {
+                                galleryInput.addEventListener('change', function(e) {
+                                    galleryPreview.innerHTML = '';
+                                    const files = e.target.files;
+
+                                    for (let i = 0; i < files.length; i++) {
+                                        const file = files[i];
+                                        if (file.type.startsWith('image/')) {
+                                            const reader = new FileReader();
+                                            reader.onload = function(event) {
+                                                const div = document.createElement('div');
+                                                div.className = 'relative aspect-square';
+                                                div.innerHTML = `
+                                                    <img src="${event.target.result}" class="w-full h-full object-cover rounded-lg">
+                                                    <button type="button" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 hover:opacity-100 transition-all" onclick="this.parentElement.remove();">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                        </svg>
+                                                    </button>
+                                                `;
+                                                galleryPreview.appendChild(div);
+                                            };
+                                            reader.readAsDataURL(file);
+                                        }
+                                    }
+                                });
+                            }
+                        } else {
+                            console.log('Waiting for Dropify to load...');
+                        }
+                    }, 200);
+                } else {
+                    console.log('Waiting for jQuery to load...');
+                }
+            }, 200);
+        });
+        </script>
+    </x-slot:scripts>
 </x-layouts.app>

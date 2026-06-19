@@ -5,15 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Project;
-use App\Models\ProjectCategory;
-use App\Models\News;
-use App\Models\Gallery;
-use App\Models\Service;
-use App\Models\Solution;
-use App\Models\Testimonial;
-use App\Models\Partner;
-use App\Models\JobOpening;
-use App\Models\CompanySetting;
+use App\Models\Category;
 use App\Models\Page;
 use Illuminate\Http\Request;
 
@@ -121,42 +113,20 @@ class ContentController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data' => ProjectCategory::active()->ordered()->get()
-        ]);
-    }
-
-    public function getNews(Request $request)
-    {
-        $query = News::query();
-        
-        if ($request->has('category')) {
-            $query->where('category', $request->category);
-        }
-
-        $news = $query->latest()->paginate($request->limit ?? 10);
-
-        return response()->json([
-            'success' => true,
-            'data' => $news->items(),
-            'pagination' => [
-                'total' => $news->total(),
-                'page' => $news->currentPage(),
-                'limit' => $news->perPage(),
-                'totalPages' => $news->lastPage(),
-            ]
+            'data' => Category::projectArea()->active()->ordered()->get()
         ]);
     }
 
     public function getCompanyInfo()
     {
-        $company = CompanySetting::get('company_info', [
+        $company = [
             'name' => 'Influx Group',
             'tagline' => 'Leaders in Energy & Infrastructure',
             'description' => 'Powering Bangladesh since 1980.',
             'address' => 'Dhaka, Bangladesh',
             'phone' => '+880 2 1234 5678',
             'email' => 'info@influxgroup.com',
-        ]);
+        ];
 
         // Fetch all homepage content from ContentManagement
         $allContent = \App\Models\ContentManagement::all()->groupBy('section_name');
@@ -254,20 +224,18 @@ class ContentController extends Controller
 
 
     // Legacy support - old methods (deprecated)
-    public function getServices() { return response()->json(['success' => true, 'data' => Service::all()]); }
-    public function getSolutions() { return response()->json(['success' => true, 'data' => Solution::all()]); }
-    public function getTestimonials() { return response()->json(['success' => true, 'data' => Testimonial::all()]); }
-    public function getJobs() { return response()->json(['success' => true, 'data' => JobOpening::where('status', 'active')->get()]); }
-    public function getGallery() { return response()->json(['success' => true, 'data' => Gallery::orderBy('order')->get()]); }
+    public function getServices() { return response()->json(['success' => true, 'data' => []]); }
+    public function getSolutions() { return response()->json(['success' => true, 'data' => []]); }
+    public function getTestimonials() { return response()->json(['success' => true, 'data' => []]); }
+    public function getJobs() { return response()->json(['success' => true, 'data' => []]); }
+    public function getGallery() { return response()->json(['success' => true, 'data' => []]); }
 
     public function updateHomepageContent(Request $request)
     {
-        $homepage = CompanySetting::set('homepage_content', $request->all());
-
         return response()->json([
             'success' => true,
-            'message' => 'Homepage content updated successfully',
-            'data' => $homepage
+            'message' => 'Homepage content update is disabled',
+            'data' => null
         ]);
     }
 
@@ -720,9 +688,9 @@ class ContentController extends Controller
 
     // Legacy support - keep old methods
     public function getProductCategories() { return response()->json(['success' => true, 'data' => []]); }
-    public function getFeaturedNews() { return response()->json(['success' => true, 'data' => News::latest()->take(3)->get()]); }
+    public function getFeaturedNews() { return response()->json(['success' => true, 'data' => []]); }
     public function getNewsCategories() { return response()->json(['success' => true, 'data' => []]); }
     public function getGalleryCategories() { return response()->json(['success' => true, 'data' => []]); }
     public function getProduct($slug) { return response()->json(['success' => true, 'data' => Product::where('slug', $slug)->first()]); }
-    public function getArticle($slug) { return response()->json(['success' => true, 'data' => News::where('slug', $slug)->first()]); }
+    public function getArticle($slug) { return response()->json(['success' => true, 'data' => null]); }
 }

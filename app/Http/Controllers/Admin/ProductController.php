@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
-use App\Models\ProductCategory;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -17,8 +17,8 @@ class ProductController extends Controller
      */
     public function index(): View
     {
-        $products = Product::with('productCategory')->ordered()->paginate(10);
-        $categories = ProductCategory::active()->get();
+        $products = Product::with('category')->ordered()->paginate(10);
+        $categories = Category::productArea()->active()->get();
         return view('admin.products.index', compact('products', 'categories'));
     }
 
@@ -27,7 +27,7 @@ class ProductController extends Controller
      */
     public function create(): View
     {
-        $categories = ProductCategory::active()->get();
+        $categories = Category::productArea()->active()->get();
         return view('admin.products.create', compact('categories'));
     }
 
@@ -38,23 +38,27 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'category_id' => 'required|exists:product_categories,id',
+            'category_id' => 'nullable|exists:categories,id',
             'category' => 'required|string|max:255',
             'description' => 'required|string',
             'overview' => 'nullable|string',
             'specifications' => 'nullable|array',
             'features' => 'nullable|array',
             'applications' => 'nullable|array',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-            'brochure' => 'nullable|file|mimes:pdf,doc,docx|max:5120',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:10240',
+            'brochure' => 'nullable|file|mimes:pdf,doc,docx|max:51200',
             'gallery' => 'nullable|array',
-            'gallery.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-            'is_active' => 'boolean',
+            'gallery.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:10240',
             'order' => 'nullable|integer|min:0',
         ]);
 
+        // Add slug
         $validated['slug'] = Str::slug($request->name);
-        $validated['is_active'] = $request->has('is_active');
+
+        // Handle is_active checkbox (not sent when unchecked)
+        $validated['is_active'] = $request->has('is_active') ? 1 : 0;
+
+        // Set default order if not provided
         $validated['order'] = $request->order ?? 0;
 
         // Handle image upload
@@ -69,14 +73,14 @@ class ProductController extends Controller
             $validated['brochure'] = '/storage/' . $path;
         }
 
-        // Handle gallery images
+        // Handle gallery images - store as array (Laravel will JSON encode automatically due to model casts)
         if ($request->hasFile('gallery')) {
             $galleryPaths = [];
             foreach ($request->file('gallery') as $image) {
                 $path = $image->store('products/gallery', 'public');
                 $galleryPaths[] = '/storage/' . $path;
             }
-            $validated['gallery'] = json_encode($galleryPaths);
+            $validated['gallery'] = $galleryPaths; // Store as array, not JSON string
         }
 
         Product::create($validated);
@@ -90,7 +94,7 @@ class ProductController extends Controller
      */
     public function edit(Product $product): View
     {
-        $categories = ProductCategory::active()->get();
+        $categories = Category::productArea()->active()->get();
         return view('admin.products.edit', compact('product', 'categories'));
     }
 
@@ -101,23 +105,22 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'category_id' => 'required|exists:product_categories,id',
+            'category_id' => 'nullable|exists:categories,id',
             'category' => 'required|string|max:255',
             'description' => 'required|string',
             'overview' => 'nullable|string',
             'specifications' => 'nullable|array',
             'features' => 'nullable|array',
             'applications' => 'nullable|array',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-            'brochure' => 'nullable|file|mimes:pdf,doc,docx|max:5120',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:10240',
+            'brochure' => 'nullable|file|mimes:pdf,doc,docx|max:51200',
             'gallery' => 'nullable|array',
-            'gallery.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-            'is_active' => 'boolean',
+            'gallery.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:10240',
             'order' => 'nullable|integer|min:0',
         ]);
 
         $validated['slug'] = Str::slug($request->name);
-        $validated['is_active'] = $request->has('is_active');
+        $validated['is_active'] = $request->has('is_active') ? 1 : 0;
         $validated['order'] = $request->order ?? 0;
 
         // Handle image upload
@@ -142,14 +145,14 @@ class ProductController extends Controller
             }
         }
 
-        // Handle gallery images
+        // Handle gallery images - append to existing gallery
         if ($request->hasFile('gallery')) {
-            $galleryPaths = json_decode($product->gallery ?? '[]', true);
+            $galleryPaths = $product->gallery ?? []; // Model casts handle JSON decode automatically
             foreach ($request->file('gallery') as $image) {
                 $path = $image->store('products/gallery', 'public');
                 $galleryPaths[] = '/storage/' . $path;
             }
-            $validated['gallery'] = json_encode($galleryPaths);
+            $validated['gallery'] = $galleryPaths; // Store as array, not JSON string
         }
 
         $product->update($validated);
@@ -173,10 +176,9 @@ class ProductController extends Controller
             unlink(public_path($product->brochure));
         }
 
-        // Delete gallery images
+        // Delete gallery images (Model casts handle JSON decode automatically)
         if ($product->gallery) {
-            $galleryImages = json_decode($product->gallery, true);
-            foreach ($galleryImages as $imagePath) {
+            foreach ($product->gallery as $imagePath) {
                 if (file_exists(public_path($imagePath))) {
                     unlink(public_path($imagePath));
                 }
@@ -198,7 +200,7 @@ class ProductController extends Controller
             'image_index' => 'required|integer|min:0',
         ]);
 
-        $galleryImages = json_decode($product->gallery ?? '[]', true);
+        $galleryImages = $product->gallery ?? []; // Model casts handle JSON decode automatically
         $index = $request->image_index;
 
         if (isset($galleryImages[$index])) {
@@ -211,7 +213,8 @@ class ProductController extends Controller
 
             // Remove from array
             unset($galleryImages[$index]);
-            $product->update(['gallery' => json_encode(array_values($galleryImages))]);
+            $newGallery = array_values($galleryImages);
+            $product->update(['gallery' => $newGallery]); // Store as array, not JSON string
 
             return redirect()->back()
                 ->with('success', 'Gallery image removed successfully.');
@@ -219,5 +222,39 @@ class ProductController extends Controller
 
         return redirect()->back()
             ->with('error', 'Invalid image index.');
+    }
+
+    /**
+     * Remove the brochure from the product.
+     */
+    public function removeBrochure(Product $product): RedirectResponse
+    {
+        // Delete brochure file from storage
+        if ($product->brochure && file_exists(public_path($product->brochure))) {
+            unlink(public_path($product->brochure));
+        }
+
+        // Remove brochure from database
+        $product->update(['brochure' => null]);
+
+        return redirect()->back()
+            ->with('success', 'Brochure removed successfully.');
+    }
+
+    /**
+     * Remove the product image.
+     */
+    public function removeImage(Product $product): RedirectResponse
+    {
+        // Delete image file from storage
+        if ($product->image && file_exists(public_path($product->image))) {
+            unlink(public_path($product->image));
+        }
+
+        // Remove image from database
+        $product->update(['image' => null]);
+
+        return redirect()->back()
+            ->with('success', 'Product image removed successfully.');
     }
 }

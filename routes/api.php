@@ -22,23 +22,6 @@ Route::prefix('projects')->group(function () {
     Route::get('/{project:slug}', [ContentController::class, 'getProject']);
 });
 
-Route::prefix('news')->group(function () {
-    Route::get('/', [ContentController::class, 'getNews']);
-    Route::get('/featured', [ContentController::class, 'getFeaturedNews']);
-    Route::get('/categories', [ContentController::class, 'getNewsCategories']);
-    Route::get('/{news:slug}', [ContentController::class, 'getArticle']);
-});
-
-Route::prefix('gallery')->group(function () {
-    Route::get('/', [ContentController::class, 'getGallery']);
-    Route::get('/categories', [ContentController::class, 'getGalleryCategories']);
-});
-
-Route::get('/services', [ContentController::class, 'getServices']);
-Route::get('/solutions', [ContentController::class, 'getSolutions']);
-Route::get('/testimonials', [ContentController::class, 'getTestimonials']);
-Route::get('/partners', [ContentController::class, 'getPartners']);
-Route::get('/careers/jobs', [ContentController::class, 'getJobs']);
 Route::get('/content/company-info', [ContentController::class, 'getCompanyInfo']);
 
 // Admin-only content management endpoints

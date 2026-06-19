@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ProjectCategory;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -16,7 +16,7 @@ class ProjectCategoryController extends Controller
      */
     public function index(): View
     {
-        $categories = ProjectCategory::ordered()->paginate(10);
+        $categories = Category::projectArea()->ordered()->paginate(10);
         return view('admin.project-categories.index', compact('categories'));
     }
 
@@ -44,16 +44,18 @@ class ProjectCategoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'icon' => 'nullable|string',
             'order' => 'nullable|integer|min:0',
         ]);
 
         $validated['slug'] = Str::slug($request->name);
         $validated['is_active'] = $request->has('is_active');
         $validated['order'] = $request->order ?? 0;
+        $validated['service_area'] = 'project';
 
         \Log::info('Project Category Validated Data', ['validated' => $validated]);
 
-        ProjectCategory::create($validated);
+        Category::create($validated);
 
         return redirect()->route('admin.project-categories.index')
             ->with('success', 'Project category created successfully.');
@@ -63,7 +65,7 @@ class ProjectCategoryController extends Controller
      * Show the form for editing the specified project category.
      * Note: Using modal in index page instead
      */
-    public function edit(ProjectCategory $projectCategory): RedirectResponse
+    public function edit(Category $projectCategory): RedirectResponse
     {
         return redirect()->route('admin.project-categories.index');
     }
@@ -71,11 +73,12 @@ class ProjectCategoryController extends Controller
     /**
      * Update the specified project category in storage.
      */
-    public function update(Request $request, ProjectCategory $projectCategory): RedirectResponse
+    public function update(Request $request, Category $projectCategory): RedirectResponse
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'icon' => 'nullable|string',
             'order' => 'nullable|integer|min:0',
         ]);
 
@@ -92,7 +95,7 @@ class ProjectCategoryController extends Controller
     /**
      * Remove the specified project category from storage.
      */
-    public function destroy(ProjectCategory $projectCategory): RedirectResponse
+    public function destroy(Category $projectCategory): RedirectResponse
     {
         $projectCategory->delete();
 
@@ -107,12 +110,12 @@ class ProjectCategoryController extends Controller
     {
         $validated = $request->validate([
             'categories' => 'required|array',
-            'categories.*.id' => 'required|exists:project_categories,id',
+            'categories.*.id' => 'required|exists:categories,id',
             'categories.*.order' => 'required|integer|min:0',
         ]);
 
         foreach ($validated['categories'] as $categoryData) {
-            ProjectCategory::where('id', $categoryData['id'])
+            Category::where('id', $categoryData['id'])
                 ->update(['order' => $categoryData['order']]);
         }
 

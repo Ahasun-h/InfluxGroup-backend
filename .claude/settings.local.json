@@ -34,7 +34,15 @@
       "Bash(cd D:\\\\Herd\\\\InfluxGroup-backend:)",
       "Bash(cd D:\\\\Herd\\\\InfluxGroup-backend:*)",
       "Bash(C:\\\\Users\\\\habib\\\\.config\\\\herd\\\\bin\\\\php.bat artisan:*)",
-      "Bash(\"/c/Users/habib/.config/herd/bin/php.bat\" artisan:*)"
+      "Bash(\"/c/Users/habib/.config/herd/bin/php.bat\" artisan:*)",
+      "Bash(xargs ls -la)",
+      "Read(//Users/bdcalling/.config/**)",
+      "Read(//Users/bdcalling/**)",
+      "Bash(killall -9 php-fpm php-fpm83 php-fpm84)",
+      "Bash(killall -9 nginx)",
+      "Bash(killall -9 nginx php-fpm php-fpm83)",
+      "Bash(nginx -t)",
+      "Bash(pkill -9 nginx)"
     ]
   }
 }

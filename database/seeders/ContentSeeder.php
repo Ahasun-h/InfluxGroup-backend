@@ -4,9 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Product;
 use App\Models\Project;
-use App\Models\News;
-use App\Models\Service;
-use App\Models\Testimonial;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -60,53 +57,6 @@ class ContentSeeder extends Seeder
                 'status' => 'completed',
                 'client' => 'Sustainable Energy Ltd',
                 'featured' => true,
-            ]
-        );
-
-        // Sample News
-        News::updateOrCreate(
-            ['slug' => 'influx-group-wins-infrastructure-award-2026'],
-            [
-                'title' => 'Influx Group Wins Infrastructure Award 2026',
-                'category' => 'company-updates',
-                'excerpt' => 'Recognized for excellence in power infrastructure development.',
-                'content' => '<p>Influx Group has been honored with the Infrastructure Excellence Award 2026...</p>',
-                'published_at' => now(),
-                'featured' => true,
-            ]
-        );
-
-        // Sample Services
-        Service::updateOrCreate(
-            ['slug' => 'power-generation-solutions'],
-            [
-                'title' => 'Power Generation Solutions',
-                'description' => 'Comprehensive power generation services from design to commissioning.',
-                'features' => ['Custom engineering', 'Turnkey solutions', 'Maintenance support'],
-                'order' => 1,
-            ]
-        );
-
-        Service::updateOrCreate(
-            ['slug' => 'transmission-distribution'],
-            [
-                'title' => 'Transmission & Distribution',
-                'description' => 'High-voltage transmission line and substation construction.',
-                'features' => ['EPC services', 'Substation automation', 'Grid integration'],
-                'order' => 2,
-            ]
-        );
-
-        // Sample Testimonials
-        Testimonial::updateOrCreate(
-            ['name' => 'John Doe'],
-            [
-                'position' => 'Chief Engineer',
-                'company' => 'National Grid',
-                'content' => 'Influx Group delivered exceptional results on our latest substation project.',
-                'rating' => 5,
-                'featured' => true,
-                'order' => 1,
             ]
         );
 

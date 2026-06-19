@@ -6,6 +6,58 @@
         <script src="{{ asset('js/dropify.min.js') }}"></script>
 
         <style>
+            /* Custom gallery removal button styling */
+            .gallery-item {
+                position: relative;
+            }
+
+            .gallery-remove-btn {
+                position: absolute;
+                top: -8px;
+                right: -8px;
+                background: #ef4444;
+                color: white;
+                border-radius: 50%;
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                border: 3px solid white;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+                z-index: 20;
+                transition: all 0.2s ease;
+            }
+
+            .gallery-remove-btn:hover {
+                background: #dc2626;
+                transform: scale(1.15);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            }
+
+            .gallery-remove-btn button {
+                background: transparent;
+                border: none;
+                padding: 0;
+                margin: 0;
+                cursor: pointer;
+                color: white;
+                font-size: 18px;
+                line-height: 1;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .gallery-remove-btn svg {
+                width: 16px;
+                height: 16px;
+                pointer-events: none;
+            }
+
             /* Dropify custom styling for dark theme */
             .dropify-wrapper {
                 background: #121828;
@@ -197,7 +249,15 @@
                 <div class="space-y-6">
                     <!-- Product Image -->
                     <div class="glass-card p-6 space-y-4">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white font-outfit">Product Image</h3>
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white font-outfit">Product Image</h3>
+                            @if($product->image)
+                                <form action="{{ route('admin.products.remove-image', $product) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="text-xs text-red-500 hover:text-red-700 font-semibold">Remove Image</button>
+                                </form>
+                            @endif
+                        </div>
                         <div>
                             <input type="file" name="image" id="product-image" class="dropify" accept="image/*"
                                 @if($product->image) data-default-file="{{ $product->image }}" @endif />
@@ -207,22 +267,27 @@
 
                     <!-- Gallery -->
                     <div class="glass-card p-6 space-y-4">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white font-outfit">Product Gallery</h3>
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white font-outfit">Product Gallery</h3>
+                            <span class="text-xs text-gray-500">{{ $product->gallery ? count($product->gallery) : 0 }} images</span>
+                        </div>
                         <div>
-                            @if($product->gallery && json_decode($product->gallery))
+                            @if($product->gallery && is_array($product->gallery) && count($product->gallery) > 0)
                                 <div class="grid grid-cols-3 gap-2 mb-3" id="existing-gallery">
-                                    @foreach(json_decode($product->gallery) as $index => $image)
-                                    <div class="relative group/image">
-                                        <img src="{{ $image }}" class="w-full aspect-square object-cover rounded-lg">
-                                        <form action="{{ route('admin.products.remove-gallery-image', $product) }}" method="POST" class="absolute top-1 right-1">
-                                            @csrf
-                                            <input type="hidden" name="image_index" value="{{ $index }}">
-                                            <button type="submit" class="bg-red-500 text-white rounded-full p-1 opacity-0 group-hover/image:opacity-100 transition-all">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                </svg>
-                                            </button>
-                                        </form>
+                                    @foreach($product->gallery as $index => $image)
+                                    <div class="gallery-item">
+                                        <img src="{{ $image }}" class="w-full aspect-square object-cover rounded-lg border border-gray-200 dark:border-white/10">
+                                        <div class="gallery-remove-btn" title="Remove image">
+                                            <form action="{{ route('admin.products.remove-gallery-image', $product) }}" method="POST" style="margin: 0; padding: 0;">
+                                                @csrf
+                                                <input type="hidden" name="image_index" value="{{ $index }}">
+                                                <button type="submit" onclick="return confirm('Are you sure you want to remove this image?');">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </div>
                                     @endforeach
                                 </div>
@@ -231,26 +296,35 @@
                                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
-                                <span class="text-xs font-semibold">Add Gallery Images</span>
+                                <span class="text-xs font-semibold">Add New Gallery Images</span>
+                                <span class="text-xs text-gray-500">Click to upload or drag and drop</span>
                                 <input type="file" name="gallery[]" id="product-gallery" multiple accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer">
                             </div>
                             <div id="gallery-preview" class="grid grid-cols-3 gap-2 mt-3"></div>
-                            <p class="text-xs text-gray-500 mt-2 text-center">Multiple files allowed</p>
+                            <p class="text-xs text-gray-500 mt-2 text-center">Multiple files allowed (up to 10MB each)</p>
                         </div>
                     </div>
 
                     <!-- Brochure -->
                     <div class="glass-card p-6 space-y-4">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white font-outfit">Product Brochure</h3>
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white font-outfit">Product Brochure</h3>
+                            @if($product->brochure)
+                                <form action="{{ route('admin.products.remove-brochure', $product) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="text-xs text-red-500 hover:text-red-700 font-semibold">Remove Brochure</button>
+                                </form>
+                            @endif
+                        </div>
                         <div>
                             @if($product->brochure)
-                                <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-surface-800 rounded-xl mb-3">
+                                <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-surface-800 rounded-xl mb-3 relative group/brochure">
                                     <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                     </svg>
-                                    <div class="flex-1">
-                                        <p class="text-sm font-bold text-gray-900 dark:text-white">Current Brochure</p>
-                                        <p class="text-xs text-gray-500">PDF/DOC/DOCX file</p>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-bold text-gray-900 dark:text-white truncate">Current Brochure</p>
+                                        <a href="{{ $product->brochure }}" target="_blank" class="text-xs text-brand-500 hover:text-brand-600">View File</a>
                                     </div>
                                 </div>
                             @endif
@@ -258,7 +332,8 @@
                                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
-                                <span class="text-xs font-semibold">Upload Brochure (PDF, DOC, DOCX)</span>
+                                <span class="text-xs font-semibold">Upload New Brochure (PDF, DOC, DOCX)</span>
+                                <span class="text-xs text-gray-500">This will replace the existing file</span>
                                 <input type="file" name="brochure" id="product-brochure" accept=".pdf,.doc,.docx" class="absolute inset-0 opacity-0 cursor-pointer">
                             </div>
                             <div id="brochure-preview" class="mt-3 hidden">
@@ -379,6 +454,7 @@
                             const brochureName = document.getElementById('brochure-name');
                             const brochureSize = document.getElementById('brochure-size');
                             const removeBrochureBtn = document.getElementById('remove-brochure');
+                            const brochureDropzone = document.getElementById('brochure-dropzone');
 
                             if (brochureInput && brochurePreview) {
                                 brochureInput.addEventListener('change', function(e) {
@@ -387,6 +463,10 @@
                                         brochureName.textContent = file.name;
                                         brochureSize.textContent = formatFileSize(file.size);
                                         brochurePreview.classList.remove('hidden');
+                                        // Hide dropzone to show preview instead
+                                        if (brochureDropzone) {
+                                            brochureDropzone.classList.add('hidden');
+                                        }
                                     }
                                 });
 
@@ -394,6 +474,10 @@
                                     removeBrochureBtn.addEventListener('click', function() {
                                         brochureInput.value = '';
                                         brochurePreview.classList.add('hidden');
+                                        // Show dropzone again
+                                        if (brochureDropzone) {
+                                            brochureDropzone.classList.remove('hidden');
+                                        }
                                     });
                                 }
                             }

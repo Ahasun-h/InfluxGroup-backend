@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ProductCategory;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -16,7 +16,7 @@ class ProductCategoryController extends Controller
      */
     public function index(): View
     {
-        $categories = ProductCategory::ordered()->get();
+        $categories = Category::productArea()->ordered()->get();
         return view('admin.product-categories.index', compact('categories'));
     }
 
@@ -36,16 +36,17 @@ class ProductCategoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'icon' => 'nullable|string|max:50',
+            'icon' => 'nullable|string',
             'order' => 'nullable|integer|min:0',
         ]);
 
         $validated['slug'] = Str::slug($request->name);
         $validated['order'] = $request->order ?? 0;
         $validated['is_active'] = $request->has('is_active') ? 1 : 0;
+        $validated['service_area'] = 'product';
 
         try {
-            ProductCategory::create($validated);
+            Category::create($validated);
             return redirect()->route('admin.product-categories.index')
                 ->with('success', 'Product category created successfully.');
         } catch (\Exception $e) {
@@ -58,7 +59,7 @@ class ProductCategoryController extends Controller
     /**
      * Show the form for editing the specified product category.
      */
-    public function edit(ProductCategory $productCategory): View
+    public function edit(Category $productCategory): View
     {
         return view('admin.product-categories.edit', compact('productCategory'));
     }
@@ -66,12 +67,12 @@ class ProductCategoryController extends Controller
     /**
      * Update the specified product category in storage.
      */
-    public function update(Request $request, ProductCategory $productCategory): RedirectResponse
+    public function update(Request $request, Category $productCategory): RedirectResponse
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'icon' => 'nullable|string|max:50',
+            'icon' => 'nullable|string',
             'order' => 'nullable|integer|min:0',
         ]);
 
@@ -93,7 +94,7 @@ class ProductCategoryController extends Controller
     /**
      * Remove the specified product category from storage.
      */
-    public function destroy(ProductCategory $productCategory): RedirectResponse
+    public function destroy(Category $productCategory): RedirectResponse
     {
         // Check if category has products
         if ($productCategory->products()->count() > 0) {
@@ -115,12 +116,12 @@ class ProductCategoryController extends Controller
         try {
             $request->validate([
                 'categories' => 'required|array',
-                'categories.*.id' => 'required|exists:product_categories,id',
+                'categories.*.id' => 'required|exists:categories,id',
                 'categories.*.order' => 'required|integer|min:0',
             ]);
 
             foreach ($request->categories as $categoryData) {
-                $category = ProductCategory::find($categoryData['id']);
+                $category = Category::find($categoryData['id']);
                 if ($category) {
                     $category->update(['order' => $categoryData['order']]);
                 }
