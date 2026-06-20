@@ -114,14 +114,24 @@
                             </div>
 
                             <div>
-                                <label for="category" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Category</label>
-                                <select name="category" id="category" required
+                                <label for="category_id" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Category</label>
+                                <select name="category_id" id="category_id" required
                                     class="w-full px-4 py-2.5 bg-gray-50/50 dark:bg-surface-900/50 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all dark:text-white">
-                                    <option value="power" {{ old('category', $project->category) == 'power' ? 'selected' : '' }}>Power Generation</option>
-                                    <option value="transmission" {{ old('category', $project->category) == 'transmission' ? 'selected' : '' }}>Transmission</option>
-                                    <option value="renewable" {{ old('category', $project->category) == 'renewable' ? 'selected' : '' }}>Renewable Energy</option>
-                                    <option value="industrial" {{ old('category', $project->category) == 'industrial' ? 'selected' : '' }}>Industrial</option>
+                                    <option value="">Select Category</option>
+                                    @foreach($categories as $category)
+                                    <option value="{{ $category->id }}" {{ old('category_id', $project->category_id) == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                                    @endforeach
                                 </select>
+                                <x-input-error :messages="$errors->get('category_id')" class="mt-2" />
+                            </div>
+
+                            <div>
+                                <label for="category" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Category Display Name</label>
+                                <input type="text" name="category" id="category" value="{{ old('category', $project->category) }}" required
+                                    class="w-full px-4 py-2.5 bg-gray-50/50 dark:bg-surface-900/50 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all dark:text-white"
+                                    placeholder="e.g., Power Generation">
+                                <x-input-error :messages="$errors->get('category')" class="mt-2" />
+                                <p class="text-xs text-gray-500 mt-1">Short name for badges and filters</p>
                             </div>
 
                             <div>

@@ -1,37 +1,47 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { Cog, Wrench, Users, Zap, CheckCircle, ArrowRight } from 'lucide-vue-next'
+import { serviceService } from '../services/content'
+import { API_CONFIG } from '../config/api'
 
-const services = [
-  {
-    icon: Cog,
-    title: 'EPC Contracting',
-    description: 'Full-scope Engineering, Procurement, and Construction services for power infrastructure projects',
-    features: ['Turnkey Solutions', 'Project Management', 'Quality Assurance', 'Safety Compliance'],
-    link: '/solutions'
-  },
-  {
-    icon: Wrench,
-    title: 'Maintenance Services',
-    description: 'Comprehensive maintenance and support for all power systems and equipment',
-    features: ['24/7 Emergency Support', 'Preventive Maintenance', 'Condition Monitoring', 'Spare Parts Supply'],
-    link: '/contact'
-  },
-  {
-    icon: Users,
-    title: 'Technical Training',
-    description: 'Professional training programs for engineers and technicians in power sector',
-    features: ['Hands-on Training', 'Certification Programs', 'Custom Courses', 'On-site Training'],
-    link: '/contact'
-  },
-  {
-    icon: Zap,
-    title: 'Testing & Commissioning',
-    description: 'Complete testing and commissioning services for power systems and equipment',
-    features: ['Type Testing', 'Site Testing', 'Commissioning', 'Performance Evaluation'],
-    link: '/contact'
+const router = useRouter()
+const services = ref([])
+const isLoading = ref(true)
+
+const serviceIcons = {
+  'EPC Contracting': Cog,
+  'Maintenance Services': Wrench,
+  'Technical Training': Users,
+  'Testing & Commissioning': Zap,
+  default: Cog
+}
+
+const getImageUrl = (path) => {
+  if (!path) return 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200'
+  if (path.startsWith('http')) return path
+  return `${API_CONFIG.baseURL.replace('/api', '')}${path}`
+}
+
+const fetchServices = async () => {
+  try {
+    isLoading.value = true
+    const response = await serviceService.getServices()
+    services.value = response || []
+  } catch (error) {
+    console.error('Failed to fetch services:', error)
+  } finally {
+    isLoading.value = false
   }
-]
+}
+
+const viewServiceDetails = (service) => {
+  if (service.slug) {
+    router.push(`/services/${service.slug}`)
+  }
+}
+
+onMounted(fetchServices)
 
 const serviceProcess = [
   {
@@ -81,17 +91,27 @@ const serviceProcess = [
     <!-- Main Services -->
     <section class="py-20 bg-white">
       <div class="max-w-7xl mx-auto px-6">
-        <div class="grid md:grid-cols-2 gap-8">
+        <div v-if="isLoading" class="flex flex-col items-center justify-center py-20 gap-4">
+          <div class="w-12 h-12 border-4 border-industrial-blue border-t-transparent rounded-full animate-spin"></div>
+          <p class="text-industrial-dark font-bold uppercase tracking-widest text-xs">Loading Services...</p>
+        </div>
+
+        <div v-else-if="services.length === 0" class="text-center py-20">
+          <p class="text-xl text-slate-500 font-medium">No services available at the moment.</p>
+        </div>
+
+        <div v-else class="grid md:grid-cols-2 gap-8">
           <div
             v-for="(service, index) in services"
-            :key="index"
-            class="group p-8 rounded-lg border-2 border-slate-200 hover:border-industrial-blue transition-all duration-500 hover:shadow-2xl"
+            :key="service.id || index"
+            class="group p-8 rounded-lg border-2 border-slate-200 hover:border-industrial-blue transition-all duration-500 hover:shadow-2xl cursor-pointer"
             v-motion-slide-visible-bottom
             :delay="index * 100"
+            @click="viewServiceDetails(service)"
           >
             <div class="flex items-start gap-6">
               <div class="w-16 h-16 bg-industrial-blue rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-industrial-red transition-colors">
-                <component :is="service.icon" class="w-8 h-8 text-white" />
+                <component :is="serviceIcons[service.title] || serviceIcons.default" class="w-8 h-8 text-white" />
               </div>
               <div class="flex-1">
                 <h3 class="text-2xl font-display font-black uppercase italic mb-4 group-hover:text-industrial-blue transition-colors">
@@ -100,11 +120,11 @@ const serviceProcess = [
                 <p class="text-slate-600 mb-6 leading-relaxed">
                   {{ service.description }}
                 </p>
-                <div class="mb-6">
+                <div v-if="service.features && service.features.length" class="mb-6">
                   <div class="text-xs font-black uppercase tracking-wider text-slate-500 mb-3">Key Features</div>
                   <div class="space-y-2">
                     <div
-                      v-for="(feature, idx) in service.features"
+                      v-for="(feature, idx) in service.features.slice(0, 4)"
                       :key="idx"
                       class="flex items-center gap-2 text-sm text-slate-700"
                     >

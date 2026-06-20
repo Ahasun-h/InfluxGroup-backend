@@ -42,7 +42,8 @@
       "Bash(killall -9 nginx)",
       "Bash(killall -9 nginx php-fpm php-fpm83)",
       "Bash(nginx -t)",
-      "Bash(pkill -9 nginx)"
+      "Bash(pkill -9 nginx)",
+      "Bash(awk '{print $9}')"
     ]
   }
 }

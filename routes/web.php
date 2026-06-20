@@ -23,6 +23,12 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::post('products/{product}/remove-brochure', [\App\Http\Controllers\Admin\ProductController::class, 'removeBrochure'])->name('products.remove-brochure');
     Route::post('products/{product}/remove-image', [\App\Http\Controllers\Admin\ProductController::class, 'removeImage'])->name('products.remove-image');
     Route::resource('projects', \App\Http\Controllers\Admin\ProjectController::class);
+    Route::resource('services-and-solutions', \App\Http\Controllers\Admin\ServiceAndSolutionController::class);
+    Route::post('services-and-solutions/{item}/remove-gallery-image', [\App\Http\Controllers\Admin\ServiceAndSolutionController::class, 'removeGalleryImage'])->name('services-and-solutions.remove-gallery-image');
+    Route::post('services-and-solutions/{item}/remove-image', [\App\Http\Controllers\Admin\ServiceAndSolutionController::class, 'removeImage'])->name('services-and-solutions.remove-image');
+    Route::resource('news', \App\Http\Controllers\Admin\NewsController::class);
+    Route::post('news/{news}/remove-gallery-image', [\App\Http\Controllers\Admin\NewsController::class, 'removeGalleryImage'])->name('news.remove-gallery-image');
+    Route::post('news/{news}/remove-image', [\App\Http\Controllers\Admin\NewsController::class, 'removeImage'])->name('news.remove-image');
     Route::resource('pages', \App\Http\Controllers\Admin\PageController::class);
 
     // Hero section management (now using content_management system)

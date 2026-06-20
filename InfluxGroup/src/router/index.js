@@ -74,11 +74,29 @@ const routes = [
     }
   },
   {
+    path: '/services/:slug',
+    name: 'ServiceDetail',
+    component: () => import('../pages/ServiceDetail.vue'),
+    meta: {
+      title: 'Service Details | Influx Group',
+      transition: 'slide'
+    }
+  },
+  {
     path: '/solutions',
     name: 'Solutions',
     component: () => import('../pages/Solutions.vue'),
     meta: {
       title: 'Solutions | Influx Group',
+      transition: 'slide'
+    }
+  },
+  {
+    path: '/solutions/:slug',
+    name: 'SolutionDetail',
+    component: () => import('../pages/SolutionDetail.vue'),
+    meta: {
+      title: 'Solution Details | Influx Group',
       transition: 'slide'
     }
   },
@@ -89,6 +107,15 @@ const routes = [
     meta: {
       title: 'News | Influx Group',
       transition: 'fade'
+    }
+  },
+  {
+    path: '/news/:slug',
+    name: 'NewsDetail',
+    component: () => import('../pages/NewsDetail.vue'),
+    meta: {
+      title: 'News Details | Influx Group',
+      transition: 'slide'
     }
   },
   {

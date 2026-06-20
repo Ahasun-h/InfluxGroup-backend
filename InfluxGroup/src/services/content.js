@@ -136,6 +136,14 @@ export const serviceService = {
     const { data } = await api.get(API_ENDPOINTS.SERVICES)
     return data
   },
+
+  /**
+   * Get service by slug
+   */
+  async getServiceBySlug(slug) {
+    const { data } = await api.get(API_ENDPOINTS.SERVICE_BY_SLUG(slug))
+    return data
+  },
 }
 
 export const solutionService = {
@@ -144,6 +152,14 @@ export const solutionService = {
    */
   async getSolutions() {
     const { data } = await api.get(API_ENDPOINTS.SOLUTIONS)
+    return data
+  },
+
+  /**
+   * Get solution by slug
+   */
+  async getSolutionBySlug(slug) {
+    const { data } = await api.get(API_ENDPOINTS.SOLUTION_BY_SLUG(slug))
     return data
   },
 }

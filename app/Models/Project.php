@@ -16,6 +16,7 @@ class Project extends Model
         'capacity',
         'type',
         'category',
+        'category_id',
         'status',
         'completion',
         'client',

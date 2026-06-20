@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Project;
+use App\Models\ServiceAndSolution;
 use App\Models\Category;
 use App\Models\Page;
+use App\Models\News;
 use Illuminate\Http\Request;
 
 class ContentController extends Controller
@@ -223,9 +225,89 @@ class ContentController extends Controller
     }
 
 
+    /**
+     * Get all services
+     */
+    public function getServices(Request $request)
+    {
+        $query = ServiceAndSolution::services();
+
+        $services = $query->where('is_active', true)->orderBy('order')->paginate($request->limit ?? 10);
+
+        return response()->json([
+            'success' => true,
+            'data' => $services->items(),
+            'pagination' => [
+                'total' => $services->total(),
+                'page' => $services->currentPage(),
+                'limit' => $services->perPage(),
+                'totalPages' => $services->lastPage(),
+            ]
+        ]);
+    }
+
+    /**
+     * Get service by slug
+     */
+    public function getService($slug)
+    {
+        $service = ServiceAndSolution::where('slug', $slug)->where('type', 'service')->where('is_active', true)->first();
+
+        if (!$service) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Service not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $service
+        ]);
+    }
+
+    /**
+     * Get all solutions
+     */
+    public function getSolutions(Request $request)
+    {
+        $query = ServiceAndSolution::solutions();
+
+        $solutions = $query->where('is_active', true)->orderBy('order')->paginate($request->limit ?? 10);
+
+        return response()->json([
+            'success' => true,
+            'data' => $solutions->items(),
+            'pagination' => [
+                'total' => $solutions->total(),
+                'page' => $solutions->currentPage(),
+                'limit' => $solutions->perPage(),
+                'totalPages' => $solutions->lastPage(),
+            ]
+        ]);
+    }
+
+    /**
+     * Get solution by slug
+     */
+    public function getSolution($slug)
+    {
+        $solution = ServiceAndSolution::where('slug', $slug)->where('type', 'solution')->where('is_active', true)->first();
+
+        if (!$solution) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Solution not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $solution
+        ]);
+    }
+
     // Legacy support - old methods (deprecated)
-    public function getServices() { return response()->json(['success' => true, 'data' => []]); }
-    public function getSolutions() { return response()->json(['success' => true, 'data' => []]); }
     public function getTestimonials() { return response()->json(['success' => true, 'data' => []]); }
     public function getJobs() { return response()->json(['success' => true, 'data' => []]); }
     public function getGallery() { return response()->json(['success' => true, 'data' => []]); }
@@ -686,10 +768,73 @@ class ContentController extends Controller
         }
     }
 
+    /**
+     * Get all news articles
+     */
+    public function getNews(Request $request)
+    {
+        $query = News::published();
+
+        if ($request->has('category') && $request->category !== 'all') {
+            $query->where('category', $request->category);
+        }
+
+        $news = $query->latest('published_at')->paginate($request->limit ?? 10);
+
+        return response()->json([
+            'success' => true,
+            'data' => $news
+        ]);
+    }
+
+    /**
+     * Get news article by slug
+     */
+    public function getNewsArticle($slug)
+    {
+        $article = News::where('slug', $slug)->published()->first();
+
+        if (!$article) {
+            return response()->json([
+                'success' => false,
+                'message' => 'News article not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $article
+        ]);
+    }
+
+    /**
+     * Get featured news articles
+     */
+    public function getFeaturedNews()
+    {
+        $featuredNews = News::featured()->published()->latest('published_at')->limit(3)->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $featuredNews
+        ]);
+    }
+
+    /**
+     * Get news categories
+     */
+    public function getNewsCategories()
+    {
+        $categories = Category::newsArea()->active()->orderBy('order')->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $categories
+        ]);
+    }
+
     // Legacy support - keep old methods
     public function getProductCategories() { return response()->json(['success' => true, 'data' => []]); }
-    public function getFeaturedNews() { return response()->json(['success' => true, 'data' => []]); }
-    public function getNewsCategories() { return response()->json(['success' => true, 'data' => []]); }
     public function getGalleryCategories() { return response()->json(['success' => true, 'data' => []]); }
     public function getProduct($slug) { return response()->json(['success' => true, 'data' => Product::where('slug', $slug)->first()]); }
     public function getArticle($slug) { return response()->json(['success' => true, 'data' => null]); }
