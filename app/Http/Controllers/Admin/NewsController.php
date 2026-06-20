@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 
 class NewsController extends Controller
 {
@@ -246,5 +247,54 @@ class NewsController extends Controller
 
         return redirect()->back()
             ->with('success', 'Image removed successfully.');
+    }
+
+    /**
+     * Upload image from Trix editor
+     */
+    public function uploadTrixImage(Request $request): JsonResponse
+    {
+        try {
+            $request->validate([
+                'file' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
+            ]);
+
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $path = 'uploads/news/trix/' . $filename;
+
+                // Create directory if it doesn't exist
+                $directory = public_path('uploads/news/trix');
+                if (!file_exists($directory)) {
+                    if (!mkdir($directory, 0755, true)) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Failed to create upload directory'
+                        ], 500);
+                    }
+                }
+
+                // Move file to public directory
+                $file->move($directory, $filename);
+
+                return response()->json([
+                    'success' => true,
+                    'url' => asset($path),
+                    'path' => $path
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'No file uploaded'
+            ], 400);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Upload failed: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

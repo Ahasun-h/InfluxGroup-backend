@@ -65,11 +65,11 @@ const routes = [
     }
   },
   {
-    path: '/services',
-    name: 'Services',
-    component: () => import('../pages/Services.vue'),
+    path: '/services-and-solutions',
+    name: 'ServicesAndSolutions',
+    component: () => import('../pages/ServicesAndSolutions.vue'),
     meta: {
-      title: 'Services | Influx Group',
+      title: 'Services & Solutions | Influx Group',
       transition: 'fade'
     }
   },
@@ -79,15 +79,6 @@ const routes = [
     component: () => import('../pages/ServiceDetail.vue'),
     meta: {
       title: 'Service Details | Influx Group',
-      transition: 'slide'
-    }
-  },
-  {
-    path: '/solutions',
-    name: 'Solutions',
-    component: () => import('../pages/Solutions.vue'),
-    meta: {
-      title: 'Solutions | Influx Group',
       transition: 'slide'
     }
   },

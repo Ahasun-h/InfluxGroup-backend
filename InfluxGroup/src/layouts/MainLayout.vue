@@ -32,6 +32,19 @@ const searchQuery = ref('')
 const lastScrollY = ref(0)
 const isHeaderHidden = ref(false)
 
+// Route name mapping for breadcrumb
+const routeNameMap = {
+  '/services-and-solutions': 'Services & Solutions',
+  '/services': 'Services',
+  '/solutions': 'Solutions',
+  '/products': 'Products',
+  '/projects': 'Projects',
+  '/news': 'News & Update',
+  '/about': 'About',
+  '/contact': 'Contact',
+  '/gallery': 'Gallery'
+}
+
 // Desktop currentNavigation (full menu)
 const desktopNavigation = [
   {
@@ -63,39 +76,14 @@ const desktopNavigation = [
     icon: Briefcase
   },
   {
-    name: 'Services',
-    path: '/services',
-    hasDropdown: true,
-    dropdownItems: [
-      { name: 'EPC Solutions', path: '/solutions#epc', description: 'Turnkey project delivery' },
-      { name: 'MEP Services', path: '/solutions#mep', description: 'Mechanical, Electrical & Plumbing' },
-      { name: 'Maintenance', path: '/services#maintenance', description: '24/7 support services' },
-      { name: 'Testing & Commissioning', path: '/services#testing', description: 'Complete testing services' },
-      { name: 'Training', path: '/services#training', description: 'Technical training programs' }
-    ]
+    name: 'Services & Solutions',
+    path: '/services-and-solutions',
+    icon: Settings
   },
   {
-    name: 'Solutions',
-    path: '/solutions',
-    hasDropdown: true,
-    dropdownItems: [
-      { name: 'Power Sector', path: '/solutions#power', description: 'Generation & distribution' },
-      { name: 'Industrial', path: '/solutions#industrial', description: 'Manufacturing & factory' },
-      { name: 'Commercial', path: '/solutions#commercial', description: 'Office & retail' },
-      { name: 'Renewable Energy', path: '/solutions#renewable', description: 'Solar & wind power' }
-    ]
-  },
-  {
-    name: 'Resources',
+    name: 'News & Update',
     path: '/news',
-    icon: FileText,
-    hasDropdown: true,
-    dropdownItems: [
-      { name: 'News & Updates', path: '/news', description: 'Latest company news' },
-      { name: 'Gallery', path: '/gallery', description: 'Photos & videos' },
-      { name: 'Case Studies', path: '/projects', description: 'Success stories' },
-      { name: 'Technical Papers', path: '/news', description: 'Research & development' }
-    ]
+    icon: FileText
   },
   {
     name: 'Contact',
@@ -138,9 +126,8 @@ const laptopNavigation = [
     name: 'More',
     hasDropdown: true,
     dropdownItems: [
-      { name: 'Services', path: '/services' },
-      { name: 'Solutions', path: '/solutions' },
-      { name: 'News', path: '/news' },
+      { name: 'Services & Solutions', path: '/services-and-solutions' },
+      { name: 'News & Update', path: '/news' },
       { name: 'Gallery', path: '/gallery' },
       { name: 'Contact', path: '/contact', highlight: true }
     ]
@@ -668,7 +655,7 @@ onUnmounted(() => {
               Home
             </a>
             <ChevronRight class="w-3 h-3 text-slate-400" />
-            <span class="text-slate-600">{{ currentNavigation.find(n => n.path === currentPath)?.name || 'Page' }}</span>
+            <span class="text-slate-600">{{ routeNameMap[currentPath] || currentNavigation.find(n => n.path === currentPath)?.name || 'Page' }}</span>
           </nav>
         </div>
       </div>

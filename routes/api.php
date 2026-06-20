@@ -80,6 +80,12 @@ Route::prefix('cms')->group(function () {
     // Contact Section
     Route::get('/contact', [ContentController::class, 'getContactSection']);
 
+    // Website Settings
+    Route::get('/settings', [ContentController::class, 'getWebsiteSettings']);
+
+    // Services & Solutions Page Content
+    Route::get('/services-solutions-page', [ContentController::class, 'getServicesSolutionsPageContent']);
+
     // Homepage All Content
     Route::get('/homepage', [ContentController::class, 'getHomepageContent']);
 });

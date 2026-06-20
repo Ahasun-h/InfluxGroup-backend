@@ -1,11 +1,31 @@
 <x-layouts.app title="Edit News Article">
     <x-slot:styles>
+        <!-- Load Trix rich text editor -->
+        <link rel="stylesheet" type="text/css" href="https://unpkg.com/trix@2.0.8/dist/trix.css">
+
         <!-- Load Dropify dependencies -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <link rel="stylesheet" href="{{ asset('css/dropify.min.css') }}">
         <script src="{{ asset('js/dropify.min.js') }}"></script>
 
         <style>
+            /* Trix rich text editor custom styling for dark theme */
+            trix-editor {
+                min-height: 400px !important;
+                background-color: transparent !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                border-radius: 0.75rem !important;
+                color: inherit !important;
+                padding: 1rem !important;
+            }
+            .dark trix-toolbar .trix-button {
+                background-color: #334155 !important;
+                border-color: #475569 !important;
+            }
+            .dark trix-toolbar .trix-button--active {
+                background-color: #14b8a6 !important;
+            }
+
             /* Dropify custom styling for dark theme */
             .dropify-wrapper {
                 background: #121828;
@@ -143,10 +163,9 @@
                             </div>
 
                             <div class="md:col-span-2">
-                                <label for="content" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Content</label>
-                                <textarea name="content" id="content" rows="10" required
-                                    class="w-full px-4 py-2.5 bg-gray-50/50 dark:bg-surface-900/50 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all dark:text-white resize-y"
-                                    placeholder="Full article content...">{{ old('content', $news->content) }}</textarea>
+                                <label for="content" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Content (Rich Text)</label>
+                                <input id="content" type="hidden" name="content" value="{{ old('content', $news->content) }}">
+                                <trix-editor input="content" class="trix-content dark:text-white prose dark:prose-invert max-w-none"></trix-editor>
                                 <x-input-error :messages="$errors->get('content')" class="mt-2" />
                             </div>
 
@@ -214,7 +233,7 @@
                                 @if($news->image) data-default-file="{{ $news->image }}" @endif />
                             <x-input-error :messages="$errors->get('image')" class="mt-2" />
                             @if($news->image)
-                            <form action="{{ route('admin.news.removeImage', $news) }}" method="POST" class="mt-3">
+                            <form action="{{ route('admin.news.remove-image', $news) }}" method="POST" class="mt-3">
                                 @csrf
                                 <button type="submit" class="text-sm text-red-500 hover:text-red-600">Remove current image</button>
                             </form>
@@ -229,7 +248,7 @@
                                 @foreach($news->gallery as $index => $img)
                                     <div class="aspect-square rounded-lg overflow-hidden border border-gray-100 dark:border-white/5 relative group">
                                         <img src="{{ $img }}" class="w-full h-full object-cover">
-                                        <form action="{{ route('admin.news.removeGalleryImage', $news) }}" method="POST" class="absolute top-1 right-1">
+                                        <form action="{{ route('admin.news.remove-gallery-image', $news) }}" method="POST" class="absolute top-1 right-1">
                                             @csrf
                                             <input type="hidden" name="image_index" value="{{ $index }}">
                                             <button type="submit" class="bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all hover:scale-110">
@@ -287,8 +306,65 @@
     </div>
 
     <x-slot:scripts>
+        <!-- Load Trix rich text editor -->
+        <script type="text/javascript" src="https://unpkg.com/trix@2.0.8/dist/trix.umd.min.js"></script>
+
         <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Trix editor image upload functionality
+            document.addEventListener('trix-attachment-add', function(event) {
+                var attachment = event.attachment;
+                if (attachment.file) {
+                    uploadAttachment(attachment);
+                }
+            });
+
+            function uploadAttachment(attachment) {
+                var file = attachment.file;
+                var form = new FormData();
+                form.append('file', file);
+                form.append('_token', '{{ csrf_token() }}');
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '{{ route('admin.news.upload-trix-image') }}', true);
+
+                xhr.upload.onprogress = function(event) {
+                    if (event.lengthComputable) {
+                        var progress = Math.round((event.loaded / event.total) * 100);
+                        attachment.setUploadProgress(progress);
+                    }
+                };
+
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        try {
+                            var response = JSON.parse(xhr.responseText);
+                            if (response.success) {
+                                attachment.setAttributes({
+                                    url: response.url,
+                                    href: response.url
+                                });
+                            } else {
+                                attachment.remove();
+                                alert('Image upload failed: ' + response.message);
+                            }
+                        } catch (e) {
+                            attachment.remove();
+                            alert('Invalid server response: ' + xhr.responseText);
+                        }
+                    } else {
+                        attachment.remove();
+                        alert('Image upload failed. Server returned: ' + xhr.status + ' ' + xhr.responseText);
+                    }
+                };
+
+                xhr.onerror = function() {
+                    attachment.remove();
+                    alert('Image upload failed. Please check your connection.');
+                };
+
+                xhr.send(form);
+            }
             // Wait for jQuery and Dropify to load
             var checkJQuery = setInterval(function() {
                 if (typeof jQuery !== 'undefined') {

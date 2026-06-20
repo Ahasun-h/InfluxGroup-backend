@@ -1251,7 +1251,7 @@ const contactCta = computed(() => {
         </div>
 
         <div class="text-center mt-12" v-motion-slide-visible-bottom>
-          <a href="/services" class="inline-flex items-center gap-3 bg-industrial-blue text-white px-8 md:px-12 py-3 md:py-5 rounded-sm font-black uppercase tracking-widest text-[10px] md:text-xs hover:bg-industrial-red transition-all shadow-2xl">
+          <a href="/services-and-solutions" class="inline-flex items-center gap-3 bg-industrial-blue text-white px-8 md:px-12 py-3 md:py-5 rounded-sm font-black uppercase tracking-widest text-[10px] md:text-xs hover:bg-industrial-red transition-all shadow-2xl">
             All Services <ArrowRight class="w-4 h-4" />
           </a>
         </div>
@@ -1342,7 +1342,7 @@ const contactCta = computed(() => {
         </div>
 
         <div class="text-center mt-12" v-motion-slide-visible-bottom>
-          <a href="/solutions" class="inline-flex items-center gap-3 bg-industrial-blue text-white px-8 md:px-12 py-3 md:py-5 rounded-sm font-black uppercase tracking-widest text-[10px] md:text-xs hover:bg-industrial-red transition-all shadow-2xl">
+          <a href="/services-and-solutions" class="inline-flex items-center gap-3 bg-industrial-blue text-white px-8 md:px-12 py-3 md:py-5 rounded-sm font-black uppercase tracking-widest text-[10px] md:text-xs hover:bg-industrial-red transition-all shadow-2xl">
             All Solutions <ArrowRight class="w-4 h-4" />
           </a>
         </div>

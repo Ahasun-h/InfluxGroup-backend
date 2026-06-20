@@ -23,17 +23,28 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::post('products/{product}/remove-brochure', [\App\Http\Controllers\Admin\ProductController::class, 'removeBrochure'])->name('products.remove-brochure');
     Route::post('products/{product}/remove-image', [\App\Http\Controllers\Admin\ProductController::class, 'removeImage'])->name('products.remove-image');
     Route::resource('projects', \App\Http\Controllers\Admin\ProjectController::class);
-    Route::resource('services-and-solutions', \App\Http\Controllers\Admin\ServiceAndSolutionController::class);
+    Route::resource('services-and-solutions', \App\Http\Controllers\Admin\ServiceAndSolutionController::class)->parameters(['services-and-solutions' => 'item']);
     Route::post('services-and-solutions/{item}/remove-gallery-image', [\App\Http\Controllers\Admin\ServiceAndSolutionController::class, 'removeGalleryImage'])->name('services-and-solutions.remove-gallery-image');
     Route::post('services-and-solutions/{item}/remove-image', [\App\Http\Controllers\Admin\ServiceAndSolutionController::class, 'removeImage'])->name('services-and-solutions.remove-image');
     Route::resource('news', \App\Http\Controllers\Admin\NewsController::class);
     Route::post('news/{news}/remove-gallery-image', [\App\Http\Controllers\Admin\NewsController::class, 'removeGalleryImage'])->name('news.remove-gallery-image');
     Route::post('news/{news}/remove-image', [\App\Http\Controllers\Admin\NewsController::class, 'removeImage'])->name('news.remove-image');
+    Route::post('news/upload-trix-image', [\App\Http\Controllers\Admin\NewsController::class, 'uploadTrixImage'])->name('news.upload-trix-image');
     Route::resource('pages', \App\Http\Controllers\Admin\PageController::class);
+
+    // Settings management
+    Route::get('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');
+    Route::post('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
+    Route::post('settings/delete-logo', [\App\Http\Controllers\Admin\SettingsController::class, 'deleteLogo'])->name('settings.delete-logo');
+    Route::post('settings/delete-favicon', [\App\Http\Controllers\Admin\SettingsController::class, 'deleteFavicon'])->name('settings.delete-favicon');
 
     // Hero section management (now using content_management system)
     Route::get('hero', [\App\Http\Controllers\Admin\HeroController::class, 'index'])->name('hero.index');
     Route::put('hero', [\App\Http\Controllers\Admin\HeroController::class, 'update'])->name('hero.update');
+
+    // Services & Solutions page management (now using content_management system)
+    Route::get('services-solutions-page', [\App\Http\Controllers\Admin\ServicesSolutionsPageController::class, 'index'])->name('services-solutions-page.index');
+    Route::put('services-solutions-page', [\App\Http\Controllers\Admin\ServicesSolutionsPageController::class, 'update'])->name('services-solutions-page.update');
 
     // Brand statements management (now using content_management system)
     Route::get('brand-statements', [\App\Http\Controllers\Admin\BrandStatementController::class, 'index'])->name('brand-statements.index');

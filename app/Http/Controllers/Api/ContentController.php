@@ -9,6 +9,7 @@ use App\Models\ServiceAndSolution;
 use App\Models\Category;
 use App\Models\Page;
 use App\Models\News;
+use App\Models\ContentManagement;
 use Illuminate\Http\Request;
 
 class ContentController extends Controller
@@ -831,6 +832,133 @@ class ContentController extends Controller
             'success' => true,
             'data' => $categories
         ]);
+    }
+
+    /**
+     * Get website settings
+     */
+    public function getWebsiteSettings()
+    {
+        $settingsPath = storage_path('app/settings.json');
+
+        if (file_exists($settingsPath)) {
+            $settings = json_decode(file_get_contents($settingsPath), true);
+            $settings = $settings ?: [];
+        } else {
+            // Default settings
+            $settings = [
+                'company_name' => 'Influx Group Engineering',
+                'tagline' => 'Power Infrastructure Solutions',
+                'phone' => '+880 2 987 6543',
+                'email' => 'info@influxgroup.com',
+                'address' => 'Dhaka, Bangladesh',
+                'facebook' => '',
+                'twitter' => '',
+                'linkedin' => '',
+                'youtube' => '',
+                'footer_text' => 'Bangladesh\'s premier engineering conglomerate specializing in high-voltage infrastructure and renewable grid systems.',
+                'copyright_text' => '© 2026 INFLUX GROUP ENGINEERING. ALL RIGHTS RESERVED. ISO 9001:2015 CERTIFIED.',
+                'meta_title' => 'Influx Group - Power Infrastructure Solutions',
+                'meta_description' => 'Leading engineering conglomerate specializing in high-voltage infrastructure and renewable grid systems in Bangladesh.',
+                'meta_keywords' => 'power infrastructure, engineering, transformers, renewable energy, Bangladesh',
+            ];
+        }
+
+        // Add full URLs for images
+        if (isset($settings['header_logo']) && $settings['header_logo']) {
+            $settings['header_logo_url'] = asset('storage/' . $settings['header_logo']);
+        }
+
+        if (isset($settings['favicon']) && $settings['favicon']) {
+            $settings['favicon_url'] = asset('storage/' . $settings['favicon']);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $settings
+        ]);
+    }
+
+    /**
+     * Get services and solutions page content
+     */
+    public function getServicesSolutionsPageContent()
+    {
+        // Fetch all services_solutions_page content from database
+        $allContent = ContentManagement::where('section_name', 'services_solutions_page')->get()->keyBy('section_item_name');
+
+        // Build content structure
+        $content = [
+            'hero' => [
+                'title' => $allContent['hero_title']->section_content ?? 'SERVICES & <span class="text-industrial-blue">SOLUTIONS</span>',
+                'subtitle' => $allContent['hero_badge_text']->section_content ?? 'What We Offer',
+                'description' => $allContent['hero_description']->section_content ?? 'Comprehensive engineering services and tailored solutions from concept to commissioning, ensuring your power infrastructure operates at peak performance.'
+            ],
+            'process' => [
+                'title' => $allContent['process_title']->section_content ?? 'Our <span class="text-industrial-blue">Process</span>',
+                'description' => $allContent['process_description']->section_content ?? 'A systematic approach to delivering excellence in every project',
+                'steps' => json_decode($allContent['process_steps']->section_content ?? '[]', true) ?: [
+                    ['step' => '01', 'title' => 'Consultation', 'description' => 'Understanding your requirements and developing customized solutions'],
+                    ['step' => '02', 'title' => 'Design', 'description' => 'Engineering detailed designs and specifications for optimal performance'],
+                    ['step' => '03', 'title' => 'Implementation', 'description' => 'Executing projects with precision and adherence to timelines'],
+                    ['step' => '04', 'title' => 'Support', 'description' => 'Providing ongoing maintenance and technical support throughout lifecycle']
+                ]
+            ],
+            'industries' => [
+                'title' => $allContent['industries_title']->section_content ?? 'Industries We <span class="text-industrial-blue">Serve</span>',
+                'description' => $allContent['industries_description']->section_content ?? 'Delivering specialized solutions across diverse sectors',
+                'industries' => json_decode($allContent['industries_list']->section_content ?? '[]', true) ?: [
+                    ['name' => 'Power Generation', 'icon' => 'Zap'],
+                    ['name' => 'Textile', 'icon' => 'Factory'],
+                    ['name' => 'Pharmaceuticals', 'icon' => 'Building2'],
+                    ['name' => 'Construction', 'icon' => 'Building2'],
+                    ['name' => 'Food Processing', 'icon' => 'Factory'],
+                    ['name' => 'Telecom', 'icon' => 'Zap']
+                ]
+            ],
+            'whyChooseUs' => [
+                'title' => $allContent['why_choose_us_title']->section_content ?? 'Why Choose <span class="text-industrial-blue">Influx Group?</span>',
+                'points' => json_decode($allContent['why_choose_us_points']->section_content ?? '[]', true) ?: [
+                    ['title' => '45+ Years of Excellence', 'description' => 'Decades of experience in delivering power infrastructure solutions across Bangladesh.'],
+                    ['title' => 'Expert Engineering Team', 'description' => 'Highly skilled professionals with expertise in power systems and renewable energy.'],
+                    ['title' => 'Quality Assurance', 'description' => 'ISO 9001:2015 certified processes ensuring highest quality standards.'],
+                    ['title' => '24/7 Support', 'description' => 'Round-the-clock technical support and maintenance services.']
+                ],
+                'image' => $this->getImageUrl($allContent['why_choose_us_image']),
+                'stat_number' => $allContent['stat_number']->section_content ?? '24/7',
+                'stat_label' => $allContent['stat_label']->section_content ?? 'Support Available'
+            ],
+            'cta' => [
+                'title' => $allContent['cta_title']->section_content ?? 'Ready to Get <span class="text-yellow-400">Started?</span>',
+                'description' => $allContent['cta_description']->section_content ?? 'Contact our team to discuss your power infrastructure needs',
+                'button_text' => $allContent['cta_button_text']->section_content ?? 'Request Consultation'
+            ]
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data' => $content
+        ]);
+    }
+
+    /**
+     * Get image URL from content management media_files
+     */
+    private function getImageUrl($contentItem, $default = null)
+    {
+        if (!$contentItem) return $default;
+
+        $mediaFiles = json_decode($contentItem->media_files ?? '[]', true);
+        $imagePath = $mediaFiles['source_file'] ?? null;
+
+        if ($imagePath) {
+            if (filter_var($imagePath, FILTER_VALIDATE_URL)) {
+                return $imagePath;
+            }
+            return asset('uploads/' . basename($imagePath));
+        }
+
+        return $default;
     }
 
     // Legacy support - keep old methods
