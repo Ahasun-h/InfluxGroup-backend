@@ -83,8 +83,8 @@ Route::prefix('cms')->group(function () {
     // Website Settings
     Route::get('/settings', [ContentController::class, 'getWebsiteSettings']);
 
-    // Services & Solutions Page Content
-    Route::get('/services-solutions-page', [ContentController::class, 'getServicesSolutionsPageContent']);
+    // Testimonials
+    Route::get('/testimonials', [ContentController::class, 'getTestimonials']);
 
     // Homepage All Content
     Route::get('/homepage', [ContentController::class, 'getHomepageContent']);

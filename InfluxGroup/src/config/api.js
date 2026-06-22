@@ -38,8 +38,8 @@ export const API_ENDPOINTS = {
   SOLUTION_BY_SLUG: (slug) => `/solutions/${slug}`,
 
   // Testimonials & Partners
-  TESTIMONIALS: '/testimonials',
-  PARTNERS: '/partners',
+  TESTIMONIALS: '/cms/testimonials',
+  PARTNERS: '/cms/partners',
 
   // Careers
   JOBS: '/careers/jobs',

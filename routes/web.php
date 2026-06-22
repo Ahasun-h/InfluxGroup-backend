@@ -32,6 +32,12 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::post('news/upload-trix-image', [\App\Http\Controllers\Admin\NewsController::class, 'uploadTrixImage'])->name('news.upload-trix-image');
     Route::resource('pages', \App\Http\Controllers\Admin\PageController::class);
 
+    // Quotations management
+    Route::resource('quotations', \App\Http\Controllers\Admin\QuotationController::class);
+    Route::post('quotations/{quotation}/status', [\App\Http\Controllers\Admin\QuotationController::class, 'updateStatus'])->name('quotations.update-status');
+    Route::get('quotations/{quotation}/pdf', [\App\Http\Controllers\Admin\QuotationController::class, 'generatePDF'])->name('quotations.pdf');
+    Route::post('quotations/{quotation}/duplicate', [\App\Http\Controllers\Admin\QuotationController::class, 'duplicate'])->name('quotations.duplicate');
+
     // Settings management
     Route::get('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');
     Route::post('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
@@ -42,9 +48,6 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('hero', [\App\Http\Controllers\Admin\HeroController::class, 'index'])->name('hero.index');
     Route::put('hero', [\App\Http\Controllers\Admin\HeroController::class, 'update'])->name('hero.update');
 
-    // Services & Solutions page management (now using content_management system)
-    Route::get('services-solutions-page', [\App\Http\Controllers\Admin\ServicesSolutionsPageController::class, 'index'])->name('services-solutions-page.index');
-    Route::put('services-solutions-page', [\App\Http\Controllers\Admin\ServicesSolutionsPageController::class, 'update'])->name('services-solutions-page.update');
 
     // Brand statements management (now using content_management system)
     Route::get('brand-statements', [\App\Http\Controllers\Admin\BrandStatementController::class, 'index'])->name('brand-statements.index');
@@ -69,6 +72,13 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     // Career CTA Routes
     Route::get('/career-cta', [\App\Http\Controllers\Admin\CareerCtaController::class, 'index'])->name('career-cta-section.index');
     Route::put('/career-cta', [\App\Http\Controllers\Admin\CareerCtaController::class, 'update'])->name('career-cta-section.update');
+
+    // Testimonials Routes
+    Route::get('/testimonials', [\App\Http\Controllers\Admin\TestimonialController::class, 'index'])->name('testimonials.index');
+    Route::put('/testimonials', [\App\Http\Controllers\Admin\TestimonialController::class, 'update'])->name('testimonials.update');
+    Route::post('/testimonials', [\App\Http\Controllers\Admin\TestimonialController::class, 'store'])->name('testimonials.store');
+    Route::put('/testimonials/{id}', [\App\Http\Controllers\Admin\TestimonialController::class, 'updateTestimonial'])->name('testimonials.update-testimonial');
+    Route::delete('/testimonials/{id}', [\App\Http\Controllers\Admin\TestimonialController::class, 'destroy'])->name('testimonials.destroy');
 
     // CMS Section Routes
     Route::prefix('cms-section')->name('cms-section.')->group(function () {

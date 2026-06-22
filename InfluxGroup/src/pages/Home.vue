@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { projectService, companyService, heroService, brandService, missionVisionService, journeyService, coreValuesService, contactCtaService } from '../services/content'
+import { projectService, companyService, heroService, brandService, missionVisionService, journeyService, coreValuesService, contactCtaService, testimonialService } from '../services/content'
 import { API_CONFIG } from '../config/api'
 import {
   Zap,
@@ -104,6 +104,7 @@ const missionVisionData = ref(null)
 const journeyData = ref(null)
 const coreValuesData = ref(null)
 const contactCtaData = ref(null)
+const testimonialsData = ref(null)
 
 // Icon mapping for backwards compatibility
 const iconMap = {
@@ -385,6 +386,29 @@ const fetchContactCtaData = async () => {
   }
 }
 
+const fetchTestimonials = async () => {
+  try {
+    console.log('Fetching testimonials from /api/cms/testimonials...')
+    const response = await testimonialService.getTestimonials()
+    console.log('Testimonials response:', response)
+
+    if (response && response.data) {
+      testimonialsData.value = response.data
+      console.log('Testimonials loaded successfully:', testimonialsData.value)
+    }
+  } catch (error) {
+    console.error('Failed to fetch testimonials:', error)
+
+    // Set default testimonials as fallback
+    testimonialsData.value = {
+      subtitle: 'Testimonials',
+      title: 'What Our Clients Say',
+      description: 'Trusted by leading organizations across Bangladesh and beyond',
+      testimonials: []
+    }
+  }
+}
+
 onMounted(() => {
   fetchFeaturedProjects()
   fetchHomepageData()
@@ -394,6 +418,7 @@ onMounted(() => {
   fetchJourneyData()
   fetchCoreValuesData()
   fetchContactCtaData()
+  fetchTestimonials()
 })
 
 const filteredProjects = computed(() => {
@@ -679,30 +704,10 @@ const industries = [
   { name: 'Telecom', icon: Zap }
 ]
 
-// Testimonials (new section)
-const testimonials = [
-  {
-    name: 'Rahman Ali',
-    position: 'Chief Engineer',
-    company: 'Bangladesh Power Development Board',
-    content: 'Influx Group has been our trusted partner for over 15 years. Their commitment to quality and timely delivery is unmatched in the industry.',
-    rating: 5
-  },
-  {
-    name: 'Sarah Chen',
-    position: 'Project Director',
-    company: 'Asian Development Bank',
-    content: 'The level of technical expertise and project management capability demonstrated by Influx Group is world-class. Highly recommended.',
-    rating: 5
-  },
-  {
-    name: 'Mohammad Hassan',
-    position: 'Managing Director',
-    company: 'Pran-RFL Group',
-    content: 'Their maintenance services have significantly improved our operational efficiency. A reliable partner for industrial power solutions.',
-    rating: 5
-  }
-]
+// Testimonials (new section) - using dynamic data from API
+const testimonials = computed(() => {
+  return testimonialsData.value?.testimonials || []
+})
 
 // Partners/Clients - now using dynamic data
 const partners = computed(() => {
@@ -1355,14 +1360,14 @@ const contactCta = computed(() => {
         <div class="text-center mb-16" v-motion-slide-visible-bottom>
           <div class="flex items-center justify-center gap-3 mb-6">
             <div class="h-px w-12 bg-industrial-blue"></div>
-            <span class="text-industrial-blue font-black uppercase tracking-[0.3em] text-[10px] md:text-xs">{{ homepageData?.testimonials_subtitle || 'Testimonials' }}</span>
+            <span class="text-industrial-blue font-black uppercase tracking-[0.3em] text-[10px] md:text-xs">{{ testimonialsData?.subtitle || 'Testimonials' }}</span>
             <div class="h-px w-12 bg-industrial-blue"></div>
           </div>
           <h2 class="text-4xl md:text-5xl font-display font-black uppercase italic mb-6 text-industrial-dark">
-            {{ homepageData?.testimonials_title || 'What Our Clients Say' }}
+            {{ testimonialsData?.title || 'What Our Clients Say' }}
           </h2>
           <p class="text-slate-600 text-base md:text-lg max-w-3xl mx-auto">
-            Trusted by leading organizations across Bangladesh and beyond
+            {{ testimonialsData?.description || 'Trusted by leading organizations across Bangladesh and beyond' }}
           </p>
         </div>
 
