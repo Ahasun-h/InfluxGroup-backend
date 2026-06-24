@@ -115,4 +115,16 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Email Address
+    |--------------------------------------------------------------------------
+    |
+    | This email address will receive administrative notifications such as
+    | quote requests and other important system alerts.
+    |
+    */
+
+    'admin_address' => env('MAIL_ADMIN_ADDRESS', 'admin@influxgroup.com'),
+
 ];

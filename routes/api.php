@@ -41,9 +41,21 @@ Route::prefix('news')->group(function () {
 
 Route::get('/content/company-info', [ContentController::class, 'getCompanyInfo']);
 
+// Quote requests (public API)
+Route::post('quote-requests/submit', [\App\Http\Controllers\Api\QuoteRequestController::class, 'submit']);
+
 // Admin-only content management endpoints
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/content/homepage', [ContentController::class, 'updateHomepageContent']);
+
+    // Quote requests management (admin only)
+    Route::prefix('admin/quote-requests')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Api\QuoteRequestController::class, 'index']);
+        Route::get('/{quoteRequest}', [\App\Http\Controllers\Api\QuoteRequestController::class, 'show']);
+        Route::put('/{quoteRequest}/status', [\App\Http\Controllers\Api\QuoteRequestController::class, 'updateStatus']);
+        Route::post('/{quoteRequest}/convert', [\App\Http\Controllers\Api\QuoteRequestController::class, 'convertToQuotation']);
+        Route::delete('/{quoteRequest}', [\App\Http\Controllers\Api\QuoteRequestController::class, 'destroy']);
+    });
 });
 
 Route::prefix('pages')->group(function () {
