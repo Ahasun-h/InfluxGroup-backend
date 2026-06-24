@@ -38,6 +38,12 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('quotations/{quotation}/pdf', [\App\Http\Controllers\Admin\QuotationController::class, 'generatePDF'])->name('quotations.pdf');
     Route::post('quotations/{quotation}/duplicate', [\App\Http\Controllers\Admin\QuotationController::class, 'duplicate'])->name('quotations.duplicate');
 
+    // Quote Requests management
+    Route::resource('quote-requests', \App\Http\Controllers\Admin\QuoteRequestController::class)->only(['index', 'show', 'destroy']);
+    Route::get('quote-requests/{quoteRequest}/convert', [\App\Http\Controllers\Admin\QuoteRequestController::class, 'convert'])->name('quote-requests.convert');
+    Route::post('quote-requests/{quoteRequest}/convert', [\App\Http\Controllers\Admin\QuoteRequestController::class, 'storeQuotation'])->name('quote-requests.store-quotation');
+    Route::put('quote-requests/{quoteRequest}/status', [\App\Http\Controllers\Admin\QuoteRequestController::class, 'updateStatus'])->name('quote-requests.update-status');
+
     // Settings management
     Route::get('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');
     Route::post('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');

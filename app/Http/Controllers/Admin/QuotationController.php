@@ -45,7 +45,13 @@ class QuotationController extends Controller
             'accepted' => Quotation::where('status', 'accepted')->count(),
         ];
 
-        return view('admin.quotations.index', compact('quotations', 'stats'));
+        // Get pending quote requests
+        $pendingQuoteRequests = \App\Models\QuoteRequest::where('status', 'pending')
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        return view('admin.quotations.index', compact('quotations', 'stats', 'pendingQuoteRequests'));
     }
 
     /**
