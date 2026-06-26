@@ -7,7 +7,7 @@ import {
   Building2,
   Zap,
   Users,
-  CheckCircle2,
+  CheckCircle,
   ArrowLeft,
   ArrowRight,
   TrendingUp,
@@ -101,7 +101,7 @@ onMounted(fetchProject)
     </div>
 
     <!-- Project Detail -->
-    <div v-else-if="project" class="animate-fade-in">
+    <div v-else-if="project && !isLoading" class="animate-fade-in">
       <!-- Hero Section -->
       <section class="relative h-[60vh] bg-industrial-dark text-white overflow-hidden">
         <div class="absolute inset-0">
@@ -207,6 +207,35 @@ onMounted(fetchProject)
         </div>
       </section>
 
+      <!-- Project Body/Description Section -->
+      <section class="max-w-7xl mx-auto px-6 py-12">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 md:p-12">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">About This Project</h2>
+
+          <div v-if="project.description || project.body" class="prose prose-lg max-w-none">
+            <div class="text-gray-700 dark:text-gray-300 leading-relaxed space-y-4">
+              <p v-if="project.body">{{ project.body }}</p>
+              <p v-else-if="project.description">{{ project.description }}</p>
+              <p v-else class="text-gray-500 italic">
+                No detailed description available for this project.
+              </p>
+            </div>
+          </div>
+
+          <!-- Additional Details if available -->
+          <div v-if="project.challenges || project.technologies_used" class="mt-8 grid md:grid-cols-2 gap-6">
+            <div v-if="project.challenges" class="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
+              <h3 class="font-bold text-gray-900 dark:text-white mb-3">Challenges</h3>
+              <p class="text-gray-600 dark:text-gray-300 text-sm">{{ project.challenges }}</p>
+            </div>
+            <div v-if="project.technologies_used" class="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
+              <h3 class="font-bold text-gray-900 dark:text-white mb-3">Technologies Used</h3>
+              <p class="text-gray-600 dark:text-gray-300 text-sm">{{ project.technologies_used }}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Project Stats -->
       <section v-if="project.stats && project.stats.length" class="max-w-7xl mx-auto px-6 py-8">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -215,8 +244,8 @@ onMounted(fetchProject)
             :key="index"
             class="bg-gradient-to-br from-industrial-blue to-industrial-dark text-white rounded-xl p-6 text-center"
           >
-            <div class="text-3xl font-bold mb-1">{{ stat.value }}</div>
-            <div class="text-sm opacity-90">{{ stat.label }}</div>
+            <div class="text-3xl font-bold mb-1">{{ stat.value || stat.number }}</div>
+            <div class="text-sm opacity-90">{{ stat.label || stat.title }}</div>
           </div>
         </div>
       </section>
@@ -231,7 +260,7 @@ onMounted(fetchProject)
               :key="index"
               class="flex items-start gap-3"
             >
-              <CheckCircle2 :size="20" class="text-green-500 mt-1 flex-shrink-0" />
+              <CheckCircle :size="20" class="text-green-500 mt-1 flex-shrink-0" />
               <span class="text-gray-700 dark:text-gray-300">{{ item }}</span>
             </li>
           </ul>
@@ -248,7 +277,7 @@ onMounted(fetchProject)
               :key="index"
               class="flex items-start gap-3 bg-white/10 rounded-lg p-4"
             >
-              <CheckCircle2 :size="20" class="text-green-400 mt-1 flex-shrink-0" />
+              <CheckCircle :size="20" class="text-green-400 mt-1 flex-shrink-0" />
               <span class="text-white/90">{{ highlight }}</span>
             </div>
           </div>

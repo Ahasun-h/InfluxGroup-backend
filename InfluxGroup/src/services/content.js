@@ -38,32 +38,32 @@ export const projectService = {
    * Get all projects with optional filtering
    */
   async getProjects(params = {}) {
-    const { data, pagination } = await api.get(API_ENDPOINTS.PROJECTS, params)
-    return { projects: data, pagination }
+    const response = await api.get(API_ENDPOINTS.PROJECTS, params)
+    return response.data || []
   },
 
   /**
    * Get featured projects
    */
   async getFeaturedProjects(params = {}) {
-    const { data } = await api.get(API_ENDPOINTS.FEATURED_PROJECTS, params)
-    return data
+    const response = await api.get(API_ENDPOINTS.FEATURED_PROJECTS, params)
+    return response.data || []
   },
 
   /**
    * Get project by slug
    */
   async getProjectBySlug(slug) {
-    const { data } = await api.get(API_ENDPOINTS.PROJECT_BY_SLUG(slug))
-    return data
+    const response = await api.get(API_ENDPOINTS.PROJECT_BY_SLUG(slug))
+    return response.data || null
   },
 
   /**
    * Get project categories
    */
   async getProjectCategories(params = {}) {
-    const { data } = await api.get(API_ENDPOINTS.PROJECT_CATEGORIES, params)
-    return data
+    const response = await api.get(API_ENDPOINTS.PROJECT_CATEGORIES, params)
+    return response.data || []
   },
 }
 
@@ -133,16 +133,16 @@ export const serviceService = {
    * Get all services
    */
   async getServices() {
-    const { data } = await api.get(API_ENDPOINTS.SERVICES)
-    return data
+    const response = await api.get(API_ENDPOINTS.SERVICES)
+    return response.data || []
   },
 
   /**
    * Get service by slug
    */
   async getServiceBySlug(slug) {
-    const { data } = await api.get(API_ENDPOINTS.SERVICE_BY_SLUG(slug))
-    return data
+    const response = await api.get(API_ENDPOINTS.SERVICE_BY_SLUG(slug))
+    return response.data || null
   },
 }
 
@@ -151,16 +151,16 @@ export const solutionService = {
    * Get all solutions
    */
   async getSolutions() {
-    const { data } = await api.get(API_ENDPOINTS.SOLUTIONS)
-    return data
+    const response = await api.get(API_ENDPOINTS.SOLUTIONS)
+    return response.data || []
   },
 
   /**
    * Get solution by slug
    */
   async getSolutionBySlug(slug) {
-    const { data } = await api.get(API_ENDPOINTS.SOLUTION_BY_SLUG(slug))
-    return data
+    const response = await api.get(API_ENDPOINTS.SOLUTION_BY_SLUG(slug))
+    return response.data || null
   },
 }
 

@@ -10,12 +10,12 @@
         </div>
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+        <div class="grid grid-flow-col auto-cols-max gap-6">
             <div class="glass-card p-6">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-gray-500 dark:text-gray-400">Total</p>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $stats['total'] }}</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">1</p>
                     </div>
                     <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -29,7 +29,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-gray-500 dark:text-gray-400">Pending</p>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $stats['pending'] }}</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">1</p>
                     </div>
                     <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -43,7 +43,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-gray-500 dark:text-gray-400">Contacted</p>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $stats['contacted'] }}</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">0</p>
                     </div>
                     <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -57,7 +57,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-gray-500 dark:text-gray-400">Quoted</p>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $stats['quoted'] }}</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">0</p>
                     </div>
                     <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,7 +71,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-gray-500 dark:text-gray-400">Converted</p>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $stats['converted'] }}</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">0</p>
                     </div>
                     <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

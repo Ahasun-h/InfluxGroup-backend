@@ -76,7 +76,7 @@ const routes = [
   {
     path: '/services/:slug',
     name: 'ServiceDetail',
-    component: () => import('../pages/ServiceDetail.vue'),
+    component: () => import('../pages/ServiceAndSolutionDetail.vue'),
     meta: {
       title: 'Service Details | Influx Group',
       transition: 'slide'
@@ -85,7 +85,7 @@ const routes = [
   {
     path: '/solutions/:slug',
     name: 'SolutionDetail',
-    component: () => import('../pages/SolutionDetail.vue'),
+    component: () => import('../pages/ServiceAndSolutionDetail.vue'),
     meta: {
       title: 'Solution Details | Influx Group',
       transition: 'slide'
@@ -125,6 +125,15 @@ const routes = [
     meta: {
       title: 'Gallery | Influx Group',
       transition: 'scale'
+    }
+  },
+  {
+    path: '/career-opportunities',
+    name: 'CareerOpportunities',
+    component: () => import('../pages/CareerOpportunities.vue'),
+    meta: {
+      title: 'Career Opportunities | Influx Group',
+      transition: 'slide'
     }
   }
 ]

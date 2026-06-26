@@ -309,7 +309,7 @@ class ContentController extends Controller
     }
 
     // Legacy support - old methods (deprecated)
-    public function getTestimonials() { return response()->json(['success' => true, 'data' => []]); }
+    public function getLegacyTestimonials() { return response()->json(['success' => true, 'data' => []]); }
     public function getJobs() { return response()->json(['success' => true, 'data' => []]); }
     public function getGallery() { return response()->json(['success' => true, 'data' => []]); }
 

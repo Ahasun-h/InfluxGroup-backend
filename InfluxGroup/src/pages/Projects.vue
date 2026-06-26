@@ -14,7 +14,7 @@ const isLoading = ref(true)
 const filters = computed(() => {
   return [
     { id: 'all', name: 'All Projects' },
-    ...categories.value.map(cat => ({
+    ...(categories.value || []).map(cat => ({
       id: cat.slug,
       name: cat.name
     }))
@@ -31,7 +31,7 @@ const fetchProjects = async () => {
   try {
     isLoading.value = true
     const response = await projectService.getProjects({ limit: 100 })
-    projects.value = response.projects
+    projects.value = response || []
   } catch (error) {
     console.error('Failed to fetch projects:', error)
   } finally {
@@ -49,8 +49,8 @@ const fetchCategories = async () => {
 }
 
 const filteredProjects = computed(() => {
-  if (activeFilter.value === 'all') return projects.value
-  return projects.value.filter(p => {
+  if (activeFilter.value === 'all') return projects.value || []
+  return (projects.value || []).filter(p => {
     // Check if it matches by category slug, category name, or type
     return p.category === activeFilter.value ||
            p.projectCategory?.slug === activeFilter.value ||
@@ -123,7 +123,7 @@ onMounted(async () => {
 
         <div v-else class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           <div
-            v-for="(project, index) in filteredProjects"
+            v-for="(project, index) in (filteredProjects || [])"
             :key="project.id"
             class="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 group"
             v-motion-slide-visible-bottom
@@ -145,15 +145,20 @@ onMounted(async () => {
 
               <!-- Category Badge -->
               <div class="absolute top-4 left-4 bg-industrial-red text-white px-3 py-1 rounded-full text-xs font-bold uppercase">
-                {{ project.category }}
+                {{ project.category || 'Project' }}
               </div>
             </div>
 
             <!-- Content -->
             <div class="p-6">
-              <h3 class="text-xl font-display font-black uppercase italic mb-4 group-hover:text-industrial-blue transition-colors">
+              <h3 class="text-xl font-display font-black uppercase italic mb-3 group-hover:text-industrial-blue transition-colors">
                 {{ project.title }}
               </h3>
+
+              <!-- Description/Body Preview -->
+              <div v-if="project.description || project.body" class="text-slate-600 text-sm mb-4 leading-relaxed line-clamp-2">
+                {{ project.description || project.body }}
+              </div>
 
               <!-- Location -->
               <div class="flex items-center gap-2 text-slate-600 mb-4">
@@ -243,3 +248,12 @@ onMounted(async () => {
     </section>
   </div>
 </template>
+
+<style scoped>
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>
