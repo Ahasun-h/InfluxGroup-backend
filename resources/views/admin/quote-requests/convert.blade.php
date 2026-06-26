@@ -71,7 +71,7 @@
             @csrf
 
             <!-- Client Information (Pre-filled) -->
-            <div class="glass-card p-8">
+            <div class="glass-card p-8 mb-6">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,7 +108,7 @@
             </div>
 
             <!-- Quotation Details -->
-            <div class="glass-card p-8">
+            <div class="glass-card p-8 mb-6">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,7 +159,7 @@
             </div>
 
             <!-- Line Items -->
-            <div class="glass-card p-8">
+            <div class="glass-card p-8 mb-6">
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white">
@@ -194,7 +194,7 @@
             </div>
 
             <!-- Notes & Terms -->
-            <div class="glass-card p-8">
+            <div class="glass-card p-8 mb-6">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -298,11 +298,11 @@
         }
 
         function calculateItemTotal(id) {
-            const quantity = parseFloat(document.querySelector(\`input[name="items[\${id}][quantity]"]\`).value) || 0;
-            const unitPrice = parseFloat(document.querySelector(\`input[name="items[\${id}][unit_price]"]\`).value) || 0;
+            const quantity = parseFloat(document.querySelector(`input[name="items[${id}][quantity]"]`).value) || 0;
+            const unitPrice = parseFloat(document.querySelector(`input[name="items[${id}][unit_price]"]`).value) || 0;
             const total = quantity * unitPrice;
 
-            document.getElementById(\`total-\${id}\`).value = total.toFixed(2);
+            document.getElementById(`total-${id}`).value = total.toFixed(2);
         }
 
         // Add first item on page load

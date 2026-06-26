@@ -29,126 +29,64 @@
     @endphp
 
     <x-slot:styles>
+        <!-- Dropify CSS -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropify/0.2.2/dropify.min.css" />
         <style>
-        /* Modern Image Upload Styles */
-        .image-upload-container {
+        /* Dropify custom styles */
+        .dropify-wrapper {
             border: 2px dashed #cbd5e1;
             border-radius: 12px;
-            padding: 2rem;
-            text-align: center;
-            transition: all 0.3s ease;
             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            position: relative;
-            overflow: hidden;
+            transition: all 0.3s ease;
         }
 
-        .image-upload-container:hover, .image-upload-container.drag-over {
+        .dropify-wrapper:hover {
             border-color: #3b82f6;
             background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.2);
         }
 
-        .image-upload-container.has-image {
-            border-style: solid;
-            border-color: #10b981;
+        .dropify-message p {
+            font-size: 14px;
+            color: #64748b;
         }
 
-        .upload-icon {
-            width: 64px;
-            height: 64px;
-            margin: 0 auto 1rem;
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            transition: all 0.3s ease;
+        .dropify-icon {
+            color: #3b82f6;
         }
 
-        .image-upload-container:hover .upload-icon {
-            transform: scale(1.1);
-            box-shadow: 0 8px 20px -5px rgba(59, 130, 246, 0.4);
-        }
-
-        .image-preview {
-            max-width: 100%;
-            max-height: 300px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            object-fit: cover;
-        }
-
-        .remove-image-btn {
-            position: absolute;
-            top: 8px;
-            right: 8px;
+        .dropify-clear {
             background: rgba(239, 68, 68, 0.9);
             color: white;
-            border: none;
             border-radius: 50%;
             width: 32px;
             height: 32px;
-            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease;
-            z-index: 10;
         }
 
-        .remove-image-btn:hover {
+        .dropify-clear:hover {
             background: rgba(220, 38, 38, 1);
             transform: scale(1.1);
         }
 
-        .upload-actions {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-            margin-top: 1rem;
-        }
-
-        .upload-btn {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .upload-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px -5px rgba(59, 130, 246, 0.4);
-        }
-
         /* Dark mode support */
-        .dark .image-upload-container {
+        .dark .dropify-wrapper {
             background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
             border-color: #475569;
         }
 
-        .dark .image-upload-container:hover, .dark .image-upload-container.drag-over {
+        .dark .dropify-wrapper:hover {
             background: linear-gradient(135deg, #1e3a5f 0%, #1e40af 100%);
             border-color: #3b82f6;
         }
 
-        /* Manual URL input styling */
-        #manual-image-url:valid {
-            border-color: #10b981;
-        }
-        #manual-image-url:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        .dark .dropify-message p {
+            color: #94a3b8;
         }
     </style>
     </x-slot:styles>
-
 
     <div class="space-y-8 pb-10">
         <!-- Page Header -->
@@ -337,58 +275,12 @@
                 <!-- Image Upload (for image_url field) -->
                 <div id="image-input-group" class="hidden">
                     <label id="image-field-label" class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Image</label>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Upload an image by drag & drop, click to browse, or paste a URL</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Upload an image by drag & drop or click to browse</p>
 
-                    <!-- Modern Image Upload Container -->
-                    <div id="image-upload-container" class="image-upload-container">
-                        <button type="button" id="remove-image-btn" class="remove-image-btn hidden">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-
-                        <!-- Upload Area (shown when no image) -->
-                        <div id="upload-area">
-                            <div class="upload-icon">
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                            </div>
-                            <p class="text-gray-700 dark:text-gray-300 font-semibold mb-2">Drag & drop an image here</p>
-                            <p class="text-gray-500 dark:text-gray-400 text-sm mb-4">or</p>
-                            <div class="upload-actions">
-                                <input type="file" id="image-upload" class="hidden" accept="image/*" />
-                                <button type="button" id="browse-btn" class="upload-btn">
-                                    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                    </svg>
-                                    Browse Files
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Image Preview (shown when image is loaded) -->
-                        <div id="preview-area" class="hidden">
-                            <img id="image-preview" class="image-preview" src="" alt="Preview" />
-                            <p id="preview-filename" class="text-gray-600 dark:text-gray-400 text-sm mt-2 font-medium"></p>
-                        </div>
-
-                        <input type="hidden" id="image-url-input" />
-                    </div>
-
-                    <!-- Manual URL input with enhanced styling -->
-                    <div class="mt-4 p-4 bg-gray-50 dark:bg-surface-700 rounded-lg border border-gray-200 dark:border-surface-600">
-                        <div class="flex items-center gap-2 mb-2">
-                            <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656-5.656l4-4a4 4 0 00-5.656 5.656l1.101 1.101M5 22h14"></path>
-                            </svg>
-                            <label class="text-xs font-semibold text-gray-700 dark:text-gray-300">Or paste image URL:</label>
-                        </div>
-                        <input type="text" id="manual-image-url"
-                               class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-surface-600 bg-white dark:bg-surface-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors"
-                               placeholder="https://example.com/image.jpg or https://unsplash.com/..."
-                        />
-                        <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">✨ Press Enter or click away to preview the image</p>
+                    <!-- Dropify Image Upload -->
+                    <div class="dropify-wrapper">
+                        <input type="file" id="image-upload" class="dropify" accept="image/*" data-default-file="{{ $getBrandContent($brandItems, 'brand_statements_image', '') }}" data-allowed-formats="portrait square landscape" data-max-file-size="5M" />
+                        <input type="hidden" id="modal-image-url" value="{{ $getBrandContent($brandItems, 'brand_statements_image', '') }}" />
                     </div>
                 </div>
 
@@ -425,390 +317,346 @@
     </div>
 
     <x-slot:scripts>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dropify/0.2.2/dropify.min.js"></script>
+
         <script>
-            console.log('=== Script loaded ===');
-
-            // Define all functions immediately at script start to ensure they're available
-            window.editStat = function(statId) {
-                console.log('editStat called with:', statId);
-                const modal = document.getElementById('stat-modal');
-                if (!modal) {
-                    console.error('Stat modal not found!');
-                    return;
-                }
-                const valueInput = document.getElementById('stat-value');
-                const labelInput = document.getElementById('stat-label');
-                const statInput = document.getElementById('current-stat');
-                const modalTitle = document.getElementById('stat-modal-title');
-
-                statInput.value = statId;
-                modalTitle.textContent = 'Edit Stat ' + statId;
-
-                // Get current values
-                valueInput.value = document.querySelector(`[data-field="stat${statId}_value"]`)?.textContent || '';
-                labelInput.value = document.querySelector(`[data-field="stat${statId}_label"]`)?.textContent || '';
-
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                console.log('Stat modal opened');
-            };
-
-            window.closeStatModal = function() {
-                console.log('closeStatModal called');
-                const modal = document.getElementById('stat-modal');
-                if (modal) {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                }
-            };
-
-            window.saveStat = function() {
-                console.log('saveStat called');
-                const statId = document.getElementById('current-stat').value;
-                const value = document.getElementById('stat-value').value;
-                const label = document.getElementById('stat-label').value;
-
-                // Update the preview
-                const valueElement = document.querySelector(`[data-field="stat${statId}_value"]`);
-                const labelElement = document.querySelector(`[data-field="stat${statId}_label"]`);
-
-                if (valueElement) valueElement.textContent = value;
-                if (labelElement) labelElement.textContent = label;
-
-                // Update the form values
-                const valueInput = document.querySelector(`input[name="stat${statId}_value"]`);
-                const labelInput = document.querySelector(`input[name="stat${statId}_label"]`);
-
-                if (valueInput) valueInput.value = value;
-                if (labelInput) labelInput.value = label;
-
-                window.closeStatModal();
-
-                // Auto-submit the form
-                document.getElementById('brand-form').submit();
-            };
-
-            console.log('All stat functions defined at startup');
-            console.log('  editStat:', typeof window.editStat);
-            console.log('  saveStat:', typeof window.saveStat);
-            console.log('  closeStatModal:', typeof window.closeStatModal);
-
-            // Field editing functions
-            window.editField = function(fieldName) {
-                console.log('editField called with:', fieldName);
-                const modal = document.getElementById('field-modal');
-                const title = document.getElementById('field-modal-title');
-                const fieldNameInput = document.getElementById('current-field-name');
-                const textInputGroup = document.getElementById('text-input-group');
-                const imageInputGroup = document.getElementById('image-input-group');
-
-                if (!modal) {
-                    console.error('Modal not found!');
-                    return;
-                }
-
-                fieldNameInput.value = fieldName;
-
-                const titles = {
-                    'title': 'Edit Title',
-                    'description': 'Edit Description',
-                    'image_url': 'Edit Image URL',
-                    'overlay_title': 'Edit Overlay Title',
-                    'overlay_text': 'Edit Overlay Text'
-                };
-
-                title.textContent = titles[fieldName] || 'Edit Field';
-
-                // Check if this is an image field
-                if (fieldName === 'image_url') {
-                    textInputGroup.classList.add('hidden');
-                    imageInputGroup.classList.remove('hidden');
-
-                    // Get current image URL with fallback
-                    const brandImage = document.getElementById('brand-image');
-                    const currentImageUrl = brandImage ? brandImage.src : 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200';
-
-                    console.log('Current image URL:', currentImageUrl);
-
-                    // Hide the current preview and show upload area
-                    window.hideImagePreview();
-
-                    // Show the current image after a short delay
-                    setTimeout(function() {
-                        if (currentImageUrl && currentImageUrl !== window.location.href) {
-                            window.showImagePreview(currentImageUrl, 'Current image');
-                        }
-                    }, 100);
-
-                } else {
-                    // Show text input
-                    imageInputGroup.classList.add('hidden');
-                    textInputGroup.classList.remove('hidden');
-
-                    const input = document.getElementById('field-input');
-                    const label = document.getElementById('field-label');
-
-                    const labels = {
-                        'title': 'Title',
-                        'description': 'Description',
-                        'overlay_title': 'Overlay Title',
-                        'overlay_text': 'Overlay Text'
-                    };
-
-                    label.textContent = labels[fieldName] || 'Field Value';
-
-                    // Get current value from the page
-                    const element = document.querySelector(`[data-field="${fieldName}"]`);
-                    if (element) {
-                        // Handle text content with quotes
-                        let text = element.textContent;
-                        if (text.startsWith('"') && text.endsWith('"')) {
-                            text = text.slice(1, -1);
-                        }
-                        input.value = text.trim();
-                    }
-                }
-
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                console.log('Modal opened for field:', fieldName);
-            };
-
-            window.closeFieldModal = function() {
-                console.log('closeFieldModal called');
-                const modal = document.getElementById('field-modal');
-                if (modal) {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                }
-
-                // Reset image upload state when closing
-                if (window.hideImagePreview) {
-                    // Don't hide preview immediately, just reset state
-                    const uploadContainer = document.getElementById('image-upload-container');
-                    if (uploadContainer) {
-                        uploadContainer.classList.remove('has-image', 'drag-over');
-                    }
-                }
-            };
-
-            window.saveField = function() {
-                console.log('saveField called');
-                const fieldName = document.getElementById('current-field-name').value;
-                let value;
-
-                // Get value based on field type
-                if (fieldName === 'image_url') {
-                    value = document.getElementById('image-url-input').value;
-
-                    // Validate that there's an image URL
-                    if (!value || value.trim() === '') {
-                        alert('Please select an image first.');
-                        return;
-                    }
-
-                    // Show loading state for image uploads
-                    if (value.startsWith('data:image/')) {
-                        const saveBtn = document.querySelector('#field-modal .bg-brand-500');
-                        if (saveBtn) {
-                            saveBtn.textContent = 'Processing...';
-                            saveBtn.disabled = true;
-                        }
-                    }
-                } else {
-                    value = document.getElementById('field-input').value;
-
-                    // Add quotes back for overlay text
-                    if (fieldName === 'overlay_text' && !value.startsWith('"')) {
-                        value = '"' + value + '"';
-                    }
-                }
-
-                // Update the preview
-                const element = document.querySelector(`[data-field="${fieldName}"]`);
-                if (element) {
-                    element.textContent = value;
-                } else if (fieldName === 'image_url') {
-                    document.getElementById('brand-image').src = value;
-                }
-
-                // Update the form value
-                const formInput = document.querySelector(`#brand-form [name="${fieldName}"]`);
-                if (formInput) {
-                    formInput.value = value;
-                }
-
-                window.closeFieldModal();
-
-                // Auto-submit the form
-                document.getElementById('brand-form').submit();
-            };
-
-            console.log('All field functions defined at startup');
-            console.log('  editField:', typeof window.editField);
-            console.log('  saveField:', typeof window.saveField);
-            console.log('  closeFieldModal:', typeof window.closeFieldModal);
-
-            // Modern Image Upload Functionality
             (function() {
-                const uploadContainer = document.getElementById('image-upload-container');
-                const uploadArea = document.getElementById('upload-area');
-                const previewArea = document.getElementById('preview-area');
-                const imagePreview = document.getElementById('image-preview');
-                const imageUpload = document.getElementById('image-upload');
-                const browseBtn = document.getElementById('browse-btn');
-                const removeBtn = document.getElementById('remove-image-btn');
-                const urlInput = document.getElementById('image-url-input');
-                const manualInput = document.getElementById('manual-image-url');
-                const previewFilename = document.getElementById('preview-filename');
+                console.log('=== Brand Statements Page Loaded ===');
 
-                // Make showImagePreview globally available
-                window.showImagePreview = function(src, filename = '') {
-                    if (src) {
-                        imagePreview.src = src;
-                        previewArea.classList.remove('hidden');
-                        uploadArea.classList.add('hidden');
-                        uploadContainer.classList.add('has-image');
-                        removeBtn.classList.remove('hidden');
-                        urlInput.value = src;
-                        manualInput.value = src;
-                        if (filename) {
-                            previewFilename.textContent = filename;
+                // Wait for libraries to be available
+                function waitForLibraries(callback) {
+                    const checkLibraries = function() {
+                        if (typeof $ !== 'undefined' && typeof $.fn.dropify !== 'undefined') {
+                            console.log('✓ jQuery and Dropify are ready');
+                            callback();
                         } else {
-                            previewFilename.textContent = src.split('/').pop() || 'Image loaded';
+                            console.log('Waiting for libraries...');
+                            setTimeout(checkLibraries, 100);
                         }
-                        console.log('✓ Image preview shown:', src.substring(0, 50) + '...');
+                    };
+                    checkLibraries();
+                }
+
+                // Dropify initialization
+                function initDropify() {
+                    if (typeof $ === 'undefined' || typeof $.fn.dropify === 'undefined') {
+                        console.error('Libraries not loaded');
+                        return false;
                     }
-                };
 
-                // Make hideImagePreview globally available
-                window.hideImagePreview = function() {
-                    imagePreview.src = '';
-                    previewArea.classList.add('hidden');
-                    uploadArea.classList.remove('hidden');
-                    uploadContainer.classList.remove('has-image');
-                    removeBtn.classList.add('hidden');
-                    urlInput.value = '';
-                    manualInput.value = '';
-                    previewFilename.textContent = '';
-                    imageUpload.value = '';
-                    console.log('✓ Image preview hidden');
-                };
+                    console.log('Looking for dropify elements...');
+                    const dropifyElement = $('.dropify');
+                    console.log('Dropify elements found:', dropifyElement.length);
 
-                // Browse button click
-                if (browseBtn) {
-                    browseBtn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        imageUpload.click();
-                    });
-                }
+                    if (dropifyElement.length === 0) {
+                        console.warn('Dropify element not found');
+                        return false;
+                    }
 
-                // File input change
-                if (imageUpload) {
-                    imageUpload.addEventListener('change', function(e) {
-                        const file = e.target.files[0];
-                        if (file) {
-                            const reader = new FileReader();
-                            reader.onload = function(e) {
-                                window.showImagePreview(e.target.result, file.name);
-                            };
-                            reader.readAsDataURL(file);
-                        }
-                    });
-                }
+                    // Destroy existing instance
+                    if (dropifyElement.data('dropify')) {
+                        console.log('Destroying existing Dropify instance');
+                        dropifyElement.dropify('destroy');
+                    }
 
-                // Remove button click
-                if (removeBtn) {
-                    removeBtn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        window.hideImagePreview();
-                    });
-                }
-
-                // Drag and drop functionality
-                if (uploadContainer) {
-                    // Prevent default drag behaviors
-                    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                        uploadContainer.addEventListener(eventName, function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
+                    try {
+                        console.log('Initializing Dropify...');
+                        const dr = dropifyElement.dropify({
+                            messages: {
+                                'default': 'Drag & drop an image here or click',
+                                'replace': 'Drag & drop or click to replace',
+                                'remove': 'Remove',
+                                'error': 'Sorry, the file is too large'
+                            },
+                            error: {
+                                'fileSize': 'The file size is too large (@{{ value }} max).',
+                                'minWidth': 'The image width is too small (@{{ value }}px min).',
+                                'maxWidth': 'The image width is too big (@{{ value }}px max).',
+                                'minHeight': 'The image height is too small (@{{ value }}px min).',
+                                'maxHeight': 'The image height is too big (@{{ value }}px max).',
+                                'imageFormat': 'The image format is not allowed (@{{ value }} only).'
+                            }
                         });
-                    });
 
-                    // Highlight drop zone
-                    ['dragenter', 'dragover'].forEach(eventName => {
-                        uploadContainer.addEventListener(eventName, function() {
-                            uploadContainer.classList.add('drag-over');
+                        console.log('Dropify instance created:', !!dr);
+
+                        // Handle Dropify events
+                        dr.on('dropify.afterClear', function(event, element) {
+                            console.log('✓ Image cleared');
+                            $('#modal-image-url').val('');
                         });
-                    });
 
-                    // Remove highlight
-                    ['dragleave', 'drop'].forEach(eventName => {
-                        uploadContainer.addEventListener(eventName, function() {
-                            uploadContainer.classList.remove('drag-over');
-                        });
-                    });
+                        dr.on('dropify.fileReady', function(event, element) {
+                            console.log('✓ File selected, converting to base64...');
 
-                    // Handle file drop
-                    uploadContainer.addEventListener('drop', function(e) {
-                        const files = e.dataTransfer.files;
-                        if (files.length > 0) {
-                            const file = files[0];
-                            if (file.type.startsWith('image/')) {
+                            // Access the file through Dropify's element
+                            const wrapper = $(element).closest('.dropify-wrapper');
+                            const fileInput = wrapper.find('input[type="file"]');
+
+                            console.log('File input found:', fileInput.length > 0);
+                            console.log('Files in input:', fileInput[0].files.length);
+
+                            if (fileInput.length > 0 && fileInput[0].files.length > 0) {
+                                const file = fileInput[0].files[0];
+                                console.log('Processing file:', file.name, file.type, file.size);
+
                                 const reader = new FileReader();
                                 reader.onload = function(e) {
-                                    window.showImagePreview(e.target.result, file.name);
+                                    const base64Url = e.target.result;
+                                    $('#modal-image-url').val(base64Url);
+                                    console.log('✓ Image converted to base64:', base64Url.substring(0, 50) + '...');
+                                    console.log('✓ Modal image URL input value set');
+                                };
+                                reader.onerror = function(e) {
+                                    console.error('✗ Failed to convert image:', e);
+                                    alert('Failed to process image. Please try again.');
                                 };
                                 reader.readAsDataURL(file);
                             } else {
-                                alert('Please drop an image file.');
+                                console.error('✗ No file found in input');
+                                console.log('Available elements:', wrapper.html());
                             }
-                        }
-                    });
+                        });
+
+                        console.log('✓ Dropify initialized successfully');
+                        return true;
+                    } catch (error) {
+                        console.error('✗ Dropify initialization failed:', error);
+                        return false;
+                    }
                 }
 
-                // Manual URL input handling
-                if (manualInput) {
-                    let urlTimeout;
-                    manualInput.addEventListener('input', function(e) {
-                        clearTimeout(urlTimeout);
-                        const url = e.target.value.trim();
-                        urlTimeout = setTimeout(function() {
-                            if (url && (url.match(/\.(jpg|jpeg|png|gif|webp|svg|bmp)(\?.*)?$/i) || url.includes('http'))) {
-                                window.showImagePreview(url);
-                            }
-                        }, 500);
-                    });
+                // Define all functions
+                window.editStat = function(statId) {
+                    console.log('editStat called with:', statId);
+                    const modal = document.getElementById('stat-modal');
+                    if (!modal) {
+                        console.error('Stat modal not found!');
+                        return;
+                    }
+                    const valueInput = document.getElementById('stat-value');
+                    const labelInput = document.getElementById('stat-label');
+                    const statInput = document.getElementById('current-stat');
+                    const modalTitle = document.getElementById('stat-modal-title');
 
-                    manualInput.addEventListener('paste', function(e) {
+                    statInput.value = statId;
+                    modalTitle.textContent = 'Edit Stat ' + statId;
+
+                    valueInput.value = document.querySelector(`[data-field="stat${statId}_value"]`)?.textContent || '';
+                    labelInput.value = document.querySelector(`[data-field="stat${statId}_label"]`)?.textContent || '';
+
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                };
+
+                window.closeStatModal = function() {
+                    const modal = document.getElementById('stat-modal');
+                    if (modal) {
+                        modal.classList.add('hidden');
+                        modal.classList.remove('flex');
+                    }
+                };
+
+                window.saveStat = function() {
+                    const statId = document.getElementById('current-stat').value;
+                    const value = document.getElementById('stat-value').value;
+                    const label = document.getElementById('stat-label').value;
+
+                    const valueElement = document.querySelector(`[data-field="stat${statId}_value"]`);
+                    const labelElement = document.querySelector(`[data-field="stat${statId}_label"]`);
+
+                    if (valueElement) valueElement.textContent = value;
+                    if (labelElement) labelElement.textContent = label;
+
+                    const valueInput = document.querySelector(`input[name="stat${statId}_value"]`);
+                    const labelInput = document.querySelector(`input[name="stat${statId}_label"]`);
+
+                    if (valueInput) valueInput.value = value;
+                    if (labelInput) labelInput.value = label;
+
+                    window.closeStatModal();
+                    document.getElementById('brand-form').submit();
+                };
+
+                window.editField = function(fieldName) {
+                    console.log('editField called with:', fieldName);
+                    const modal = document.getElementById('field-modal');
+                    const title = document.getElementById('field-modal-title');
+                    const fieldNameInput = document.getElementById('current-field-name');
+                    const textInputGroup = document.getElementById('text-input-group');
+                    const imageInputGroup = document.getElementById('image-input-group');
+
+                    if (!modal) {
+                        console.error('Modal not found!');
+                        return;
+                    }
+
+                    fieldNameInput.value = fieldName;
+
+                    const titles = {
+                        'title': 'Edit Title',
+                        'description': 'Edit Description',
+                        'image_url': 'Edit Image URL',
+                        'overlay_title': 'Edit Overlay Title',
+                        'overlay_text': 'Edit Overlay Text'
+                    };
+
+                    title.textContent = titles[fieldName] || 'Edit Field';
+
+                    if (fieldName === 'image_url') {
+                        textInputGroup.classList.add('hidden');
+                        imageInputGroup.classList.remove('hidden');
+
+                        modal.classList.remove('hidden');
+                        modal.classList.add('flex');
+
+                        // Initialize Dropify after modal is visible and libraries are ready
                         setTimeout(function() {
-                            const url = e.target.value.trim();
-                            if (url) {
-                                window.showImagePreview(url);
+                            waitForLibraries(function() {
+                                const success = initDropify();
+                                if (!success) {
+                                    console.error('Failed to initialize Dropify');
+                                    alert('Image upload failed to load. Please refresh the page.');
+                                }
+                            });
+                        }, 300);
+
+                    } else {
+                        imageInputGroup.classList.add('hidden');
+                        textInputGroup.classList.remove('hidden');
+
+                        const input = document.getElementById('field-input');
+                        const label = document.getElementById('field-label');
+
+                        const labels = {
+                            'title': 'Title',
+                            'description': 'Description',
+                            'overlay_title': 'Overlay Title',
+                            'overlay_text': 'Overlay Text'
+                        };
+
+                        label.textContent = labels[fieldName] || 'Field Value';
+
+                        const element = document.querySelector(`[data-field="${fieldName}"]`);
+                        if (element) {
+                            let text = element.textContent;
+                            if (text.startsWith('"') && text.endsWith('"')) {
+                                text = text.slice(1, -1);
                             }
-                        }, 10);
-                    });
-
-                    manualInput.addEventListener('blur', function(e) {
-                        const url = e.target.value.trim();
-                        if (url) {
-                            urlInput.value = url;
+                            input.value = text.trim();
                         }
-                    });
-                }
 
-                console.log('✓ Modern image upload initialized');
-            })();
+                        modal.classList.remove('hidden');
+                        modal.classList.add('flex');
+                    }
+                };
 
-            // Close modals on outside click and initialize
-            (function() {
-                // Setup modal click handlers
+                window.closeFieldModal = function() {
+                    const modal = document.getElementById('field-modal');
+                    if (modal) {
+                        modal.classList.add('hidden');
+                        modal.classList.remove('flex');
+                    }
+                };
+
+                window.saveField = function() {
+                    console.log('=== saveField called ===');
+                    const fieldName = document.getElementById('current-field-name').value;
+                    console.log('Field name:', fieldName);
+
+                    let value;
+
+                    if (fieldName === 'image_url') {
+                        const modalInput = document.getElementById('modal-image-url');
+                        console.log('Modal image input found:', !!modalInput);
+                        value = modalInput ? modalInput.value : '';
+                        console.log('Raw modal value:', value ? value.substring(0, 50) + '...' : 'empty');
+                        console.log('Modal value length:', value ? value.length : 0);
+
+                        if (!value || value.trim() === '') {
+                            alert('Please select an image first.');
+                            return;
+                        }
+                    } else {
+                        value = document.getElementById('field-input').value;
+
+                        if (fieldName === 'overlay_text' && !value.startsWith('"')) {
+                            value = '"' + value + '"';
+                        }
+                    }
+
+                    console.log('Final value to save:', value ? value.substring(0, 50) + '...' : 'empty');
+
+                    // Update the preview
+                    if (fieldName === 'image_url') {
+                        const brandImage = document.getElementById('brand-image');
+                        if (brandImage) {
+                            brandImage.src = value;
+                            console.log('✓ Updated brand image src');
+                        }
+                    } else {
+                        const element = document.querySelector(`[data-field="${fieldName}"]`);
+                        if (element) {
+                            element.textContent = value;
+                            console.log('✓ Updated preview element');
+                        }
+                    }
+
+                    // CRITICAL: Update the form input using multiple methods
+                    console.log('=== Updating form input ===');
+                    const formInput = document.querySelector(`#brand-form input[name="${fieldName}"]`);
+                    console.log('Form input found:', !!formInput);
+                    console.log('Form input before update:', formInput ? formInput.value.substring(0, 50) + '...' : 'not found');
+
+                    if (formInput) {
+                        // Method 1: Direct value assignment
+                        formInput.value = value;
+                        console.log('✓ Method 1 (direct):', formInput.value.substring(0, 50) + '...');
+
+                        // Method 2: Using setAttribute
+                        formInput.setAttribute('value', value);
+                        console.log('✓ Method 2 (setAttribute):', formInput.getAttribute('value').substring(0, 50) + '...');
+
+                        // Method 3: Using jQuery
+                        $(formInput).val(value);
+                        console.log('✓ Method 3 (jQuery):', $(formInput).val().substring(0, 50) + '...');
+
+                        // Verify after all methods
+                        setTimeout(function() {
+                            console.log('Final form input value:', formInput.value.substring(0, 50) + '...');
+                            console.log('Final form input length:', formInput.value.length);
+                        }, 100);
+                    } else {
+                        console.error('❌ Form input not found for:', fieldName);
+                        // Try to find ALL image_url inputs
+                        const allImageInputs = document.querySelectorAll('input[name="image_url"]');
+                        console.log('Found', allImageInputs.length, 'inputs with name="image_url"');
+                        allImageInputs.forEach((input, index) => {
+                            console.log(`Input ${index}:`, input.id, input.value.substring(0, 50) + '...');
+                        });
+                    }
+
+                    window.closeFieldModal();
+
+                    // Log all form data before submission
+                    console.log('=== Final form data ===');
+                    const form = document.getElementById('brand-form');
+                    const formData = new FormData(form);
+                    for (const [key, val] of formData.entries()) {
+                        console.log(key + ':', val ? val.substring(0, 100) + '...' : 'empty');
+                    }
+
+                    console.log('=== Submitting form ===');
+                    form.submit();
+                };
+
+                // Modal click handlers
                 const fieldModal = document.getElementById('field-modal');
                 if (fieldModal) {
                     fieldModal.addEventListener('click', function(e) {
                         if (e.target === this) {
-                            closeFieldModal();
+                            window.closeFieldModal();
                         }
                     });
                 }
@@ -817,12 +665,12 @@
                 if (statModal) {
                     statModal.addEventListener('click', function(e) {
                         if (e.target === this) {
-                            closeStatModal();
+                            window.closeStatModal();
                         }
                     });
                 }
 
-                // Show success or error message if any
+                // Show success/error messages
                 @if(session('success'))
                 setTimeout(function() {
                     alert('Success: {{ session('success') }}');
@@ -835,13 +683,7 @@
                 }, 100);
                 @endif
 
-                // Test function accessibility
-                console.log('Function accessibility test:');
-                console.log('  window.editField:', typeof window.editField);
-                console.log('  window.editStat:', typeof window.editStat);
-                console.log('  window.saveField:', typeof window.saveField);
-
-                console.log('Brand statements page initialized');
+                console.log('✓ Brand statements page initialized');
             })();
         </script>
     </x-slot:scripts>

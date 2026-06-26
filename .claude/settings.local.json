@@ -45,7 +45,8 @@
       "Bash(pkill -9 nginx)",
       "Bash(awk '{print $9}')",
       "Bash(composer require *)",
-      "Bash(npm list *)"
+      "Bash(npm list *)",
+      "Bash(node:*)"
     ]
   }
 }
