@@ -46,7 +46,9 @@
       "Bash(awk '{print $9}')",
       "Bash(composer require *)",
       "Bash(npm list *)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(echo PHP not in PATH:*)",
+      "Bash(start:*)"
     ]
   }
 }

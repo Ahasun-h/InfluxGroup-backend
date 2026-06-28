@@ -661,21 +661,9 @@ onUnmounted(() => {
       </div>
     </Transition>
 
-    <!-- Main Content -->
+    <!-- Main Content Area -->
     <main :class="scrolled && currentPath !== '/' ? 'pt-24 lg:pt-28' : 'pt-16 lg:pt-20'">
-      <router-view v-slot="{ Component }">
-        <Transition
-          mode="out-in"
-          enter-active-class="transition-all duration-500"
-          enter-from-class="opacity-0 translate-y-8"
-          enter-to-class="opacity-100 translate-y-0"
-          leave-active-class="transition-all duration-300"
-          leave-from-class="opacity-100 translate-y-0"
-          leave-to-class="opacity-0 -translate-y-8"
-        >
-          <component :is="Component" />
-        </Transition>
-      </router-view>
+      <slot />
     </main>
 
     <!-- Floating Quote Button -->
@@ -726,6 +714,28 @@ onUnmounted(() => {
     </footer>
   </div>
 </template>
+
+<style>
+/* Custom scrollbar for mobile menu */
+@media (max-width: 1024px) {
+  .overflow-y-auto::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-thumb {
+    background: rgba(0, 98, 255, 0.5);
+    border-radius: 10px;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 98, 255, 0.8);
+  }
+}
+</style>
 
 <style>
 /* Custom scrollbar for mobile menu */

@@ -559,13 +559,30 @@ class ContentController extends Controller
         $subtitle = $partnerItems['partners_subtitle']->section_content ?? 'Proud partner to government agencies, multinational corporations, and leading enterprises';
 
         $partners = [];
-        for ($i = 1; $i <= 20; $i++) {
-            $name = $partnerItems["partner_{$i}_name"]->section_content ?? null;
-            if ($name) {
+
+        // Try new JSON format first (partner_1, partner_2, etc.)
+        $i = 1;
+        while (isset($partnerItems["partner_{$i}"]) && $partnerItems["partner_{$i}"]->section_content) {
+            $jsonData = json_decode($partnerItems["partner_{$i}"]->section_content, true);
+            if ($jsonData && isset($jsonData['name'])) {
                 $partners[] = [
-                    'name' => $name,
-                    'logo' => $partnerItems["partner_{$i}_logo"]->section_content ?? '🏢'
+                    'name' => $jsonData['name'] ?? '',
+                    'logo' => $jsonData['logo'] ?? ''
                 ];
+            }
+            $i++;
+        }
+
+        // If no JSON items found, try old format (partner_X_name, partner_X_logo)
+        if (empty($partners)) {
+            for ($i = 1; $i <= 20; $i++) {
+                $name = $partnerItems["partner_{$i}_name"]->section_content ?? null;
+                if ($name) {
+                    $partners[] = [
+                        'name' => $name,
+                        'logo' => $partnerItems["partner_{$i}_logo"]->section_content ?? '🏢'
+                    ];
+                }
             }
         }
 
@@ -574,7 +591,7 @@ class ContentController extends Controller
             'data' => [
                 'title' => $title,
                 'subtitle' => $subtitle,
-                'partners' => $partners
+                'list' => $partners
             ]
         ]);
     }

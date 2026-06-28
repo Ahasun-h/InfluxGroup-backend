@@ -4,27 +4,20 @@ import { onMounted } from 'vue'
 
 onMounted(() => {
   // Add smooth scroll behavior
-  document.documentElement.style.scrollBehavior = 'smooth'
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.style.scrollBehavior = 'smooth'
+  }
 
   // Add page transition classes
-  document.body.classList.add('page-transitions-enabled')
+  if (typeof document !== 'undefined' && document.body) {
+    document.body.classList.add('page-transitions-enabled')
+  }
 })
 </script>
 
 <template>
   <MainLayout>
-    <router-view v-slot="{ Component, route }">
-      <Transition
-        :name="route.meta.transition || 'fade'"
-        mode="out-in"
-        @before-enter="() => document.body.classList.add('page-transitioning')"
-        @after-enter="() => document.body.classList.remove('page-transitioning')"
-        @before-leave="() => document.body.classList.add('page-transitioning')"
-        @after-leave="() => document.body.classList.remove('page-transitioning')"
-      >
-        <component :is="Component" :key="route.path" />
-      </Transition>
-    </router-view>
+    <router-view />
   </MainLayout>
 </template>
 

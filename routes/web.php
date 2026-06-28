@@ -71,6 +71,10 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('/core-values', [\App\Http\Controllers\Admin\CoreValuesController::class, 'index'])->name('core-values.index');
     Route::put('/core-values', [\App\Http\Controllers\Admin\CoreValuesController::class, 'update'])->name('core-values.update');
 
+    // Partners Routes
+    Route::get('/partners', [\App\Http\Controllers\Admin\PartnersController::class, 'index'])->name('partners.index');
+    Route::put('/partners', [\App\Http\Controllers\Admin\PartnersController::class, 'update'])->name('partners.update');
+
     // Contact CTA Routes
     Route::get('/contact-cta', [\App\Http\Controllers\Admin\ContactCtaController::class, 'index'])->name('contact-cta.index');
     Route::put('/contact-cta', [\App\Http\Controllers\Admin\ContactCtaController::class, 'update'])->name('contact-cta.update');

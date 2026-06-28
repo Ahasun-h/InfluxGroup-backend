@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { projectService, companyService, heroService, brandService, missionVisionService, journeyService, coreValuesService, contactCtaService, testimonialService } from '../services/content'
+import { projectService, companyService, heroService, brandService, missionVisionService, journeyService, coreValuesService, contactCtaService, testimonialService, partnerService } from '../services/content'
 import { API_CONFIG } from '../config/api'
 import {
   Zap,
@@ -105,6 +105,7 @@ const journeyData = ref(null)
 const coreValuesData = ref(null)
 const contactCtaData = ref(null)
 const testimonialsData = ref(null)
+const partnersData = ref(null)
 
 // Icon mapping for backwards compatibility
 const iconMap = {
@@ -151,6 +152,13 @@ const getImageUrl = (path) => {
   if (!path) return 'https://images.unsplash.com/photo-1466611653911-95282fc3656b?auto=format&fit=crop&q=80&w=1200'
   if (path.startsWith('http')) return path
   return `${API_CONFIG.baseURL.replace('/api', '')}${path}`
+}
+
+const isEmoji = (str) => {
+  if (!str) return false
+  // Simple emoji detection - check if the string is short and contains emoji-like characters
+  const hasEmoji = /[\u2600-\u26FF\u2700-\u27BF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDEFF]/.test(str)
+  return str.length <= 10 && hasEmoji
 }
 
 const fetchFeaturedProjects = async () => {
@@ -409,6 +417,41 @@ const fetchTestimonials = async () => {
   }
 }
 
+const fetchPartners = async () => {
+  try {
+    console.log('Fetching partners from /api/cms/partners...')
+    const response = await partnerService.getPartners()
+    console.log('Partners response:', response)
+
+    if (response && response.data) {
+      partnersData.value = response.data
+      console.log('Partners data loaded successfully:', partnersData.value)
+    } else if (response) {
+      partnersData.value = response
+      console.log('Partners data loaded (direct):', partnersData.value)
+    } else {
+      console.warn('Partners data response is empty or invalid')
+    }
+  } catch (error) {
+    console.error('Failed to fetch partners data:', error)
+    console.error('Error message:', error.message)
+
+    // Set default partners data as fallback
+    partnersData.value = {
+      title: 'Trusted by Industry Leaders',
+      subtitle: 'Proud partner to government agencies, multinational corporations, and leading enterprises',
+      list: [
+        { name: 'BPDB', logo: '🏭' },
+        { name: 'ADB', logo: '🏦' },
+        { name: 'World Bank', logo: '🌐' },
+        { name: 'BERC', logo: '⚡' },
+        { name: 'IEC', logo: '🔌' },
+        { name: 'IEEE', logo: '📡' }
+      ]
+    }
+  }
+}
+
 onMounted(() => {
   fetchFeaturedProjects()
   fetchHomepageData()
@@ -419,6 +462,7 @@ onMounted(() => {
   fetchCoreValuesData()
   fetchContactCtaData()
   fetchTestimonials()
+  fetchPartners()
 })
 
 const filteredProjects = computed(() => {
@@ -711,28 +755,40 @@ const testimonials = computed(() => {
 
 // Partners/Clients - now using dynamic data
 const partners = computed(() => {
-  if (!homepageData.value?.partners?.list) {
-    // Default values if no data
+  // Use dedicated API data if available
+  if (partnersData.value?.list) {
+    console.log('Using partners API data:', partnersData.value)
     return {
-      title: 'Trusted by Industry Leaders',
-      subtitle: 'Proud partner to government agencies, multinational corporations, and leading enterprises',
-      list: [
-        { name: 'BPDB', logo: '🏭' },
-        { name: 'ADB', logo: '🏦' },
-        { name: 'World Bank', logo: '🌐' },
-        { name: 'BERC', logo: '⚡' },
-        { name: 'IEC', logo: '🔌' },
-        { name: 'IEEE', logo: '📡' }
-      ]
+      title: partnersData.value.title || 'Trusted by Industry Leaders',
+      subtitle: partnersData.value.subtitle || 'Proud partner to government agencies, multinational corporations, and leading enterprises',
+      list: partnersData.value.list
     }
   }
 
-  const p = homepageData.value.partners
+  // Fallback to homepageData for backwards compatibility
+  if (homepageData.value?.partners?.list) {
+    console.log('Using homepageData partners as fallback:', homepageData.value.partners)
+    const p = homepageData.value.partners
+    return {
+      title: p.title || 'Trusted by Industry Leaders',
+      subtitle: p.subtitle || 'Proud partner to government agencies, multinational corporations, and leading enterprises',
+      list: p.list
+    }
+  }
 
+  // Default values if no data
+  console.log('Using default partners values')
   return {
-    title: p.title || 'Trusted by Industry Leaders',
-    subtitle: p.subtitle || 'Proud partner to government agencies, multinational corporations, and leading enterprises',
-    list: p.list
+    title: 'Trusted by Industry Leaders',
+    subtitle: 'Proud partner to government agencies, multinational corporations, and leading enterprises',
+    list: [
+      { name: 'BPDB', logo: '🏭' },
+      { name: 'ADB', logo: '🏦' },
+      { name: 'World Bank', logo: '🌐' },
+      { name: 'BERC', logo: '⚡' },
+      { name: 'IEC', logo: '🔌' },
+      { name: 'IEEE', logo: '📡' }
+    ]
   }
 })
 
@@ -1415,7 +1471,16 @@ const contactCta = computed(() => {
             v-motion-slide-visible-bottom
             :delay="index * 100"
           >
+            <!-- Display emoji logo if it's an emoji -->
+            <div
+              v-if="isEmoji(partner.logo)"
+              class="text-4xl md:text-5xl mb-3 group-hover:scale-110 transition-transform"
+            >
+              {{ partner.logo }}
+            </div>
+            <!-- Display image logo if it's an image URL -->
             <img
+              v-else
               :src="getImageUrl(partner.logo)"
               :alt="partner.name"
               class="h-12 md:h-16 w-auto object-contain mb-3 group-hover:scale-110 transition-transform"

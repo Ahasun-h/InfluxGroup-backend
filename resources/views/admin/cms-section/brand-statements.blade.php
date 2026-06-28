@@ -29,63 +29,134 @@
     @endphp
 
     <x-slot:styles>
-        <!-- Dropify CSS -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropify/0.2.2/dropify.min.css" />
         <style>
-        /* Dropify custom styles */
-        .dropify-wrapper {
-            border: 2px dashed #cbd5e1;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        /* Custom Image Dropzone Styles */
+        .image-dropzone {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            min-height: 200px;
+            border-radius: 1rem;
+            border: 2px dashed #e5e7eb;
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .dropify-wrapper:hover {
+        .image-dropzone:hover {
             border-color: #3b82f6;
             background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
         }
 
-        .dropify-message p {
-            font-size: 14px;
-            color: #64748b;
+        .image-dropzone.drag-over {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            transform: scale(1.02);
         }
 
-        .dropify-icon {
+        .image-dropzone .upload-icon {
+            width: 2rem;
+            height: 2rem;
+            color: #9ca3af;
+            transition: color 0.3s ease;
+        }
+
+        .image-dropzone:hover .upload-icon {
             color: #3b82f6;
         }
 
-        .dropify-clear {
+        .image-dropzone .upload-text {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #9ca3af;
+            text-align: center;
+        }
+
+        .image-dropzone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .image-dropzone .preview-image {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .image-dropzone.has-image .preview-image {
+            display: block;
+        }
+
+        .image-dropzone.has-image .upload-content {
+            opacity: 0;
+        }
+
+        .image-dropzone .remove-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            width: 2rem;
+            height: 2rem;
             background: rgba(239, 68, 68, 0.9);
             color: white;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
+            border: none;
+            border-radius: 0.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+            opacity: 0;
             transition: all 0.2s ease;
+            z-index: 10;
         }
 
-        .dropify-clear:hover {
+        .image-dropzone:hover .remove-btn {
+            opacity: 1;
+        }
+
+        .image-dropzone.has-image:hover .remove-btn {
+            opacity: 1;
+        }
+
+        .image-dropzone .remove-btn:hover {
             background: rgba(220, 38, 38, 1);
             transform: scale(1.1);
         }
 
         /* Dark mode support */
-        .dark .dropify-wrapper {
+        .dark .image-dropzone {
             background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-            border-color: #475569;
+            border-color: rgba(255, 255, 255, 0.1);
         }
 
-        .dark .dropify-wrapper:hover {
+        .dark .image-dropzone:hover {
             background: linear-gradient(135deg, #1e3a5f 0%, #1e40af 100%);
             border-color: #3b82f6;
         }
 
-        .dark .dropify-message p {
+        .dark .image-dropzone.drag-over {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        }
+
+        .dark .image-dropzone .upload-icon,
+        .dark .image-dropzone .upload-text {
             color: #94a3b8;
         }
-    </style>
+
+        .dark .image-dropzone:hover .upload-icon {
+            color: #60a5fa;
+        }
+        </style>
     </x-slot:styles>
 
     <div class="space-y-8 pb-10">
@@ -277,10 +348,22 @@
                     <label id="image-field-label" class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Image</label>
                     <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Upload an image by drag & drop or click to browse</p>
 
-                    <!-- Dropify Image Upload -->
-                    <div class="dropify-wrapper">
-                        <input type="file" id="image-upload" class="dropify" accept="image/*" data-default-file="{{ $getBrandContent($brandItems, 'brand_statements_image', '') }}" data-allowed-formats="portrait square landscape" data-max-file-size="5M" />
-                        <input type="hidden" id="modal-image-url" value="{{ $getBrandContent($brandItems, 'brand_statements_image', '') }}" />
+                    <!-- Custom Image Dropzone -->
+                    <div class="image-dropzone" id="image-dropzone">
+                        <div class="upload-content">
+                            <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <span class="upload-text">Upload Brand Image</span>
+                        </div>
+                        <img id="image-preview" class="preview-image" src="" alt="Preview">
+                        <button type="button" id="remove-image" class="remove-btn" title="Remove image">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                        <input type="file" id="image-upload" accept="image/*">
+                        <input type="hidden" id="modal-image-url" value="{{ $getBrandContent($brandItems, 'brand_statements_image', '') }}">
                     </div>
                 </div>
 
@@ -317,114 +400,148 @@
     </div>
 
     <x-slot:scripts>
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/dropify/0.2.2/dropify.min.js"></script>
-
         <script>
             (function() {
                 console.log('=== Brand Statements Page Loaded ===');
 
-                // Wait for libraries to be available
-                function waitForLibraries(callback) {
-                    const checkLibraries = function() {
-                        if (typeof $ !== 'undefined' && typeof $.fn.dropify !== 'undefined') {
-                            console.log('✓ jQuery and Dropify are ready');
-                            callback();
-                        } else {
-                            console.log('Waiting for libraries...');
-                            setTimeout(checkLibraries, 100);
-                        }
-                    };
-                    checkLibraries();
+                // Initialize image preview with existing image
+                function initImagePreview(imageUrl) {
+                    const imagePreview = document.getElementById('image-preview');
+                    const imageDropzone = document.getElementById('image-dropzone');
+
+                    if (!imagePreview || !imageDropzone) {
+                        console.warn('Image dropzone elements not found');
+                        return;
+                    }
+
+                    if (imageUrl && imageUrl.trim() !== '') {
+                        imagePreview.src = imageUrl;
+                        imageDropzone.classList.add('has-image');
+                        console.log('✓ Image preview initialized with existing image');
+                    }
                 }
 
-                // Dropify initialization
-                function initDropify() {
-                    if (typeof $ === 'undefined' || typeof $.fn.dropify === 'undefined') {
-                        console.error('Libraries not loaded');
-                        return false;
+                // Handle file selection
+                function handleFileSelect(file) {
+                    if (!file) return;
+
+                    // Get current element references
+                    const imagePreview = document.getElementById('image-preview');
+                    const imageDropzone = document.getElementById('image-dropzone');
+                    const modalImageUrl = document.getElementById('modal-image-url');
+
+                    if (!imagePreview || !imageDropzone || !modalImageUrl) {
+                        console.warn('Image dropzone elements not found');
+                        return;
                     }
 
-                    console.log('Looking for dropify elements...');
-                    const dropifyElement = $('.dropify');
-                    console.log('Dropify elements found:', dropifyElement.length);
-
-                    if (dropifyElement.length === 0) {
-                        console.warn('Dropify element not found');
-                        return false;
+                    // Validate file type
+                    if (!file.type.startsWith('image/')) {
+                        alert('Please select an image file.');
+                        return;
                     }
 
-                    // Destroy existing instance
-                    if (dropifyElement.data('dropify')) {
-                        console.log('Destroying existing Dropify instance');
-                        dropifyElement.dropify('destroy');
+                    // Validate file size (5MB max)
+                    const maxSize = 5 * 1024 * 1024; // 5MB
+                    if (file.size > maxSize) {
+                        alert('File size is too large. Maximum size is 5MB.');
+                        return;
                     }
 
-                    try {
-                        console.log('Initializing Dropify...');
-                        const dr = dropifyElement.dropify({
-                            messages: {
-                                'default': 'Drag & drop an image here or click',
-                                'replace': 'Drag & drop or click to replace',
-                                'remove': 'Remove',
-                                'error': 'Sorry, the file is too large'
-                            },
-                            error: {
-                                'fileSize': 'The file size is too large (@{{ value }} max).',
-                                'minWidth': 'The image width is too small (@{{ value }}px min).',
-                                'maxWidth': 'The image width is too big (@{{ value }}px max).',
-                                'minHeight': 'The image height is too small (@{{ value }}px min).',
-                                'maxHeight': 'The image height is too big (@{{ value }}px max).',
-                                'imageFormat': 'The image format is not allowed (@{{ value }} only).'
-                            }
-                        });
+                    console.log('✓ File selected:', file.name, file.type, file.size);
 
-                        console.log('Dropify instance created:', !!dr);
+                    // Convert to base64
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const base64Url = e.target.result;
+                        imagePreview.src = base64Url;
+                        imageDropzone.classList.add('has-image');
+                        modalImageUrl.value = base64Url;
+                        console.log('✓ Image converted to base64:', base64Url.substring(0, 50) + '...');
+                        console.log('✓ Modal image URL input value set');
+                    };
+                    reader.onerror = function(e) {
+                        console.error('✗ Failed to convert image:', e);
+                        alert('Failed to process image. Please try again.');
+                    };
+                    reader.readAsDataURL(file);
+                }
 
-                        // Handle Dropify events
-                        dr.on('dropify.afterClear', function(event, element) {
-                            console.log('✓ Image cleared');
-                            $('#modal-image-url').val('');
-                        });
+                // Event listeners for image dropzone
+                function initImageDropzone() {
+                    const imageDropzone = document.getElementById('image-dropzone');
+                    const imageUpload = document.getElementById('image-upload');
+                    const imagePreview = document.getElementById('image-preview');
+                    const modalImageUrl = document.getElementById('modal-image-url');
+                    const removeImageBtn = document.getElementById('remove-image');
 
-                        dr.on('dropify.fileReady', function(event, element) {
-                            console.log('✓ File selected, converting to base64...');
-
-                            // Access the file through Dropify's element
-                            const wrapper = $(element).closest('.dropify-wrapper');
-                            const fileInput = wrapper.find('input[type="file"]');
-
-                            console.log('File input found:', fileInput.length > 0);
-                            console.log('Files in input:', fileInput[0].files.length);
-
-                            if (fileInput.length > 0 && fileInput[0].files.length > 0) {
-                                const file = fileInput[0].files[0];
-                                console.log('Processing file:', file.name, file.type, file.size);
-
-                                const reader = new FileReader();
-                                reader.onload = function(e) {
-                                    const base64Url = e.target.result;
-                                    $('#modal-image-url').val(base64Url);
-                                    console.log('✓ Image converted to base64:', base64Url.substring(0, 50) + '...');
-                                    console.log('✓ Modal image URL input value set');
-                                };
-                                reader.onerror = function(e) {
-                                    console.error('✗ Failed to convert image:', e);
-                                    alert('Failed to process image. Please try again.');
-                                };
-                                reader.readAsDataURL(file);
-                            } else {
-                                console.error('✗ No file found in input');
-                                console.log('Available elements:', wrapper.html());
-                            }
-                        });
-
-                        console.log('✓ Dropify initialized successfully');
-                        return true;
-                    } catch (error) {
-                        console.error('✗ Dropify initialization failed:', error);
-                        return false;
+                    if (!imageDropzone || !imageUpload) {
+                        console.warn('Image dropzone elements not found during initialization');
+                        return;
                     }
+
+                    // Drag and drop events
+                    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                        imageDropzone.addEventListener(eventName, preventDefaults, false);
+                    });
+
+                    function preventDefaults(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+
+                    // Highlight drop zone
+                    ['dragenter', 'dragover'].forEach(eventName => {
+                        imageDropzone.addEventListener(eventName, function() {
+                            imageDropzone.classList.add('drag-over');
+                        }, false);
+                    });
+
+                    // Remove highlight
+                    ['dragleave', 'drop'].forEach(eventName => {
+                        imageDropzone.addEventListener(eventName, function() {
+                            imageDropzone.classList.remove('drag-over');
+                        }, false);
+                    });
+
+                    // Handle dropped files
+                    imageDropzone.addEventListener('drop', function(e) {
+                        const dt = e.dataTransfer;
+                        const files = dt.files;
+                        if (files.length > 0) {
+                            handleFileSelect(files[0]);
+                        }
+                    }, false);
+
+                    // Handle file selection via click
+                    imageUpload.addEventListener('change', function(e) {
+                        const files = e.target.files;
+                        if (files.length > 0) {
+                            handleFileSelect(files[0]);
+                        }
+                    }, false);
+
+                    // Remove image button
+                    if (removeImageBtn) {
+                        removeImageBtn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            imagePreview.src = '';
+                            imageDropzone.classList.remove('has-image');
+                            modalImageUrl.value = '';
+                            imageUpload.value = '';
+                            console.log('✓ Image removed');
+                        }, false);
+                    }
+
+                    console.log('✓ Image dropzone initialized');
+                }
+
+                // Initialize dropzone when DOM is ready
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', initImageDropzone);
+                } else {
+                    initImageDropzone();
                 }
 
                 // Define all functions
@@ -511,16 +628,11 @@
                         modal.classList.remove('hidden');
                         modal.classList.add('flex');
 
-                        // Initialize Dropify after modal is visible and libraries are ready
+                        // Initialize image preview after modal is visible
                         setTimeout(function() {
-                            waitForLibraries(function() {
-                                const success = initDropify();
-                                if (!success) {
-                                    console.error('Failed to initialize Dropify');
-                                    alert('Image upload failed to load. Please refresh the page.');
-                                }
-                            });
-                        }, 300);
+                            const currentImage = document.querySelector('input[name="image_url"]').value;
+                            initImagePreview(currentImage);
+                        }, 100);
 
                     } else {
                         imageInputGroup.classList.add('hidden');
@@ -557,6 +669,25 @@
                     if (modal) {
                         modal.classList.add('hidden');
                         modal.classList.remove('flex');
+
+                        // Reset image dropzone when closing modal
+                        const imageDropzone = document.getElementById('image-dropzone');
+                        const imagePreview = document.getElementById('image-preview');
+                        const imageUpload = document.getElementById('image-upload');
+                        const modalImageUrl = document.getElementById('modal-image-url');
+
+                        if (imageDropzone) {
+                            imageDropzone.classList.remove('has-image');
+                        }
+                        if (imagePreview) {
+                            imagePreview.src = '';
+                        }
+                        if (imageUpload) {
+                            imageUpload.value = '';
+                        }
+                        if (modalImageUrl) {
+                            modalImageUrl.value = '';
+                        }
                     }
                 };
 
@@ -603,38 +734,17 @@
                         }
                     }
 
-                    // CRITICAL: Update the form input using multiple methods
+                    // CRITICAL: Update the form input
                     console.log('=== Updating form input ===');
                     const formInput = document.querySelector(`#brand-form input[name="${fieldName}"]`);
                     console.log('Form input found:', !!formInput);
                     console.log('Form input before update:', formInput ? formInput.value.substring(0, 50) + '...' : 'not found');
 
                     if (formInput) {
-                        // Method 1: Direct value assignment
                         formInput.value = value;
-                        console.log('✓ Method 1 (direct):', formInput.value.substring(0, 50) + '...');
-
-                        // Method 2: Using setAttribute
-                        formInput.setAttribute('value', value);
-                        console.log('✓ Method 2 (setAttribute):', formInput.getAttribute('value').substring(0, 50) + '...');
-
-                        // Method 3: Using jQuery
-                        $(formInput).val(value);
-                        console.log('✓ Method 3 (jQuery):', $(formInput).val().substring(0, 50) + '...');
-
-                        // Verify after all methods
-                        setTimeout(function() {
-                            console.log('Final form input value:', formInput.value.substring(0, 50) + '...');
-                            console.log('Final form input length:', formInput.value.length);
-                        }, 100);
+                        console.log('✓ Form input updated:', formInput.value.substring(0, 50) + '...');
                     } else {
                         console.error('❌ Form input not found for:', fieldName);
-                        // Try to find ALL image_url inputs
-                        const allImageInputs = document.querySelectorAll('input[name="image_url"]');
-                        console.log('Found', allImageInputs.length, 'inputs with name="image_url"');
-                        allImageInputs.forEach((input, index) => {
-                            console.log(`Input ${index}:`, input.id, input.value.substring(0, 50) + '...');
-                        });
                     }
 
                     window.closeFieldModal();
