@@ -48,7 +48,10 @@
       "Bash(npm list *)",
       "Bash(node:*)",
       "Bash(echo PHP not in PATH:*)",
-      "Bash(start:*)"
+      "Bash(start:*)",
+      "Bash(test:*)",
+      "Bash(cd D:\\\\Herd\\\\InfluxGroup-backend\\\\resources\\\\views\\\\admin\\\\cms-section:*)",
+      "Bash(cd D:\\\\Herd\\\\InfluxGroup-backend\\\\resources\\\\views:*)"
     ]
   }
 }

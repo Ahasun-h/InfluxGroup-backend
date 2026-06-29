@@ -11,7 +11,9 @@ Route::get('/user', function (Request $request) {
 // Public API Endpoints
 Route::prefix('products')->group(function () {
     Route::get('/', [ContentController::class, 'getProducts']);
+    Route::get('/featured', [ContentController::class, 'getFeaturedProducts']);
     Route::get('/categories', [ContentController::class, 'getProductCategories']);
+    Route::get('/categories-list', [ContentController::class, 'getProductCategoriesForHomepage']);
     Route::get('/{product:slug}', [ContentController::class, 'getProduct']);
 });
 
@@ -100,4 +102,7 @@ Route::prefix('cms')->group(function () {
 
     // Homepage All Content
     Route::get('/homepage', [ContentController::class, 'getHomepageContent']);
+
+    // Service Categories
+    Route::get('/service-categories', [ContentController::class, 'getServiceCategories']);
 });

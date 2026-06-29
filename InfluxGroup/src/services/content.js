@@ -14,6 +14,36 @@ export const productService = {
   },
 
   /**
+   * Get featured products for homepage
+   */
+  async getFeaturedProducts() {
+    try {
+      console.log('productService: Fetching featured products from', API_ENDPOINTS.FEATURED_PRODUCTS)
+      const response = await api.get(API_ENDPOINTS.FEATURED_PRODUCTS)
+      console.log('productService: Featured products response received', response)
+      return response.data || []
+    } catch (error) {
+      console.error('productService: Error fetching featured products', error)
+      throw error
+    }
+  },
+
+  /**
+   * Get product categories for homepage filters
+   */
+  async getProductCategoriesList() {
+    try {
+      console.log('productService: Fetching product categories from', API_ENDPOINTS.PRODUCT_CATEGORIES_LIST)
+      const response = await api.get(API_ENDPOINTS.PRODUCT_CATEGORIES_LIST)
+      console.log('productService: Product categories response received', response)
+      return response.data || []
+    } catch (error) {
+      console.error('productService: Error fetching product categories', error)
+      throw error
+    }
+  },
+
+  /**
    * Get product by slug
    */
   async getProductBySlug(slug) {
@@ -187,6 +217,26 @@ export const partnerService = {
   async getPartners() {
     const { data } = await api.get(API_ENDPOINTS.PARTNERS)
     return data
+  },
+}
+
+/**
+ * Service Categories Service
+ */
+export const serviceCategoriesService = {
+  /**
+   * Get service categories for industries section
+   */
+  async getServiceCategories() {
+    try {
+      console.log('serviceCategoriesService: Fetching from', API_ENDPOINTS.SERVICE_CATEGORIES)
+      const response = await api.get(API_ENDPOINTS.SERVICE_CATEGORIES)
+      console.log('serviceCategoriesService: Response received', response)
+      return response
+    } catch (error) {
+      console.error('serviceCategoriesService: Error fetching service categories', error)
+      throw error
+    }
   },
 }
 
@@ -407,6 +457,7 @@ export const contentService = {
   solutions: solutionService,
   testimonials: testimonialService,
   partners: partnerService,
+  serviceCategories: serviceCategoriesService,
   careers: careerService,
   pages: pageService,
   company: companyService,

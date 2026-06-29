@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { projectService, companyService, heroService, brandService, missionVisionService, journeyService, coreValuesService, contactCtaService, testimonialService, partnerService } from '../services/content'
+import { projectService, companyService, heroService, brandService, missionVisionService, journeyService, coreValuesService, contactCtaService, testimonialService, partnerService, serviceCategoriesService, productService } from '../services/content'
 import { API_CONFIG } from '../config/api'
 import {
   Zap,
@@ -106,6 +106,10 @@ const coreValuesData = ref(null)
 const contactCtaData = ref(null)
 const testimonialsData = ref(null)
 const partnersData = ref(null)
+const serviceCategoriesData = ref(null)
+const featuredProductsData = ref(null)
+const productCategoriesData = ref(null)
+const projectCategoriesData = ref(null)
 
 // Icon mapping for backwards compatibility
 const iconMap = {
@@ -403,6 +407,11 @@ const fetchTestimonials = async () => {
     if (response && response.data) {
       testimonialsData.value = response.data
       console.log('Testimonials loaded successfully:', testimonialsData.value)
+    } else if (response) {
+      testimonialsData.value = response
+      console.log('Testimonials loaded (direct):', testimonialsData.value)
+    } else {
+      console.warn('Testimonials response is empty or invalid')
     }
   } catch (error) {
     console.error('Failed to fetch testimonials:', error)
@@ -452,6 +461,86 @@ const fetchPartners = async () => {
   }
 }
 
+const fetchServiceCategories = async () => {
+  try {
+    console.log('Fetching service categories from /api/cms/service-categories...')
+    const response = await serviceCategoriesService.getServiceCategories()
+    console.log('Service categories response:', response)
+
+    if (response && response.data) {
+      serviceCategoriesData.value = response.data
+      console.log('Service categories loaded successfully:', serviceCategoriesData.value)
+    } else if (response) {
+      serviceCategoriesData.value = response
+      console.log('Service categories loaded (direct):', serviceCategoriesData.value)
+    } else {
+      console.warn('Service categories response is empty or invalid')
+    }
+  } catch (error) {
+    console.error('Failed to fetch service categories:', error)
+
+    // Set default service categories as fallback
+    serviceCategoriesData.value = []
+  }
+}
+
+const fetchFeaturedProductsData = async () => {
+  try {
+    console.log('Fetching featured products from /api/products/featured...')
+    const products = await productService.getFeaturedProducts()
+    console.log('Featured products response:', products)
+
+    if (products && products.length > 0) {
+      featuredProductsData.value = products
+      console.log('Featured products loaded successfully:', featuredProductsData.value)
+    } else {
+      console.warn('No featured products found')
+      featuredProductsData.value = []
+    }
+  } catch (error) {
+    console.error('Failed to fetch featured products:', error)
+    featuredProductsData.value = []
+  }
+}
+
+const fetchProductCategories = async () => {
+  try {
+    console.log('Fetching product categories from /api/products/categories-list...')
+    const categories = await productService.getProductCategoriesList()
+    console.log('Product categories response:', categories)
+
+    if (categories && categories.length > 0) {
+      productCategoriesData.value = categories
+      console.log('Product categories loaded successfully:', productCategoriesData.value)
+    } else {
+      console.warn('No product categories found')
+      productCategoriesData.value = []
+    }
+  } catch (error) {
+    console.error('Failed to fetch product categories:', error)
+    productCategoriesData.value = []
+  }
+}
+
+const fetchProjectCategories = async () => {
+  try {
+    console.log('Fetching project categories from /api/projects/categories...')
+    const categories = await projectService.getProjectCategories()
+    console.log('Project categories response:', categories)
+
+    if (categories && categories.length > 0) {
+      projectCategoriesData.value = categories
+      console.log('Project categories loaded successfully:', projectCategoriesData.value)
+    } else {
+      console.warn('No project categories found')
+      projectCategoriesData.value = []
+    }
+  } catch (error) {
+    console.error('Failed to fetch project categories:', error)
+    projectCategoriesData.value = []
+  }
+}
+
 onMounted(() => {
   fetchFeaturedProjects()
   fetchHomepageData()
@@ -463,11 +552,58 @@ onMounted(() => {
   fetchContactCtaData()
   fetchTestimonials()
   fetchPartners()
+  fetchServiceCategories()
+  fetchProductCategories()
+  fetchProjectCategories()
+  fetchFeaturedProductsData()
 })
 
 const filteredProjects = computed(() => {
   if (projectFilter.value === 'all') return featuredProjects.value
-  return featuredProjects.value.filter(p => p.category === projectFilter.value || p.type === projectFilter.value)
+
+  return featuredProjects.value.filter(p => {
+    // Handle different category field structures
+    if (p.category?.slug === projectFilter.value) return true
+    if (typeof p.category === 'string' && p.category === projectFilter.value) return true
+    if (p.category_id === projectFilter.value) return true
+    if (p.type === projectFilter.value) return true
+
+    // Also check if category_id matches any category in our list
+    if (p.category_id && projectCategoriesData.value) {
+      const category = projectCategoriesData.value.find(c => c.id === p.category_id)
+      if (category && category.slug === projectFilter.value) return true
+    }
+
+    return false
+  })
+})
+
+const projectCategoryList = computed(() => {
+  // Start with "All Projects" as the first category
+  const categories = [
+    { id: 'all', name: 'All Projects', slug: 'all' }
+  ]
+
+  // Add dynamic categories from API if available
+  if (projectCategoriesData.value && projectCategoriesData.value.length > 0) {
+    console.log('Using project categories from API:', projectCategoriesData.value)
+    projectCategoriesData.value.forEach(category => {
+      categories.push({
+        id: category.id,
+        name: category.name,
+        slug: category.slug
+      })
+    })
+  } else {
+    // Fallback to hardcoded categories if no API data
+    console.log('Using fallback project categories')
+    categories.push(
+      { id: 'infrastructure', name: 'Infrastructure', slug: 'infrastructure' },
+      { id: 'renewable', name: 'Renewable', slug: 'renewable' }
+    )
+  }
+
+  return categories
 })
 
 const openProjectModal = (project) => {
@@ -657,45 +793,104 @@ const certifications = [
   'IEC 60076', 'IEEE Standards', 'BPDB Approved'
 ]
 
-// Product Categories from Products page
-const productCategoryList = [
-  { id: 'all', name: 'All Products', icon: Settings },
-  { id: 'transformers', name: 'Transformers', icon: Zap },
-  { id: 'switchgear', name: 'Switchgear', icon: Settings },
-  { id: 'renewables', name: 'Renewables', icon: Wind }
-]
+// Product Categories from Products page - now using dynamic data from API
+const productCategoryList = computed(() => {
+  // Start with "All Products" as the first category
+  const categories = [
+    { id: 'all', name: 'All Products', icon: Settings, isSvg: false }
+  ]
 
-// Featured Products from Products page (limited selection)
-const featuredProducts = [
-  {
-    id: 1,
-    name: 'Power Transformer 250 MVA',
-    category: 'transformers',
-    description: 'High-capacity power transformer for utility-scale applications',
-    specifications: ['250 MVA', '230/132 kV', 'ONAN/ONAF Cooling'],
-    image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800'
-  },
-  {
-    id: 2,
-    name: 'Gas Insulated Switchgear',
-    category: 'switchgear',
-    description: 'SF6 gas-insulated switchgear for compact substation solutions',
-    specifications: ['Up to 400 kV', '2500-4000 A', '40 kA'],
-    image: 'https://images.unsplash.com/photo-1544724569-5f546fa6629c?auto=format&fit=crop&q=80&w=800'
-  },
-  {
-    id: 3,
-    name: 'Solar Inverter System',
-    category: 'renewables',
-    description: 'Grid-tied solar inverters for utility-scale solar farms',
-    specifications: ['100-1000 kW', 'MPPT tracking', 'Grid support'],
-    image: 'https://images.unsplash.com/photo-1509391366360-fe5bb658589d?auto=format&fit=crop&q=80&w=800'
+  // Add dynamic categories from API if available
+  if (productCategoriesData.value && productCategoriesData.value.length > 0) {
+    console.log('Using product categories from API:', productCategoriesData.value)
+    productCategoriesData.value.forEach(category => {
+      let iconComponent = Settings
+      let isSvg = false
+
+      if (category.icon) {
+        // If icon contains SVG HTML, use it as template
+        if (category.icon.includes('<svg')) {
+          categories.push({
+            id: category.id,
+            name: category.name,
+            icon: { template: category.icon },
+            isSvg: true
+          })
+          return
+        }
+        // Otherwise try to map icon name to component
+        iconComponent = iconMap[category.icon] || Settings
+      }
+
+      categories.push({
+        id: category.id,
+        name: category.name,
+        icon: iconComponent,
+        isSvg: false
+      })
+    })
+  } else {
+    // Fallback to hardcoded categories if no API data
+    console.log('Using fallback product categories')
+    categories.push(
+      { id: 'transformers', name: 'Transformers', icon: Zap, isSvg: false },
+      { id: 'switchgear', name: 'Switchgear', icon: Settings, isSvg: false },
+      { id: 'renewables', name: 'Renewables', icon: Wind, isSvg: false }
+    )
   }
-]
+
+  return categories
+})
+
+// Featured Products from Products page - now using dynamic data from API
+const featuredProducts = computed(() => {
+  if (featuredProductsData.value && featuredProductsData.value.length > 0) {
+    console.log('Using featured products from API:', featuredProductsData.value)
+    return featuredProductsData.value.map(product => {
+      return {
+        id: product.id,
+        name: product.name,
+        category: product.category,
+        description: product.description,
+        specifications: Array.isArray(product.specifications) ? product.specifications : [],
+        image: product.image || 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800'
+      }
+    })
+  }
+
+  // Fallback to hardcoded products if no API data
+  console.log('Using fallback featured products')
+  return [
+    {
+      id: 1,
+      name: 'Power Transformer 250 MVA',
+      category: 'transformers',
+      description: 'High-capacity power transformer for utility-scale applications',
+      specifications: ['250 MVA', '230/132 kV', 'ONAN/ONAF Cooling'],
+      image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800'
+    },
+    {
+      id: 2,
+      name: 'Gas Insulated Switchgear',
+      category: 'switchgear',
+      description: 'SF6 gas-insulated switchgear for compact substation solutions',
+      specifications: ['Up to 400 kV', '2500-4000 A', '40 kA'],
+      image: 'https://images.unsplash.com/photo-1544724569-5f546fa6629c?auto=format&fit=crop&q=80&w=800'
+    },
+    {
+      id: 3,
+      name: 'Solar Inverter System',
+      category: 'renewables',
+      description: 'Grid-tied solar inverters for utility-scale solar farms',
+      specifications: ['100-1000 kW', 'MPPT tracking', 'Grid support'],
+      image: 'https://images.unsplash.com/photo-1509391366360-fe5bb658589d?auto=format&fit=crop&q=80&w=800'
+    }
+  ]
+})
 
 const filteredFeaturedProducts = computed(() => {
-  if (activeProductCategory.value === 'all') return featuredProducts
-  return featuredProducts.filter(p => p.category === activeProductCategory.value)
+  if (activeProductCategory.value === 'all') return featuredProducts.value
+  return featuredProducts.value.filter(p => p.category === activeProductCategory.value)
 })
 
 // Services from Services page
@@ -738,15 +933,45 @@ const keySolutions = [
   }
 ]
 
-// Industries from Solutions page
-const industries = [
-  { name: 'Power Generation', icon: Zap },
-  { name: 'Textile', icon: Factory },
-  { name: 'Pharmaceuticals', icon: Building2 },
-  { name: 'Construction', icon: Building2 },
-  { name: 'Food Processing', icon: Factory },
-  { name: 'Telecom', icon: Zap }
-]
+// Industries from Solutions page - now using dynamic service categories
+const industries = computed(() => {
+  if (serviceCategoriesData.value && serviceCategoriesData.value.length > 0) {
+    console.log('Using service categories from API:', serviceCategoriesData.value)
+    return serviceCategoriesData.value.map(category => {
+      // Map icon names to components, default to Zap if not found
+      let iconComponent = Zap
+      if (category.icon) {
+        // If icon contains SVG HTML, store it as template
+        if (category.icon.includes('<svg')) {
+          return {
+            name: category.name,
+            icon: { template: category.icon },
+            isSvg: true
+          }
+        }
+        // Otherwise try to map icon name to component
+        iconComponent = iconMap[category.icon] || Zap
+      }
+
+      return {
+        name: category.name,
+        icon: iconComponent,
+        isSvg: false
+      }
+    })
+  }
+
+  // Fallback to hardcoded industries if no API data
+  console.log('Using fallback industries')
+  return [
+    { name: 'Power Generation', icon: Zap, isSvg: false },
+    { name: 'Textile', icon: Factory, isSvg: false },
+    { name: 'Pharmaceuticals', icon: Building2, isSvg: false },
+    { name: 'Construction', icon: Building2, isSvg: false },
+    { name: 'Food Processing', icon: Factory, isSvg: false },
+    { name: 'Telecom', icon: Zap, isSvg: false }
+  ]
+})
 
 // Testimonials (new section) - using dynamic data from API
 const testimonials = computed(() => {
@@ -964,7 +1189,7 @@ const contactCta = computed(() => {
       <div class="max-w-7xl mx-auto px-6 relative z-10">
         <div class="grid lg:grid-cols-12 gap-12 md:gap-16 items-center mb-12">
           <div class="lg:col-span-4" v-motion-slide-visible-left">
-             <span class="text-industrial-red font-black uppercase tracking-widest text-[10px] block mb-4 underline decoration-2 underline-offset-8">{{ homepageData?.projects_subtitle || 'Featured Deployments' }}</span>
+             <span class="text-industrial-red font-black uppercase tracking-widest text-[10px] block mb-4 underline decoration-2 underline-offset-4 leading-8">{{ homepageData?.projects_subtitle || 'Featured Deployments' }}</span>
              <h2 class="text-5xl md:text-6xl font-display font-black uppercase italic leading-[0.9] mb-6 text-gradient-blue">{{ homepageData?.projects_title || 'THE ENERGY MATRIX' }}</h2>
              <p class="text-slate-400 leading-relaxed mb-8 text-sm md:text-base">
                Engineering large-scale infrastructure with interactive project tracking and real-time performance monitoring.
@@ -973,25 +1198,13 @@ const contactCta = computed(() => {
              <!-- Interactive Filter Buttons -->
              <div class="flex flex-wrap gap-2 mb-8">
                <button
-                 @click="setProjectFilter('all')"
-                 :class="projectFilter === 'all' ? 'bg-industrial-blue text-white' : 'bg-white/5 text-slate-400 hover:bg-white/10'"
+                 v-for="category in projectCategoryList"
+                 :key="category.id"
+                 @click="setProjectFilter(category.slug)"
+                 :class="projectFilter === category.slug ? 'bg-industrial-blue text-white' : 'bg-white/5 text-slate-400 hover:bg-white/10'"
                  class="px-4 py-2 text-[10px] font-black uppercase tracking-widest border border-industrial-blue/20 transition-all rounded-sm"
                >
-                 All Projects
-               </button>
-               <button
-                 @click="setProjectFilter('infrastructure')"
-                 :class="projectFilter === 'infrastructure' ? 'bg-industrial-blue text-white' : 'bg-white/5 text-slate-400 hover:bg-white/10'"
-                 class="px-4 py-2 text-[10px] font-black uppercase tracking-widest border border-industrial-blue/20 transition-all rounded-sm"
-               >
-                 Infrastructure
-               </button>
-               <button
-                 @click="setProjectFilter('renewable')"
-                 :class="projectFilter === 'renewable' ? 'bg-industrial-blue text-white' : 'bg-white/5 text-slate-400 hover:bg-white/10'"
-                 class="px-4 py-2 text-[10px] font-black uppercase tracking-widest border border-industrial-blue/20 transition-all rounded-sm"
-               >
-                 Renewable
+                 {{ category.name }}
                </button>
              </div>
           </div>
@@ -1175,7 +1388,9 @@ const contactCta = computed(() => {
             class="flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-sm font-bold uppercase text-[10px] md:text-xs tracking-wider transition-all"
             :class="activeProductCategory === category.id ? 'bg-industrial-blue text-white' : 'bg-white text-industrial-dark hover:bg-industrial-blue/10 shadow-md'"
           >
-            <component :is="category.icon" class="w-4 h-4" />
+            <!-- Icon - SVG template or component -->
+            <div v-if="category.isSvg && category.icon?.template" v-html="category.icon.template" class="w-4 h-4"></div>
+            <component v-else :is="category.icon" class="w-4 h-4" />
             {{ category.name }}
           </button>
         </div>
@@ -1191,7 +1406,7 @@ const contactCta = computed(() => {
           >
             <div class="relative h-48 md:h-64 overflow-hidden">
               <img
-                :src="product.image"
+                :src="getImageUrl(product.image)"
                 :alt="product.name"
                 class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
@@ -1396,7 +1611,9 @@ const contactCta = computed(() => {
               v-motion-slide-visible-bottom
               :delay="index * 100"
             >
-              <component :is="industry.icon" class="w-8 h-8 md:w-12 md:h-12 text-industrial-blue mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform" />
+              <!-- Icon - SVG template or component -->
+              <div v-if="industry.isSvg && industry.icon?.template" v-html="industry.icon.template" class="w-8 h-8 md:w-12 md:h-12 text-industrial-blue mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform industries-icon"></div>
+              <component v-else :is="industry.icon" class="w-8 h-8 md:w-12 md:h-12 text-industrial-blue mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform" />
               <div class="font-bold uppercase text-[10px] md:text-xs tracking-wider">{{ industry.name }}</div>
             </div>
           </div>
@@ -1596,6 +1813,15 @@ const contactCta = computed(() => {
   width: 100%;
   height: 100%;
   display: block;
+}
+
+/* Industries icons SVG styling - make fills white */
+:deep(.industries-icon svg path) {
+  fill: #ffffff !important;
+}
+
+:deep(.industries-icon svg g) {
+  fill: #ffffff !important;
 }
 </style>
 

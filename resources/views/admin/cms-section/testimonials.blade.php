@@ -2,13 +2,15 @@
     <x-slot:styles>
         <style>
             .testimonial-card {
-                transition: all 0.2s ease;
-                border: 1px solid #e5e7eb;
+                transition: all 0.3s ease;
+                transform: translateZ(0);
+                opacity: 1;
+                border: 1px solid rgba(148, 163, 184, 0.1);
             }
 
             .testimonial-card:hover {
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-                transform: translateY(-2px);
+                transform: translateZ(0) translateY(-4px);
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             }
 
             .modal-overlay {
@@ -58,6 +60,61 @@
             .rating-star:hover {
                 color: #fbbf24;
             }
+
+            /* Dashboard mode colors - Light theme */
+            .bg-industrial-light {
+                background-color: #f8fafc;
+            }
+
+            .text-industrial-dark {
+                color: #1e293b;
+            }
+
+            .text-slate-700 {
+                color: #334155;
+            }
+
+            .text-slate-600 {
+                color: #475569;
+            }
+
+            .text-slate-300 {
+                color: #cbd5e1;
+            }
+
+            .border-slate-300 {
+                border-color: #cbd5e1;
+            }
+
+            /* Dashboard mode colors - Dark theme support */
+            .dark .bg-industrial-light {
+                background-color: #1e293b;
+            }
+
+            .dark .text-industrial-dark {
+                color: #f1f5f9;
+            }
+
+            .dark .text-slate-700 {
+                color: #cbd5e1;
+            }
+
+            .dark .text-slate-600 {
+                color: #94a3b8;
+            }
+
+            .dark .border-slate-300 {
+                border-color: #334155;
+            }
+
+            /* Brand colors for company info */
+            .text-industrial-blue {
+                color: #0d9488;
+            }
+
+            .dark .text-industrial-blue {
+                color: #14b8a6;
+            }
         </style>
     </x-slot:styles>
 
@@ -99,7 +156,6 @@
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Subtitle</label>
                         <input type="text" name="subtitle" id="subtitle"
-                            value="{{ old('subtitle', $sectionItems['testimonials_subtitle']->section_content ?? 'Testimonials') }}"
                             class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
                             placeholder="Testimonials">
                     </div>
@@ -107,7 +163,6 @@
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Title</label>
                         <input type="text" name="title" id="title"
-                            value="{{ old('title', $sectionItems['testimonials_title']->section_content ?? 'What Our Clients Say') }}"
                             class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
                             placeholder="What Our Clients Say">
                     </div>
@@ -115,7 +170,7 @@
                     <div class="lg:col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Description</label>
                         <textarea name="description" id="description" rows="3"
-                            class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all resize-none">{{ old('description', $sectionItems['testimonials_description']->section_content ?? 'Trusted by leading organizations across Bangladesh and beyond') }}</textarea>
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all resize-none"></textarea>
                     </div>
                 </div>
 
@@ -137,76 +192,48 @@
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Testimonials ({{ count($testimonialsData) }})</h2>
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Testimonials (<span id="testimonialsCount">Loading...</span>)</h2>
                         <p class="text-sm text-gray-500 dark:text-gray-400">Manage your client testimonials</p>
                     </div>
                 </div>
             </div>
 
-            @if(empty($testimonialsData))
-                <div class="text-center py-16 bg-gray-50 dark:bg-surface-800 rounded-xl">
-                    <div class="w-20 h-20 mx-auto mb-4 bg-gray-200 dark:bg-surface-700 rounded-full flex items-center justify-center">
-                        <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">No testimonials yet</h3>
-                    <p class="text-gray-500 dark:text-gray-400 mb-4">Add your first client testimonial to get started</p>
-                    <button onclick="window.openModal()" class="bg-brand-500 hover:bg-brand-600 text-white px-6 py-3 rounded-xl font-semibold transition-all shadow-lg shadow-brand-500/30">
-                        + Add First Testimonial
-                    </button>
-                </div>
-            @else
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    @foreach($testimonialsData as $testimonial)
-                        <div class="testimonial-card bg-white dark:bg-surface-800 rounded-xl p-6 relative">
-                            <div class="flex justify-between items-start mb-4">
-                                <div class="flex items-center gap-1">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        @if($i <= ($testimonial['rating'] ?? 5))
-                                            <svg class="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                            </svg>
-                                        @else
-                                            <svg class="w-5 h-5 text-gray-300 fill-current" viewBox="0 0 20 20">
-                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                            </svg>
-                                        @endif
-                                    @endfor
-                                </div>
-                                <div class="flex gap-2">
-                                    <button onclick='window.editTestimonial({{ json_encode($testimonial) }})' class="text-brand-500 hover:text-brand-600 p-1 rounded-lg hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-all">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                        </svg>
-                                    </button>
-                                    <form action="{{ route('admin.testimonials.destroy', $testimonial['id']) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this testimonial?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-500 hover:text-red-600 p-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-all">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                            </svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
+            <!-- Loading State -->
+            <div id="loadingState" class="text-center py-16">
+                <div class="w-16 h-16 mx-auto mb-4 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-gray-500 dark:text-gray-400">Loading testimonials...</p>
+            </div>
 
-                            <div class="bg-gray-50 dark:bg-surface-700 rounded-lg p-4 mb-4">
-                                <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed italic">
-                                    "{{ $testimonial['content'] }}"
-                                </p>
-                            </div>
-
-                            <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-                                <div class="font-semibold text-gray-900 dark:text-white">{{ $testimonial['name'] }}</div>
-                                <div class="text-sm text-gray-600 dark:text-gray-400">{{ $testimonial['position'] }}</div>
-                                <div class="text-xs text-brand-500 font-medium mt-1">{{ $testimonial['company'] }}</div>
-                            </div>
-                        </div>
-                    @endforeach
+            <!-- Empty State -->
+            <div id="emptyState" class="text-center py-16 bg-gray-50 dark:bg-surface-800 rounded-xl" style="display: none;">
+                <div class="w-20 h-20 mx-auto mb-4 bg-gray-200 dark:bg-surface-700 rounded-full flex items-center justify-center">
+                    <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                    </svg>
                 </div>
-            @endif
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">No testimonials yet</h3>
+                <p class="text-gray-500 dark:text-gray-400 mb-4">Add your first client testimonial to get started</p>
+                <button onclick="window.openModal()" class="bg-brand-500 hover:bg-brand-600 text-white px-6 py-3 rounded-xl font-semibold transition-all shadow-lg shadow-brand-500/30">
+                    + Add First Testimonial
+                </button>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="text-center py-16 bg-red-50 dark:bg-red-900/20 rounded-xl" style="display: none;">
+                <div class="w-20 h-20 mx-auto mb-4 bg-red-200 dark:bg-red-800 rounded-full flex items-center justify-center">
+                    <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-red-900 dark:text-red-300 mb-2">Failed to load testimonials</h3>
+                <p class="text-red-700 dark:text-red-400 mb-4" id="errorMessage">There was an error loading the testimonials. Please try again.</p>
+                <button onclick="window.loadTestimonials()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-semibold transition-all">
+                    Retry
+                </button>
+            </div>
+
+            <!-- Testimonials Grid -->
+            <div id="testimonialsGrid" class="grid grid-cols-1 lg:grid-cols-3 gap-6" style="display: none;"></div>
         </div>
     </div>
 
@@ -332,6 +359,140 @@
             });
         };
 
+        // Load testimonials from API
+        window.loadTestimonials = function() {
+            // Show loading state
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'none';
+            document.getElementById('testimonialsGrid').style.display = 'none';
+
+            fetch('/api/testimonials')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch testimonials');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success && data.data) {
+                        // Update section content
+                        if (data.data.subtitle) {
+                            document.getElementById('subtitle').value = data.data.subtitle;
+                        }
+                        if (data.data.title) {
+                            document.getElementById('title').value = data.data.title;
+                        }
+                        if (data.data.description) {
+                            document.getElementById('description').value = data.data.description;
+                        }
+
+                        // Update testimonials count
+                        const testimonials = data.data.testimonials || [];
+                        document.getElementById('testimonialsCount').textContent = testimonials.length;
+
+                        // Hide loading state
+                        document.getElementById('loadingState').style.display = 'none';
+
+                        // Show empty state or testimonials
+                        if (testimonials.length === 0) {
+                            document.getElementById('emptyState').style.display = 'block';
+                        } else {
+                            document.getElementById('testimonialsGrid').style.display = 'grid';
+                            window.renderTestimonials(testimonials);
+                        }
+                    } else {
+                        throw new Error('Invalid data format received');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading testimonials:', error);
+                    document.getElementById('loadingState').style.display = 'none';
+                    document.getElementById('errorState').style.display = 'block';
+                    document.getElementById('errorMessage').textContent = error.message || 'There was an error loading the testimonials.';
+                });
+        };
+
+        // Render testimonials dynamically
+        window.renderTestimonials = function(testimonials) {
+            const grid = document.getElementById('testimonialsGrid');
+            grid.innerHTML = '';
+
+            testimonials.forEach(testimonial => {
+                const card = document.createElement('div');
+                card.className = 'testimonial-card bg-gray-50 dark:bg-surface-800 p-6 md:p-8 rounded-lg hover:shadow-xl transition-all relative';
+
+                // Generate star rating HTML
+                let starsHtml = '';
+                for (let i = 1; i <= 5; i++) {
+                    if (i <= (testimonial.rating || 5)) {
+                        starsHtml += `<svg class="w-4 h-4 md:w-5 md:h-5 fill-yellow-400 text-yellow-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 6.9-1.01L13.12 8.26 12 2z"></path>
+                        </svg>`;
+                    } else {
+                        starsHtml += `<svg class="w-4 h-4 md:w-5 md:h-5 text-gray-300 dark:text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 6.9-1.01L13.12 8.26 12 2z"></path>
+                        </svg>`;
+                    }
+                }
+
+                card.innerHTML = `
+                    <div class="absolute top-4 right-4 flex gap-2 z-10">
+                        <button onclick='window.editTestimonial(${JSON.stringify(testimonial)})' class="text-brand-500 hover:text-brand-600 p-1 rounded-lg hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                        </button>
+                        <button onclick='window.deleteTestimonial(${testimonial.id})' class="text-red-500 hover:text-red-600 p-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-1 mb-4 md:mb-6">
+                        ${starsHtml}
+                    </div>
+
+                    <p class="text-gray-700 dark:text-gray-300 text-sm md:text-base leading-relaxed mb-4 md:mb-6 italic bg-white dark:bg-surface-700 p-4 rounded-lg">
+                        "${testimonial.content}"
+                    </p>
+
+                    <div class="border-t border-gray-300 dark:border-gray-700 pt-4">
+                        <div class="font-bold text-gray-900 dark:text-white">${testimonial.name}</div>
+                        <div class="text-xs md:text-sm text-gray-600 dark:text-gray-400">${testimonial.position}</div>
+                        <div class="text-[10px] md:text-xs text-brand-500 dark:text-brand-400 font-medium">${testimonial.company}</div>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        };
+
+        // Delete testimonial
+        window.deleteTestimonial = function(id) {
+            if (confirm('Are you sure you want to delete this testimonial?')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ route('admin.testimonials.destroy', ':id') }}'.replace(':id', id);
+
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = '{{ csrf_token() }}';
+
+                const methodField = document.createElement('input');
+                methodField.type = 'hidden';
+                methodField.name = '_method';
+                methodField.value = 'DELETE';
+
+                form.appendChild(csrfToken);
+                form.appendChild(methodField);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        };
+
         // Initialize event listeners when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
             // Close modal when clicking outside
@@ -363,6 +524,9 @@
                     window.closeModal();
                 }
             });
+
+            // Load testimonials on page load
+            window.loadTestimonials();
         });
     </script>
 </x-layouts.app>

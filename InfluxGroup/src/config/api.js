@@ -12,7 +12,9 @@ export const API_CONFIG = {
 export const API_ENDPOINTS = {
   // Products
   PRODUCTS: '/products',
+  FEATURED_PRODUCTS: '/products/featured',
   PRODUCT_CATEGORIES: '/products/categories',
+  PRODUCT_CATEGORIES_LIST: '/products/categories-list',
   PRODUCT_BY_SLUG: (slug) => `/products/${slug}`,
 
   // Projects
@@ -40,6 +42,9 @@ export const API_ENDPOINTS = {
   // Testimonials & Partners
   TESTIMONIALS: '/cms/testimonials',
   PARTNERS: '/cms/partners',
+
+  // Service Categories
+  SERVICE_CATEGORIES: '/cms/service-categories',
 
   // Careers
   JOBS: '/careers/jobs',

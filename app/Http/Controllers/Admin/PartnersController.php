@@ -190,6 +190,8 @@ class PartnersController extends Controller
         // Update partner items
         if ($request->has('partners')) {
             \Log::info('Processing partners update', ['partners' => $request->partners]);
+            \Log::info('All request data', ['all_data' => $request->all()]);
+            \Log::info('Files in request', ['files' => array_keys($request->allFiles())]);
 
             foreach ($request->partners as $id => $partner) {
                 \Log::info("Processing partner ID: {$id}", ['partner' => $partner]);
@@ -198,11 +200,60 @@ class PartnersController extends Controller
                 $partnerName = is_array($partner) && isset($partner['name']) ? $partner['name'] : '';
                 $partnerLogo = is_array($partner) && isset($partner['logo']) ? $partner['logo'] : '';
 
+                // Handle file upload for partner logo
+                $logoField = "partner_logo_{$id}";
+                \Log::info("Checking for file field: {$logoField}", ['has_file' => $request->hasFile($logoField)]);
+
+                if ($request->hasFile($logoField)) {
+                    $file = $request->file($logoField);
+
+                    \Log::info("Processing file upload for partner {$id}", [
+                        'file_name' => $file->getClientOriginalName(),
+                        'file_size' => $file->getSize(),
+                        'file_mime' => $file->getMimeType()
+                    ]);
+
+                    // Validate the file
+                    try {
+                        $validated = $request->validate([
+                            $logoField => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:10240'
+                        ]);
+
+                        // Store the file
+                        $path = $file->store('partners', 'public');
+                        $partnerLogo = '/storage/' . $path;
+
+                        \Log::info("Successfully uploaded partner logo for ID {$id}: {$partnerLogo}");
+                    } catch (\Illuminate\Validation\ValidationException $e) {
+                        \Log::error("File validation failed for partner {$id}", ['errors' => $e->errors()]);
+                        throw $e;
+                    }
+                } else {
+                    \Log::info("No file uploaded for partner {$id}");
+                }
+
+                // If no file uploaded and logo is empty, keep existing or use default
+                if (empty($partnerLogo) && !$request->hasFile($logoField)) {
+                    \Log::info("Keeping existing logo for partner {$id}");
+                    // Try to get existing logo from database
+                    $existingPartner = ContentManagement::where('section_name', 'partners')
+                        ->where('section_item_name', "partner_{$id}")
+                        ->first();
+
+                    if ($existingPartner) {
+                        $jsonData = json_decode($existingPartner->section_content, true);
+                        $partnerLogo = $jsonData['logo'] ?? '';
+                        \Log::info("Found existing logo for partner {$id}: {$partnerLogo}");
+                    }
+                }
+
                 $partnerData = [
                     'name' => $partnerName,
                     'logo' => $partnerLogo,
                     'order' => (int)$id
                 ];
+
+                \Log::info("Saving partner data for ID {$id}", ['partner_data' => $partnerData]);
 
                 ContentManagement::updateOrCreate(
                     [

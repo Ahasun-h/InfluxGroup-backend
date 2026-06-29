@@ -61,6 +61,55 @@ class ContentController extends Controller
         ]);
     }
 
+    /**
+     * Get featured/active products for homepage
+     */
+    public function getFeaturedProducts()
+    {
+        $products = Product::active()
+            ->limit(3)
+            ->get()
+            ->map(function ($product) {
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'slug' => $product->slug,
+                    'category' => $product->category,
+                    'description' => $product->description,
+                    'image' => $product->image,
+                    'specifications' => $product->specifications ?? [],
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $products
+        ]);
+    }
+
+    /**
+     * Get product categories for homepage filters
+     */
+    public function getProductCategoriesForHomepage()
+    {
+        $categories = Category::productArea()
+            ->ordered()
+            ->get()
+            ->map(function ($category) {
+                return [
+                    'id' => $category->slug,
+                    'name' => $category->name,
+                    'icon' => $category->icon,
+                    'description' => $category->description,
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $categories
+        ]);
+    }
+
     public function getProjects(Request $request)
     {
         $query = Project::query();
@@ -91,7 +140,7 @@ class ContentController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data' => Project::where('featured', true)->latest()->take(6)->get()
+            'data' => Project::where('featured', true)->with('category')->latest()->take(2)->get()
         ]);
     }
 
@@ -948,6 +997,30 @@ class ContentController extends Controller
         return response()->json([
             'success' => true,
             'data' => $content
+        ]);
+    }
+
+    /**
+     * Get service categories for industries section
+     */
+    public function getServiceCategories()
+    {
+        $categories = Category::serviceArea()
+            ->ordered()
+            ->get()
+            ->map(function ($category) {
+                return [
+                    'id' => $category->id,
+                    'name' => $category->name,
+                    'slug' => $category->slug,
+                    'icon' => $category->icon,
+                    'description' => $category->description,
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $categories
         ]);
     }
 

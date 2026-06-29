@@ -299,34 +299,21 @@
                                     <div class="mb-4 w-full">
                                         <label class="block text-xs uppercase font-bold tracking-wider text-gray-900 dark:text-white mb-2">Partner Logo</label>
 
-                                        <!-- Logo Preview Area -->
-                                        <div class="relative">
+                                        <!-- Logo Upload Area (same as projects page) -->
+                                        <div class="w-full aspect-video rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/10 flex flex-col items-center justify-center gap-2 text-gray-400 hover:border-brand-500 transition-all relative partner-logo-upload" data-partner-id="{{ $partner['id'] }}">
                                             @if(!empty($partner['logo']) && (str_starts_with($partner['logo'], 'http') || str_starts_with($partner['logo'], '/') || str_starts_with($partner['logo'], 'data:image')))
-                                                <!-- Existing Image Preview -->
-                                                <div class="relative group">
-                                                    <img src="{{ $partner['logo'] }}" alt="Partner Logo" class="w-full h-24 object-contain bg-gray-50 dark:bg-surface-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-surface-600 p-2">
-                                                    <div class="absolute inset-0 bg-black dark:bg-white bg-opacity-50 dark:bg-opacity-50 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <label class="cursor-pointer px-4 py-2 bg-white dark:bg-surface-800 text-gray-800 dark:text-white rounded-lg font-semibold hover:bg-gray-100 dark:hover:bg-surface-700 transition-colors">
-                                                            Change Logo
-                                                            <input type="file" name="partner_logo_{{ $partner['id'] }}" class="hidden" accept="image/*" onchange="handlePartnerImageUpload({{ $partner['id'] }}, this)">
-                                                        </label>
-                                                    </div>
-                                                </div>
+                                                <!-- Existing Logo Preview -->
+                                                <img src="{{ $partner['logo'] }}" alt="Partner Logo" class="w-full h-full object-contain rounded-2xl p-2" id="partner_logo_preview_{{ $partner['id'] }}">
                                             @else
-                                                <!-- Upload Area -->
-                                                <div class="border-2 border-dashed border-gray-300 dark:border-surface-600 rounded-lg p-4 text-center hover:border-blue-500 dark:hover:border-blue-400 transition-colors bg-gray-50 dark:bg-surface-700">
-                                                    <label class="cursor-pointer">
-                                                        <div class="text-gray-500 dark:text-gray-400 mb-2">
-                                                            <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                                            </svg>
-                                                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Click to upload or drag and drop</p>
-                                                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">PNG, JPG, GIF up to 5MB</p>
-                                                        </div>
-                                                        <input type="file" name="partner_logo_{{ $partner['id'] }}" class="hidden" accept="image/*" onchange="handlePartnerImageUpload({{ $partner['id'] }}, this)">
-                                                    </label>
-                                                </div>
+                                                <!-- Upload UI -->
+                                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                </svg>
+                                                <span class="text-xs font-semibold">Upload Partner Logo</span>
+                                                <img src="" alt="" class="w-full h-full object-contain rounded-2xl p-2 hidden" id="partner_logo_preview_{{ $partner['id'] }}">
                                             @endif
+
+                                            <input type="file" name="partner_logo_{{ $partner['id'] }}" id="partner_logo_input_{{ $partner['id'] }}" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer">
                                         </div>
 
                                         <input type="hidden" name="partners[{{ $partner['id'] }}][logo]" id="partner_logo_url_{{ $partner['id'] }}" value="{{ $partner['logo'] }}">
@@ -393,244 +380,184 @@
     </div>
 
     <x-slot:scripts>
+
         <script>
-            (function() {
-                console.log('Partners page loaded');
+            console.log('Partners page loaded');
 
-                let nextId = {{ count($partners) + 1 }};
+            let nextId = {{ count($partners) + 1 }};
 
-                // Add new partner
-                function addPartner() {
-                    try {
-                        const container = document.getElementById('partners-container');
-                        const addButton = container.lastElementChild;
+            // Partner logo upload functionality (same as projects page)
+            function handlePartnerLogoUpload(input, partnerId) {
+                const preview = document.getElementById(`partner_logo_preview_${partnerId}`);
+                const container = input.closest('.partner-logo-upload');
+                const uploadUI = container.querySelector('svg, span');
 
-                        console.log('Adding new partner with ID:', nextId);
-
-                        if (!container) {
-                            console.error('Partners container not found!');
-                            return;
-                        }
-
-                        if (!addButton) {
-                            console.error('Add button not found!');
-                            return;
-                        }
-
-                        const div = document.createElement('div');
-                        div.className = 'bg-white p-6 md:p-8 rounded-lg flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-all group partner-card relative animate-fade-in-down';
-                        div.setAttribute('data-partner-id', nextId);
-
-                        const partnerId = nextId;
-                        div.innerHTML = `
-                            <!-- Delete Button -->
-                            <button type="button"
-                                class="absolute top-2 right-2 w-6 h-6 bg-red-900/30 text-red-400 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500 hover:text-white delete-button"
-                                data-id="${partnerId}"
-                                title="Delete this partner">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                            </button>
-                            <input type="hidden" name="delete_partner_${partnerId}" id="delete_partner_${partnerId}" value="">
-
-                            <!-- Logo Section -->
-                            <div class="mb-4 w-full">
-                                <label class="block text-xs uppercase font-bold tracking-wider text-gray-900 dark:text-white mb-2">Partner Logo</label>
-
-                                <!-- Upload Area -->
-                                <div class="border-2 border-dashed border-gray-300 dark:border-surface-600 rounded-lg p-4 text-center hover:border-blue-500 dark:hover:border-blue-400 transition-colors bg-gray-50 dark:bg-surface-700">
-                                    <label class="cursor-pointer">
-                                        <div class="text-gray-500 dark:text-gray-400 mb-2">
-                                            <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                            </svg>
-                                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Click to upload or drag and drop</p>
-                                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">PNG, JPG, GIF up to 5MB</p>
-                                        </div>
-                                        <input type="file" name="partner_logo_${partnerId}" class="hidden" accept="image/*" onchange="handlePartnerImageUpload(${partnerId}, this)">
-                                    </label>
-                                </div>
-
-                                <input type="hidden" name="partners[${partnerId}][logo]" id="partner_logo_url_${partnerId}" value="">
-                            </div>
-
-                            <!-- Name Input -->
-                            <div class="w-full">
-                                <label class="block text-[10px] uppercase font-bold tracking-wider text-gray-500 dark:text-gray-400 mb-2">Partner Name</label>
-                                <input type="text"
-                                    name="partners[${partnerId}][name]"
-                                    class="w-full text-sm font-black uppercase tracking-wider text-gray-900 dark:text-white text-center bg-transparent focus:border-brand-500 focus:ring-0 p-2 placeholder:text-gray-600 dark:placeholder:text-gray-400 transition-colors"
-                                    placeholder="Partner Name">
-                            </div>
-                        `;
-
-                        container.insertBefore(div, addButton);
-
-                        console.log('New partner card added:', partnerId);
-
-                        // Initialize Dropify for the new file input
-                        const newDropify = div.querySelector('.dropify');
-                        if (newDropify) {
-                            setTimeout(function() {
-                                if (typeof $ !== 'undefined' && typeof $.fn.dropify === 'function') {
-                                    $(newDropify).dropify({
-                                        messages: {
-                                            'default': 'Drag & drop an image here or click',
-                                            'replace': 'Drag & drop or click to replace',
-                                            'remove': 'Remove',
-                                            'error': 'Sorry, the file is too large'
-                                        },
-                                        tpl: {
-                                            wrap: '<div class="dropify-wrapper"><div class="dropify-message"><span class="file-icon" />@{{ message }}@<p class="dropify-error" /></div></div>',
-                                            message: '<div class="dropify-message"><svg class="dropify-icon" width="40" height="40" viewBox="0 0 40 40" fill="currentColor"><path d="M20 4a16 16 0 1 1 16 16 16 16 0 0 1-16 16zm0 2a14 14 0 1 0 14 14 14 14 0 0 0-14-14zm7 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-9 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg><p>@{{ message }}@</p></div>',
-                                            preview: '<div class="dropify-preview"><div class="dropify-render"></div><div class="dropify-infos"><div class="dropify-infos-inner"><span class="dropify-infos-message">@{{ message }}@</span><button type="button" class="dropify-clear">Remove</button></div></div></div>',
-                                            loader: '<div class="dropify-loader"><span></span><span></span><span></span><span></span></div>'
-                                        }
-                                    });
-
-                                    // Add event listeners for the new Dropify instance
-                                    $(newDropify).on('dropify.fileReady', function(event, element) {
-                                        const wrapper = $(element).closest('.dropify-wrapper');
-                                        const fileInput = wrapper.find('input[type="file"]');
-                                        const id = fileInput[0].id.replace('partner_logo_', '');
-                                        const urlInput = document.getElementById(`partner_logo_url_${id}`);
-
-                                        if (fileInput.length > 0 && fileInput[0].files.length > 0) {
-                                            const file = fileInput[0].files[0];
-                                            const reader = new FileReader();
-                                            reader.onload = function(e) {
-                                                const base64Url = e.target.result;
-                                                if (urlInput) {
-                                                    urlInput.value = base64Url;
-                                                }
-                                            };
-                                            reader.readAsDataURL(file);
-                                        }
-                                    });
-
-                                    console.log('✓ New Dropify initialized');
-                                }
-                            }, 100);
-                        }
-
-                        // Add delete button functionality
-                        const deleteButton = div.querySelector('.delete-button');
-                        if (deleteButton) {
-                            deleteButton.addEventListener('click', function(e) {
-                                e.preventDefault();
-                                const id = this.getAttribute('data-id');
-                                const form = document.getElementById('partners-form');
-                                if (confirm('Delete this partner?')) {
-                                    const deleteInput = document.getElementById(`delete_partner_${id}`);
-                                    if (deleteInput && form) {
-                                        deleteInput.value = id;
-                                        form.submit();
-                                    }
-                                }
-                            });
-                        }
-
-                        // Focus on the name input field
-                        setTimeout(() => {
-                            const nameInput = div.querySelector('input[type="text"]');
-                            if (nameInput) {
-                                nameInput.focus();
-                            }
-                        }, 100);
-
-                        nextId++;
-                    } catch (error) {
-                        console.error('Error adding new partner:', error);
-                        alert('There was an error adding a new partner. Please check the console for details.');
-                    }
-                }
-
-                function handlePartnerImageUpload(id, input) {
-                    if (!input.files || !input.files[0]) {
-                        return;
-                    }
-
+                if (input.files && input.files[0]) {
                     const file = input.files[0];
-                    const maxSize = 5 * 1024 * 1024; // 5MB
+                    const maxSize = 10 * 1024 * 1024; // 10MB
 
                     if (file.size > maxSize) {
-                        alert('File size is too large. Maximum size is 5MB.');
+                        alert('File size is too large. Maximum size is 10MB.');
                         input.value = '';
                         return;
                     }
 
-                    // Convert to base64
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        const base64Url = e.target.result;
-                        const urlInput = document.getElementById(`partner_logo_url_${id}`);
-                        if (urlInput) {
-                            urlInput.value = base64Url;
+                        preview.src = e.target.result;
+                        preview.classList.remove('hidden');
 
-                            // Update the preview area
-                            const partnerCard = document.querySelector(`.partner-card[data-partner-id="${id}"]`);
-                            if (partnerCard) {
-                                const logoSection = partnerCard.querySelector('.mb-4.w-full');
-                                if (logoSection) {
-                                    const logoContainer = logoSection.querySelector('.relative');
-                                    if (logoContainer) {
-                                        logoContainer.innerHTML = `
-                                            <div class="relative group">
-                                                <img src="${base64Url}" alt="Partner Logo" class="w-full h-24 object-contain bg-gray-50 dark:bg-surface-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-surface-600 p-2">
-                                                <div class="absolute inset-0 bg-black dark:bg-white bg-opacity-50 dark:bg-opacity-50 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <label class="cursor-pointer px-4 py-2 bg-white dark:bg-surface-800 text-gray-800 dark:text-white rounded-lg font-semibold hover:bg-gray-100 dark:hover:bg-surface-700 transition-colors">
-                                                        Change Logo
-                                                        <input type="file" name="partner_logo_${id}" class="hidden" accept="image/*" onchange="handlePartnerImageUpload(${id}, this)">
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        `;
-                                    }
-                                }
-                            }
+                        // Hide upload UI
+                        if (uploadUI) {
+                            uploadUI.classList.add('hidden');
                         }
                     };
                     reader.readAsDataURL(file);
-                };
+                }
+            }
 
-                // Initialize on page load
-                document.addEventListener('DOMContentLoaded', function() {
-                    console.log('DOM Loaded - Partners page ready');
+            // Add delete button functionality
+            function attachDeleteButtonListener(button) {
+                if (!button) return;
+
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const id = this.getAttribute('data-id');
+                    console.log('Delete button clicked for partner:', id);
+
+                    if (confirm('Delete this partner?')) {
+                        const form = document.getElementById('partners-form');
+                        const deleteInput = document.getElementById(`delete_partner_${id}`);
+
+                        if (deleteInput && form) {
+                            deleteInput.value = id;
+                            form.submit();
+                        } else {
+                            console.error('Form or delete input not found');
+                        }
+                    }
                 });
+            }
 
-                // Expose functions to window
-                window.addPartner = addPartner;
-                window.handlePartnerImageUpload = handlePartnerImageUpload;
+            // Add new partner
+            function addPartner() {
+                try {
+                    const container = document.getElementById('partners-container');
+                    const addButton = container.lastElementChild;
 
-                // Add delete button functionality for existing partners
-                document.addEventListener('DOMContentLoaded', function() {
-                    const form = document.getElementById('partners-form');
-                    if (form) {
-                        form.addEventListener('submit', function(e) {
-                            console.log('Partners form submitting...');
+                    console.log('Adding new partner with ID:', nextId);
+
+                    if (!container) {
+                        console.error('Partners container not found!');
+                        return;
+                    }
+
+                    if (!addButton) {
+                        console.error('Add button not found!');
+                        return;
+                    }
+
+                    const div = document.createElement('div');
+                    div.className = 'bg-white dark:bg-surface-800 p-6 md:p-8 rounded-lg flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-all group partner-card relative animate-fade-in-down';
+                    div.setAttribute('data-partner-id', nextId);
+
+                    const partnerId = nextId;
+                    div.innerHTML = `
+                        <!-- Delete Button -->
+                        <button type="button"
+                            class="absolute top-2 right-2 w-6 h-6 bg-red-900/30 text-red-400 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500 hover:text-white delete-button"
+                            data-id="${partnerId}"
+                            title="Delete this partner">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                        <input type="hidden" name="delete_partner_${partnerId}" id="delete_partner_${partnerId}" value="">
+
+                        <!-- Logo Section -->
+                        <div class="mb-4 w-full">
+                            <label class="block text-xs uppercase font-bold tracking-wider text-gray-900 dark:text-white mb-2">Partner Logo</label>
+
+                            <!-- Logo Upload Area (same as projects page) -->
+                            <div class="w-full aspect-video rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/10 flex flex-col items-center justify-center gap-2 text-gray-400 hover:border-brand-500 transition-all relative partner-logo-upload" data-partner-id="${partnerId}">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <span class="text-xs font-semibold">Upload Partner Logo</span>
+                                <img src="" alt="" class="w-full h-full object-contain rounded-2xl p-2 hidden" id="partner_logo_preview_${partnerId}">
+
+                                <input type="file" name="partner_logo_${partnerId}" id="partner_logo_input_${partnerId}" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer">
+                            </div>
+
+                            <input type="hidden" name="partners[${partnerId}][logo]" id="partner_logo_url_${partnerId}" value="">
+                        </div>
+
+                        <!-- Name Input -->
+                        <div class="w-full">
+                            <label class="block text-[10px] uppercase font-bold tracking-wider text-gray-500 dark:text-gray-400 mb-2">Partner Name</label>
+                            <input type="text"
+                                name="partners[${partnerId}][name]"
+                                class="w-full text-sm font-black uppercase tracking-wider text-gray-900 dark:text-white text-center bg-transparent focus:border-brand-500 focus:ring-0 p-2 placeholder:text-gray-600 dark:placeholder:text-gray-400 transition-colors"
+                                placeholder="Partner Name">
+                        </div>
+                    `;
+
+                    container.insertBefore(div, addButton);
+                    console.log('New partner card added:', partnerId);
+
+                    // Attach file input listener for new partner
+                    const newFileInput = div.querySelector(`#partner_logo_input_${partnerId}`);
+                    if (newFileInput) {
+                        newFileInput.addEventListener('change', function() {
+                            handlePartnerLogoUpload(this, partnerId);
                         });
                     }
 
-                    // Add delete button functionality for existing partners
-                    const deleteButtons = document.querySelectorAll('.delete-button');
-                    deleteButtons.forEach(button => {
-                        button.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            const id = this.getAttribute('data-id');
-                            if (confirm('Delete this partner?')) {
-                                const deleteInput = document.getElementById(`delete_partner_${id}`);
-                                if (deleteInput && form) {
-                                    deleteInput.value = id;
-                                    form.submit();
-                                }
-                            }
-                        });
+                    // Attach delete button listener
+                    const deleteButton = div.querySelector('.delete-button');
+                    attachDeleteButtonListener(deleteButton);
+
+                    // Focus on the name input field
+                    const nameInput = div.querySelector('input[type="text"]');
+                    if (nameInput) {
+                        nameInput.focus();
+                    }
+
+                    nextId++;
+                } catch (error) {
+                    console.error('Error adding new partner:', error);
+                    alert('There was an error adding a new partner. Please check the console for details.');
+                }
+            }
+
+            // Initialize on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('DOM Loaded - Partners page ready');
+
+                // Initialize existing partner logo uploads
+                const existingLogoInputs = document.querySelectorAll('input[name^="partner_logo_"]');
+                existingLogoInputs.forEach(function(input) {
+                    const partnerId = input.id.replace('partner_logo_input_', '');
+                    input.addEventListener('change', function() {
+                        handlePartnerLogoUpload(this, partnerId);
                     });
                 });
 
-                console.log('✓ Partners page initialized');
-            })();
+                // Initialize delete buttons for existing partners
+                const existingDeleteButtons = document.querySelectorAll('.delete-button');
+                existingDeleteButtons.forEach(function(button) {
+                    attachDeleteButtonListener(button);
+                });
+
+                console.log('✓ Partners page fully initialized');
+            });
+
+            // Expose functions to window
+            window.addPartner = addPartner;
+
+            console.log('✓ Partners page initialized');
         </script>
     </x-slot:scripts>
 
