@@ -21,6 +21,7 @@ import {
 import FloatingQuoteButton from '../components/FloatingQuoteButton.vue'
 import logoWhite from '@/assets/logo.png'
 import logoBlack from '@/assets/logo-black.png'
+import { pageService, footerService } from '../services/content'
 
 const router = useRouter()
 const route = useRoute()
@@ -31,6 +32,12 @@ const isSearchOpen = ref(false)
 const searchQuery = ref('')
 const lastScrollY = ref(0)
 const isHeaderHidden = ref(false)
+
+// Pages for footer "Our Services" section
+const pagesData = ref(null)
+
+// Footer data
+const footerData = ref(null)
 
 // Route name mapping for breadcrumb
 const routeNameMap = {
@@ -243,10 +250,54 @@ const handleScroll = () => {
   lastScrollY.value = currentScrollY
 }
 
+// Fetch pages for footer
+const fetchPages = async () => {
+  try {
+    console.log('Fetching pages from API...')
+    const response = await pageService.getPages()
+    console.log('Pages response:', response)
+
+    if (response && response.success && response.data) {
+      pagesData.value = response.data
+      console.log('Pages loaded successfully:', pagesData.value)
+    } else {
+      console.warn('No pages found or invalid response')
+      pagesData.value = []
+    }
+  } catch (error) {
+    console.error('Failed to fetch pages:', error)
+    pagesData.value = []
+  }
+}
+
+// Fetch footer data
+const fetchFooterData = async () => {
+  try {
+    console.log('Fetching footer data from API...')
+    const response = await footerService.getFooterData()
+    console.log('Footer data response:', response)
+
+    if (response && response.success && response.data) {
+      footerData.value = response.data
+      console.log('Footer data loaded successfully:', footerData.value)
+    } else {
+      console.warn('No footer data found or invalid response')
+      footerData.value = null
+    }
+  } catch (error) {
+    console.error('Failed to fetch footer data:', error)
+    footerData.value = null
+  }
+}
+
 // Lifecycle
 onMounted(() => {
   // Initial screen size detection
   updateNavigationForScreenSize()
+
+  // Fetch data for footer
+  fetchPages()
+  fetchFooterData()
 
   window.addEventListener('scroll', handleScroll, { passive: true })
   window.addEventListener('resize', updateNavigationForScreenSize)
@@ -670,44 +721,135 @@ onUnmounted(() => {
     <FloatingQuoteButton />
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 text-industrial-dark">
+    <footer class="bg-industrial-dark text-white border-t border-industrial-blue/20">
       <div class="max-w-7xl mx-auto px-6 py-16">
-        <div class="grid md:grid-cols-4 gap-12 border-b border-slate-100 pb-16 mb-16">
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 border-b border-white/10 pb-16 mb-12">
           <!-- Company Info -->
-          <div class="md:col-span-1">
+          <div class="lg:col-span-1">
             <div class="mb-6">
               <img
-                src="@/assets/logo.png"
+                v-if="!footerData?.company_info?.logo"
+                :src="logoWhite"
+                alt="INFLUX GROUP"
+                class="h-10 w-auto object-contain"
+              />
+              <img
+                v-else
+                :src="footerData?.company_info?.logo || logoWhite"
                 alt="INFLUX GROUP"
                 class="h-10 w-auto object-contain"
               />
             </div>
-            <p class="text-xs text-slate-500 font-medium leading-relaxed">
-              Bangladesh's premier engineering conglomerate specializing in high-voltage infrastructure and renewable grid systems.
+            <p class="text-xs text-slate-400 font-medium leading-relaxed mb-6">
+              {{ footerData?.company_info?.description || 'Bangladesh\'s premier engineering conglomerate specializing in high-voltage infrastructure and renewable grid systems since 1980.' }}
             </p>
+            <!-- Social Media Links -->
+            <div class="flex gap-4">
+              <template v-if="footerData?.social_media && footerData.social_media.length > 0">
+                <a
+                  v-for="(social, index) in footerData.social_media"
+                  :key="index"
+                  :href="social.url"
+                  class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-lg hover:bg-industrial-blue transition-colors group"
+                  :aria-label="social.platform"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path v-if="social.platform === 'facebook'" d="M18.77,7.46H14.5v-1.9c0-.9.6-1.1,1-1.1h3V.5h-3c-2.2,0-3.9,1.4-3.9,4v2.1H7v3.2h3.6v8.5h3.2V11h3.3l.5-3.2H13.7V9.6c0-.3.1-.9.4-.9h2.4l0.3-1.2Z"/>
+                    <path v-else-if="social.platform === 'linkedin'" d="M20.45,20.45h-3.56v-5.6c0-1.34,0-3.07-1.88-3.07-1.88,0-2.17,1.45-2.17,2.95v5.72H9.28V9h3.42v1.52h.05c.48-.9,1.67-1.85,3.44-1.85,3.68,0,4.35,2.42,4.35,5.57v5.21h0ZM5.34,7.43c-1.13,0-2.05-.92-2.05-2.05s.92-2.05,2.05-2.05,2.05,.92,2.05,2.05-.92,2.05-2.05,2.05ZM7.11,20.45H3.57V9h3.54V20.45h0ZM22.22,0H1.77C.79,0,0,.77,0,1.73v20.54C0,23.23,.79,24,1.77,24h20.45c.98,0,1.77-.77,1.77-1.73V1.73c0-.96-.79-1.73-1.77-1.73Z"/>
+                    <path v-else-if="social.platform === 'youtube'" d="M23.5,6.14c-.27-1.01-.98-1.82-1.99-2.08C17.87,3.31,12,3.31,12,3.31s-5.87,0-7.51,.75c-1.01,.27-1.82,.98-2.08,1.99C1.5,8.45,1.5,12,1.5,12c0,3.55,.91,7.01,1.91,7.86,.27,1.01,.98,1.82,1.99,2.08,1.64,.75,7.51,.75,7.51,.75s5.87,0,7.51-.75c1.01-.27,1.82-.98,2.08-1.99,.91-1.12,1.91-4.58,1.91-7.86,0-3.55-.91-7.01-1.91-7.86ZM9.75,15.64V8.36l6.33,3.64-6.33,3.64Z"/>
+                    <path v-else d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6z"/>
+                  </svg>
+                </a>
+              </template>
+              <template v-else>
+                <a href="#" class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-lg hover:bg-industrial-blue transition-colors group" aria-label="Facebook">
+                  <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M18.77,7.46H14.5v-1.9c0-.9.6-1.1,1-1.1h3V.5h-3c-2.2,0-3.9,1.4-3.9,4v2.1H7v3.2h3.6v8.5h3.2V11h3.3l.5-3.2H13.7V9.6c0-.3.1-.9.4-.9h2.4l0.3-1.2Z"/>
+                  </svg>
+                </a>
+                <a href="#" class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-lg hover:bg-industrial-blue transition-colors group" aria-label="LinkedIn">
+                  <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20.45,20.45h-3.56v-5.6c0-1.34,0-3.07-1.88-3.07-1.88,0-2.17,1.45-2.17,2.95v5.72H9.28V9h3.42v1.52h.05c.48-.9,1.67-1.85,3.44-1.85,3.68,0,4.35,2.42,4.35,5.57v5.21h0ZM5.34,7.43c-1.13,0-2.05-.92-2.05-2.05s.92-2.05,2.05-2.05,2.05,.92,2.05,2.05-.92,2.05-2.05,2.05ZM7.11,20.45H3.57V9h3.54V20.45h0ZM22.22,0H1.77C.79,0,0,.77,0,1.73v20.54C0,23.23,.79,24,1.77,24h20.45c.98,0,1.77-.77,1.77-1.73V1.73c0-.96-.79-1.73-1.77-1.73Z"/>
+                  </svg>
+                </a>
+                <a href="#" class="w-10 h-10 flex items-center justify-center bg-white/10 rounded-lg hover:bg-industrial-blue transition-colors group" aria-label="YouTube">
+                  <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M23.5,6.14c-.27-1.01-.98-1.82-1.99-2.08C17.87,3.31,12,3.31,12,3.31s-5.87,0-7.51,.75c-1.01,.27-1.82,.98-2.08,1.99C1.5,8.45,1.5,12,1.5,12c0,3.55,.91,7.01,1.91,7.86,.27,1.01,.98,1.82,1.99,2.08,1.64,.75,7.51,.75,7.51,.75s5.87,0,7.51-.75c1.01-.27,1.82-.98,2.08-1.99,.91-1.12,1.91-4.58,1.91-7.86,0-3.55-.91-7.01-1.91-7.86ZM9.75,15.64V8.36l6.33,3.64-6.33,3.64Z"/>
+                  </svg>
+                </a>
+              </template>
+            </div>
           </div>
 
           <!-- Quick Links -->
-          <div v-for="col in 3" :key="col" class="space-y-6">
-            <h4 class="text-xs font-black uppercase tracking-[0.2em] text-industrial-blue">Quick Portal</h4>
-            <ul class="space-y-3 text-[11px] font-bold text-slate-400 uppercase">
-              <li><a href="#" class="hover:text-industrial-blue transition-colors">Career Opportunities</a></li>
-              <li><a href="#" class="hover:text-industrial-blue transition-colors">Investor Relations</a></li>
-              <li><a href="#" class="hover:text-industrial-blue transition-colors">Technical Library</a></li>
-              <li><a href="#" class="hover:text-industrial-blue transition-colors">Support Hub</a></li>
+          <div class="space-y-6">
+            <h4 class="text-sm font-bold uppercase tracking-wider text-industrial-blue">Quick Links</h4>
+            <ul class="space-y-3 text-xs font-medium text-slate-300">
+              <li><a @click="navigateTo('/')" class="hover:text-white transition-colors cursor-pointer flex items-center gap-2"><ChevronRight class="w-3.5 h-3.5" /> Home</a></li>
+              <li><a @click="navigateTo('/about')" class="hover:text-white transition-colors cursor-pointer flex items-center gap-2"><ChevronRight class="w-3.5 h-3.5" /> About Us</a></li>
+              <li><a @click="navigateTo('/projects')" class="hover:text-white transition-colors cursor-pointer flex items-center gap-2"><ChevronRight class="w-3.5 h-3.5" /> Projects</a></li>
+              <li><a @click="navigateTo('/products')" class="hover:text-white transition-colors cursor-pointer flex items-center gap-2"><ChevronRight class="w-3.5 h-3.5" /> Products</a></li>
+              <li><a @click="navigateTo('/contact')" class="hover:text-white transition-colors cursor-pointer flex items-center gap-2"><ChevronRight class="w-3.5 h-3.5" /> Contact Us</a></li>
             </ul>
+          </div>
+
+          <!-- Services -->
+          <div class="space-y-6">
+            <h4 class="text-sm font-bold uppercase tracking-wider text-industrial-blue">Our Services</h4>
+            <ul v-if="pagesData && pagesData.length > 0" class="space-y-3 text-xs font-medium text-slate-300">
+              <li v-for="page in pagesData.slice(0, 5)" :key="page.id">
+                <a
+                  @click="navigateTo(`/pages/${page.slug}`)"
+                  class="hover:text-white transition-colors cursor-pointer flex items-center gap-2"
+                >
+                  <ChevronRight class="w-3.5 h-3.5" />
+                  {{ page.title }}
+                </a>
+              </li>
+            </ul>
+            <ul v-else class="space-y-3 text-xs font-medium text-slate-300">
+              <li><a @click="navigateTo('/services-and-solutions')" class="hover:text-white transition-colors cursor-pointer flex items-center gap-2"><ChevronRight class="w-3.5 h-3.5" /> EPC Solutions</a></li>
+              <li><a @click="navigateTo('/services-and-solutions')" class="hover:text-white transition-colors cursor-pointer flex items-center gap-2"><ChevronRight class="w-3.5 h-3.5" /> MEP Services</a></li>
+              <li><a @click="navigateTo('/services-and-solutions')" class="hover:text-white transition-colors cursor-pointer flex items-center gap-2"><ChevronRight class="w-3.5 h-3.5" /> Maintenance Services</a></li>
+              <li><a @click="navigateTo('/services-and-solutions')" class="hover:text-white transition-colors cursor-pointer flex items-center gap-2"><ChevronRight class="w-3.5 h-3.5" /> Engineering Solutions</a></li>
+              <li><a @click="navigateTo('/news')" class="hover:text-white transition-colors cursor-pointer flex items-center gap-2"><ChevronRight class="w-3.5 h-3.5" /> News & Updates</a></li>
+            </ul>
+          </div>
+
+          <!-- Contact Info -->
+          <div class="space-y-6">
+            <h4 class="text-sm font-bold uppercase tracking-wider text-industrial-blue">Get In Touch</h4>
+            <ul class="space-y-4 text-xs font-medium text-slate-300">
+              <li class="flex items-start gap-3">
+                <Phone class="w-4 h-4 mt-0.5 text-industrial-blue flex-shrink-0" />
+                <div>
+                  <a :href="`tel:${contactInfo.phone}`" class="hover:text-white transition-colors">{{ contactInfo.phone }}</a>
+                  <p class="text-slate-500 text-[10px] mt-1">Mon-Sat 9AM-6PM</p>
+                </div>
+              </li>
+              <li class="flex items-start gap-3">
+                <Mail class="w-4 h-4 mt-0.5 text-industrial-blue flex-shrink-0" />
+                <a :href="`mailto:${contactInfo.email}`" class="hover:text-white transition-colors">{{ contactInfo.email }}</a>
+              </li>
+              <li class="flex items-start gap-3">
+                <Globe class="w-4 h-4 mt-0.5 text-industrial-blue flex-shrink-0" />
+                <span>{{ contactInfo.address }}</span>
+              </li>
+            </ul>
+
           </div>
         </div>
 
         <!-- Bottom Bar -->
-        <div class="flex flex-col md:flex-row justify-between items-center gap-8">
-          <div class="text-[9px] font-black uppercase tracking-[0.4em] text-slate-400">
-            © 2026 INFLUX GROUP ENGINEERING. ALL RIGHTS RESERVED. ISO 9001:2015 CERTIFIED.
+        <div class="flex flex-col lg:flex-row justify-between items-center gap-6 pt-8 border-t border-white/10">
+          <div class="text-[10px] font-medium text-slate-500 text-center lg:text-left">
+            {{ footerData?.bottom_bar?.copyright_text || '© 2026 INFLUX GROUP ENGINEERING. All Rights Reserved.' }}
           </div>
-          <div class="flex gap-8 text-[9px] font-black uppercase tracking-[0.3em]">
-            <a href="#" class="text-slate-400 hover:text-industrial-blue transition-colors">Privacy Protocol</a>
-            <a href="#" class="text-slate-400 hover:text-industrial-blue transition-colors">Cyber Security</a>
-            <a href="#" class="text-slate-400 hover:text-industrial-blue transition-colors">LinkedIn</a>
+          <div v-if="footerData?.bottom_bar?.show_iso_badge !== false" class="flex items-center gap-2 text-[10px] font-medium text-slate-500">
+            <span class="text-slate-400">{{ footerData?.bottom_bar?.iso_certification || 'ISO 9001:2015' }}</span>
+            <ShieldCheck class="w-4 h-4 text-green-500" />
           </div>
         </div>
       </div>

@@ -317,6 +317,35 @@ class ContentController extends Controller
     }
 
     /**
+     * Get latest services for homepage
+     */
+    public function getLatestServices()
+    {
+        $services = ServiceAndSolution::services()
+            ->where('is_active', true)
+            ->orderBy('order', 'asc')
+            ->limit(2)
+            ->get()
+            ->map(function ($service) {
+                return [
+                    'id' => $service->id,
+                    'title' => $service->title,
+                    'slug' => $service->slug,
+                    'description' => $service->description,
+                    'overview' => $service->overview,
+                    'icon' => $service->icon,
+                    'features' => $service->features ?? [],
+                    'image' => $service->image,
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $services
+        ]);
+    }
+
+    /**
      * Get all solutions
      */
     public function getSolutions(Request $request)
@@ -1026,6 +1055,61 @@ class ContentController extends Controller
         return response()->json([
             'success' => true,
             'data' => $content
+        ]);
+    }
+
+    /**
+     * Get Footer Section Content
+     */
+    public function getFooterSection()
+    {
+        // Fetch footer section content
+        $footerItems = ContentManagement::where('section_name', 'footer_section')->get()->keyBy('section_item_name');
+
+        // Company Info
+        $companyInfo = [
+            'description' => $footerItems['footer_company_description']->section_content ?? 'Bangladesh\'s premier engineering conglomerate specializing in high-voltage infrastructure and renewable grid systems since 1980.',
+        ];
+
+        // Get company logo if exists
+        if ($footerItems->has('footer_company_logo') && $footerItems['footer_company_logo']->media_files) {
+            $mediaFiles = json_decode($footerItems['footer_company_logo']->media_files, true);
+            $companyInfo['logo'] = $mediaFiles['source_file'] ?? null;
+        }
+
+        // Social Media Links
+        $socialMedia = [];
+        for ($i = 1; $i <= 3; $i++) {
+            $platformKey = "footer_social_media_{$i}";
+            $platformItem = $footerItems->get($platformKey);
+
+            if ($platformItem) {
+                $platformData = json_decode($platformItem->section_content, true);
+                if ($platformData && isset($platformData['platform']) && isset($platformData['url'])) {
+                    $socialMedia[] = [
+                        'platform' => $platformData['platform'],
+                        'url' => $platformData['url'],
+                    ];
+                }
+            }
+        }
+
+        // Bottom Bar
+        $bottomBar = [
+            'copyright_text' => $footerItems['footer_copyright_text']->section_content ?? '© 2026 INFLUX GROUP ENGINEERING. All Rights Reserved.',
+            'iso_certification' => $footerItems['footer_iso_certification']->section_content ?? 'ISO 9001:2015',
+            'show_iso_badge' => filter_var($footerItems['footer_show_iso_badge']->section_content ?? 'true', FILTER_VALIDATE_BOOLEAN),
+        ];
+
+        $footer = [
+            'company_info' => $companyInfo,
+            'social_media' => $socialMedia,
+            'bottom_bar' => $bottomBar,
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data' => $footer
         ]);
     }
 

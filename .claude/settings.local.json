@@ -51,7 +51,8 @@
       "Bash(start:*)",
       "Bash(test:*)",
       "Bash(cd D:\\\\Herd\\\\InfluxGroup-backend\\\\resources\\\\views\\\\admin\\\\cms-section:*)",
-      "Bash(cd D:\\\\Herd\\\\InfluxGroup-backend\\\\resources\\\\views:*)"
+      "Bash(cd D:\\\\Herd\\\\InfluxGroup-backend\\\\resources\\\\views:*)",
+      "Bash(\"C:\\\\Users\\\\habib\\\\.config\\\\herd\\\\bin\\\\php.bat\" D:\\\\Herd\\\\InfluxGroup-backend\\\\artisan:*)"
     ]
   }
 }

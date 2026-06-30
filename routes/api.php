@@ -26,6 +26,7 @@ Route::prefix('projects')->group(function () {
 
 Route::prefix('services')->group(function () {
     Route::get('/', [ContentController::class, 'getServices']);
+    Route::get('/latest', [ContentController::class, 'getLatestServices']);
     Route::get('/{service:slug}', [ContentController::class, 'getService']);
 });
 
@@ -100,6 +101,9 @@ Route::prefix('cms')->group(function () {
 
     // Testimonials
     Route::get('/testimonials', [ContentController::class, 'getTestimonials']);
+
+    // Footer Section
+    Route::get('/footer', [ContentController::class, 'getFooterSection']);
 
     // Homepage All Content
     Route::get('/homepage', [ContentController::class, 'getHomepageContent']);

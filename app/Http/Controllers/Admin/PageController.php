@@ -28,8 +28,19 @@ class PageController extends Controller
             'status' => 'required|in:draft,published',
         ]);
 
-        $validated['slug'] = Str::slug($request->title);
-        
+        // Generate unique slug
+        $slug = Str::slug($request->title);
+        $originalSlug = $slug;
+        $counter = 1;
+
+        // Check if slug already exists and generate unique one
+        while (Page::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+
+        $validated['slug'] = $slug;
+
         Page::create($validated);
 
         return redirect()->route('admin.pages.index')->with('success', 'Page created successfully.');
@@ -48,7 +59,18 @@ class PageController extends Controller
             'status' => 'required|in:draft,published',
         ]);
 
-        $validated['slug'] = Str::slug($request->title);
+        // Generate unique slug
+        $slug = Str::slug($request->title);
+        $originalSlug = $slug;
+        $counter = 1;
+
+        // Check if slug already exists (excluding current page) and generate unique one
+        while (Page::where('slug', $slug)->where('id', '!=', $page->id)->exists()) {
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+
+        $validated['slug'] = $slug;
 
         $page->update($validated);
 

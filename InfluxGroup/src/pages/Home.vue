@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { projectService, companyService, heroService, brandService, missionVisionService, journeyService, coreValuesService, contactCtaService, testimonialService, partnerService, serviceCategoriesService, productService, solutionService } from '../services/content'
+import { projectService, companyService, heroService, brandService, missionVisionService, journeyService, coreValuesService, contactCtaService, testimonialService, partnerService, serviceCategoriesService, productService, solutionService, serviceService } from '../services/content'
 import { API_CONFIG } from '../config/api'
 import {
   Zap,
@@ -110,6 +110,7 @@ const serviceCategoriesData = ref(null)
 const featuredProductsData = ref(null)
 const productCategoriesData = ref(null)
 const projectCategoriesData = ref(null)
+const latestServicesData = ref(null)
 const latestSolutionsData = ref(null)
 
 // Icon mapping for backwards compatibility
@@ -122,7 +123,9 @@ const iconMap = {
   Target,
   Activity,
   Settings,
-  Building2
+  Building2,
+  Cog,
+  Wrench
 }
 
 const stats = computed(() => {
@@ -543,6 +546,25 @@ const fetchProjectCategories = async () => {
   }
 }
 
+const fetchLatestServices = async () => {
+  try {
+    console.log('Fetching latest services from /api/services/latest...')
+    const services = await serviceService.getLatestServices()
+    console.log('Latest services response:', services)
+
+    if (services && services.length > 0) {
+      latestServicesData.value = services
+      console.log('Latest services loaded successfully:', latestServicesData.value)
+    } else {
+      console.warn('No latest services found')
+      latestServicesData.value = []
+    }
+  } catch (error) {
+    console.error('Failed to fetch latest services:', error)
+    latestServicesData.value = []
+  }
+}
+
 const fetchLatestSolutions = async () => {
   try {
     console.log('Fetching latest solutions from /api/solutions/latest...')
@@ -577,6 +599,7 @@ onMounted(() => {
   fetchProductCategories()
   fetchProjectCategories()
   fetchFeaturedProductsData()
+  fetchLatestServices()
   fetchLatestSolutions()
 })
 
@@ -915,21 +938,47 @@ const filteredFeaturedProducts = computed(() => {
   return featuredProducts.value.filter(p => p.category === activeProductCategory.value)
 })
 
-// Services from Services page
-const mainServices = [
-  {
-    icon: Cog,
-    title: 'EPC Contracting',
-    description: 'Full-scope Engineering, Procurement, and Construction services for power infrastructure projects',
-    features: ['Turnkey Solutions', 'Project Management', 'Quality Assurance']
-  },
-  {
-    icon: Wrench,
-    title: 'Maintenance Services',
-    description: 'Comprehensive maintenance and support for all power systems and equipment',
-    features: ['24/7 Emergency Support', 'Preventive Maintenance', 'Condition Monitoring']
+// Services from Services page - now using dynamic data from API
+const mainServices = computed(() => {
+  if (latestServicesData.value && latestServicesData.value.length > 0) {
+    console.log('Using latest services from API:', latestServicesData.value)
+    return latestServicesData.value.map(service => {
+      // Map icon if it's provided, otherwise use default icon
+      let iconComponent = Cog
+      if (service.icon && service.icon.includes('<svg')) {
+        iconComponent = { template: service.icon }
+      } else if (service.icon && iconMap[service.icon]) {
+        iconComponent = iconMap[service.icon]
+      }
+
+      return {
+        id: service.id,
+        icon: iconComponent,
+        title: service.title,
+        description: service.overview || service.description,
+        features: Array.isArray(service.features) ? service.features.slice(0, 3) : [],
+        slug: service.slug
+      }
+    })
   }
-]
+
+  // Fallback to hardcoded services if no API data
+  console.log('Using fallback services')
+  return [
+    {
+      icon: Cog,
+      title: 'EPC Contracting',
+      description: 'Full-scope Engineering, Procurement, and Construction services for power infrastructure projects',
+      features: ['Turnkey Solutions', 'Project Management', 'Quality Assurance']
+    },
+    {
+      icon: Wrench,
+      title: 'Maintenance Services',
+      description: 'Comprehensive maintenance and support for all power systems and equipment',
+      features: ['24/7 Emergency Support', 'Preventive Maintenance', 'Condition Monitoring']
+    }
+  ]
+})
 
 // Service Process from Services page
 const serviceProcess = [
@@ -1523,14 +1572,16 @@ const contactCta = computed(() => {
         <div class="grid md:grid-cols-2 gap-6 md:gap-8 mb-16">
           <div
             v-for="(service, index) in mainServices"
-            :key="index"
+            :key="service.id || index"
             class="group p-6 md:p-8 rounded-lg border-2 border-slate-200 hover:border-industrial-blue transition-all duration-500 hover:shadow-2xl"
             v-motion-slide-visible-bottom
             :delay="index * 100"
           >
             <div class="flex items-start gap-4 md:gap-6">
               <div class="w-12 h-12 md:w-16 md:h-16 bg-industrial-blue rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-industrial-red transition-colors">
-                <component :is="service.icon" class="w-6 h-6 md:w-8 md:h-8 text-white" />
+                <!-- Icon - SVG template or component -->
+                <div v-if="service.icon?.template" v-html="service.icon.template" class="w-6 h-6 md:w-8 md:h-8 text-white"></div>
+                <component v-else :is="service.icon" class="w-6 h-6 md:w-8 md:h-8 text-white" />
               </div>
               <div class="flex-1">
                 <h3 class="text-xl md:text-2xl font-display font-black uppercase italic mb-3 md:mb-4 text-industrial-dark group-hover:text-industrial-blue transition-colors">

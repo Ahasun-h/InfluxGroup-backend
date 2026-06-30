@@ -35,6 +35,7 @@ export const API_ENDPOINTS = {
 
   // Services
   SERVICES: '/services',
+  LATEST_SERVICES: '/services/latest',
   SERVICE_BY_SLUG: (slug) => `/services/${slug}`,
   SOLUTIONS: '/solutions',
   LATEST_SOLUTIONS: '/solutions/latest',
@@ -43,6 +44,7 @@ export const API_ENDPOINTS = {
   // Testimonials & Partners
   TESTIMONIALS: '/cms/testimonials',
   PARTNERS: '/cms/partners',
+  FOOTER: '/cms/footer',
 
   // Service Categories
   SERVICE_CATEGORIES: '/cms/service-categories',

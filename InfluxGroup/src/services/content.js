@@ -168,6 +168,21 @@ export const serviceService = {
   },
 
   /**
+   * Get latest services for homepage
+   */
+  async getLatestServices() {
+    try {
+      console.log('serviceService: Fetching latest services from', API_ENDPOINTS.LATEST_SERVICES)
+      const response = await api.get(API_ENDPOINTS.LATEST_SERVICES)
+      console.log('serviceService: Latest services response received', response)
+      return response.data || []
+    } catch (error) {
+      console.error('serviceService: Error fetching latest services', error)
+      throw error
+    }
+  },
+
+  /**
    * Get service by slug
    */
   async getServiceBySlug(slug) {
@@ -276,16 +291,30 @@ export const pageService = {
    * Get all pages
    */
   async getPages() {
-    const { data } = await api.get(API_ENDPOINTS.PAGES)
-    return data
+    try {
+      console.log('pageService: Fetching pages from', API_ENDPOINTS.PAGES)
+      const response = await api.get(API_ENDPOINTS.PAGES)
+      console.log('pageService: Pages response received', response)
+      return response || []
+    } catch (error) {
+      console.error('pageService: Error fetching pages', error)
+      throw error
+    }
   },
 
   /**
    * Get page by slug
    */
   async getPageBySlug(slug) {
-    const { data } = await api.get(API_ENDPOINTS.PAGE_BY_SLUG(slug))
-    return data
+    try {
+      console.log('pageService: Fetching page by slug', slug)
+      const response = await api.get(API_ENDPOINTS.PAGE_BY_SLUG(slug))
+      console.log('pageService: Page response received', response)
+      return response || null
+    } catch (error) {
+      console.error('pageService: Error fetching page by slug', error)
+      throw error
+    }
   },
 }
 
@@ -443,6 +472,26 @@ export const careerCtaService = {
 }
 
 /**
+ * Footer Service
+ */
+export const footerService = {
+  /**
+   * Get footer section data
+   */
+  async getFooterData() {
+    try {
+      console.log('footerService: Fetching from', API_ENDPOINTS.FOOTER)
+      const response = await api.get(API_ENDPOINTS.FOOTER)
+      console.log('footerService: Footer response received', response)
+      return response
+    } catch (error) {
+      console.error('footerService: Error fetching footer data', error)
+      throw error
+    }
+  },
+}
+
+/**
  * Contact Section Service
  */
 export const contactSectionService = {
@@ -463,7 +512,7 @@ export const contactSectionService = {
 }
 
 // Export all services as a combined object
-export const contentService = {
+const contentService = {
   products: productService,
   projects: projectService,
   news: newsService,
@@ -484,6 +533,9 @@ export const contentService = {
   contactCta: contactCtaService,
   careerCta: careerCtaService,
   contactSection: contactSectionService,
+  footer: footerService,
 }
 
+// Export the combined contentService as default export
+// Note: All individual services are already exported above with 'export const'
 export default contentService

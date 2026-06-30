@@ -119,6 +119,15 @@ const routes = [
     }
   },
   {
+    path: '/pages/:slug',
+    name: 'Page',
+    component: () => import('../pages/Page.vue'),
+    meta: {
+      title: 'Page | Influx Group',
+      transition: 'fade'
+    }
+  },
+  {
     path: '/gallery',
     name: 'Gallery',
     component: () => import('../pages/Gallery.vue'),
