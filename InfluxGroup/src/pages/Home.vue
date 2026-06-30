@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { projectService, companyService, heroService, brandService, missionVisionService, journeyService, coreValuesService, contactCtaService, testimonialService, partnerService, serviceCategoriesService, productService } from '../services/content'
+import { projectService, companyService, heroService, brandService, missionVisionService, journeyService, coreValuesService, contactCtaService, testimonialService, partnerService, serviceCategoriesService, productService, solutionService } from '../services/content'
 import { API_CONFIG } from '../config/api'
 import {
   Zap,
@@ -110,6 +110,7 @@ const serviceCategoriesData = ref(null)
 const featuredProductsData = ref(null)
 const productCategoriesData = ref(null)
 const projectCategoriesData = ref(null)
+const latestSolutionsData = ref(null)
 
 // Icon mapping for backwards compatibility
 const iconMap = {
@@ -120,7 +121,8 @@ const iconMap = {
   Zap,
   Target,
   Activity,
-  Settings
+  Settings,
+  Building2
 }
 
 const stats = computed(() => {
@@ -541,6 +543,25 @@ const fetchProjectCategories = async () => {
   }
 }
 
+const fetchLatestSolutions = async () => {
+  try {
+    console.log('Fetching latest solutions from /api/solutions/latest...')
+    const solutions = await solutionService.getLatestSolutions()
+    console.log('Latest solutions response:', solutions)
+
+    if (solutions && solutions.length > 0) {
+      latestSolutionsData.value = solutions
+      console.log('Latest solutions loaded successfully:', latestSolutionsData.value)
+    } else {
+      console.warn('No latest solutions found')
+      latestSolutionsData.value = []
+    }
+  } catch (error) {
+    console.error('Failed to fetch latest solutions:', error)
+    latestSolutionsData.value = []
+  }
+}
+
 onMounted(() => {
   fetchFeaturedProjects()
   fetchHomepageData()
@@ -556,6 +577,7 @@ onMounted(() => {
   fetchProductCategories()
   fetchProjectCategories()
   fetchFeaturedProductsData()
+  fetchLatestSolutions()
 })
 
 const filteredProjects = computed(() => {
@@ -918,20 +940,49 @@ const serviceProcess = [
 ]
 
 // Solutions from Solutions page (abbreviated)
-const keySolutions = [
-  {
-    icon: Zap,
-    title: 'EPC Solutions',
-    description: 'Turnkey Engineering, Procurement, and Construction services for power infrastructure',
-    features: ['Power Plant EPC', 'Substation EPC', 'Transmission Line EPC']
-  },
-  {
-    icon: Building2,
-    title: 'MEP Solutions',
-    description: 'Integrated Mechanical, Electrical, and Plumbing services for buildings and facilities',
-    features: ['Electrical Design', 'HVAC Systems', 'Fire Protection']
+const keySolutions = computed(() => {
+  if (latestSolutionsData.value && latestSolutionsData.value.length > 0) {
+    console.log('Using latest solutions from API:', latestSolutionsData.value)
+    return latestSolutionsData.value.map(solution => {
+      // Map icon if it's provided, otherwise use default icon
+      let iconComponent = Zap
+      if (solution.icon && solution.icon.includes('<svg')) {
+        iconComponent = { template: solution.icon }
+      } else if (solution.icon && iconMap[solution.icon]) {
+        iconComponent = iconMap[solution.icon]
+      }
+
+      return {
+        id: solution.id,
+        icon: iconComponent,
+        title: solution.title,
+        description: solution.overview || solution.description,
+        features: Array.isArray(solution.features) ? solution.features.slice(0, 3) : [],
+        image: solution.image || 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800',
+        slug: solution.slug
+      }
+    })
   }
-]
+
+  // Fallback to hardcoded solutions if no API data
+  console.log('Using fallback solutions')
+  return [
+    {
+      icon: Zap,
+      title: 'EPC Solutions',
+      description: 'Turnkey Engineering, Procurement, and Construction services for power infrastructure',
+      features: ['Power Plant EPC', 'Substation EPC', 'Transmission Line EPC'],
+      image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800'
+    },
+    {
+      icon: Building2,
+      title: 'MEP Solutions',
+      description: 'Integrated Mechanical, Electrical, and Plumbing services for buildings and facilities',
+      features: ['Electrical Design', 'HVAC Systems', 'Fire Protection'],
+      image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800'
+    }
+  ]
+})
 
 // Industries from Solutions page - now using dynamic service categories
 const industries = computed(() => {
@@ -1554,7 +1605,7 @@ const contactCta = computed(() => {
         <div class="grid md:grid-cols-2 gap-6 md:gap-8 mb-16">
           <div
             v-for="(solution, index) in keySolutions"
-            :key="index"
+            :key="solution.id || index"
             class="bg-white rounded-lg overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500"
             v-motion-slide-visible-bottom
             :delay="index * 100"
@@ -1562,13 +1613,15 @@ const contactCta = computed(() => {
             <div class="grid md:grid-cols-2">
               <div class="relative h-48 md:h-auto">
                 <img
-                  :src="solution.image"
+                  :src="getImageUrl(solution.image)"
                   :alt="solution.title"
                   class="w-full h-full object-cover"
                 />
                 <div class="absolute inset-0 bg-gradient-to-r from-industrial-dark/80 to-transparent md:bg-gradient-to-t"></div>
                 <div class="absolute top-4 left-4 bg-industrial-blue text-white p-2 md:p-3 rounded-lg">
-                  <component :is="solution.icon" class="w-5 h-5 md:w-6 md:h-6" />
+                  <!-- Icon - SVG template or component -->
+                  <div v-if="solution.icon?.template" v-html="solution.icon.template" class="w-5 h-5 md:w-6 md:h-6"></div>
+                  <component v-else :is="solution.icon" class="w-5 h-5 md:w-6 md:h-6" />
                 </div>
               </div>
 

@@ -31,6 +31,7 @@ Route::prefix('services')->group(function () {
 
 Route::prefix('solutions')->group(function () {
     Route::get('/', [ContentController::class, 'getSolutions']);
+    Route::get('/latest', [ContentController::class, 'getLatestSolutions']);
     Route::get('/{solution:slug}', [ContentController::class, 'getSolution']);
 });
 

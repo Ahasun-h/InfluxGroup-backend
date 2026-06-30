@@ -186,6 +186,21 @@ export const solutionService = {
   },
 
   /**
+   * Get latest solutions for homepage
+   */
+  async getLatestSolutions() {
+    try {
+      console.log('solutionService: Fetching latest solutions from', API_ENDPOINTS.LATEST_SOLUTIONS)
+      const response = await api.get(API_ENDPOINTS.LATEST_SOLUTIONS)
+      console.log('solutionService: Latest solutions response received', response)
+      return response.data || []
+    } catch (error) {
+      console.error('solutionService: Error fetching latest solutions', error)
+      throw error
+    }
+  },
+
+  /**
    * Get solution by slug
    */
   async getSolutionBySlug(slug) {

@@ -357,6 +357,35 @@ class ContentController extends Controller
         ]);
     }
 
+    /**
+     * Get latest solutions for homepage
+     */
+    public function getLatestSolutions()
+    {
+        $solutions = ServiceAndSolution::solutions()
+            ->where('is_active', true)
+            ->orderBy('order', 'asc')
+            ->limit(2)
+            ->get()
+            ->map(function ($solution) {
+                return [
+                    'id' => $solution->id,
+                    'title' => $solution->title,
+                    'slug' => $solution->slug,
+                    'description' => $solution->description,
+                    'overview' => $solution->overview,
+                    'icon' => $solution->icon,
+                    'features' => $solution->features ?? [],
+                    'image' => $solution->image,
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $solutions
+        ]);
+    }
+
     // Legacy support - old methods (deprecated)
     public function getLegacyTestimonials() { return response()->json(['success' => true, 'data' => []]); }
     public function getJobs() { return response()->json(['success' => true, 'data' => []]); }

@@ -37,6 +37,7 @@ export const API_ENDPOINTS = {
   SERVICES: '/services',
   SERVICE_BY_SLUG: (slug) => `/services/${slug}`,
   SOLUTIONS: '/solutions',
+  LATEST_SOLUTIONS: '/solutions/latest',
   SOLUTION_BY_SLUG: (slug) => `/solutions/${slug}`,
 
   // Testimonials & Partners
