@@ -1,1 +1,0 @@
-/api/cms/hero

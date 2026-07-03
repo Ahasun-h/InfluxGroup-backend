@@ -163,70 +163,101 @@
                         </div>
                     </div>
 
-                    <!-- Social Media Links -->
+                    <!-- Footer Settings -->
                     <div class="glass-card p-6 sm:p-8 space-y-6">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white font-outfit">Social Media Links</h3>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white font-outfit">Footer Company Information</h3>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- Facebook -->
+                        <div class="space-y-4">
+                            <!-- Company Description -->
                             <div>
-                                <label for="facebook" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Facebook URL</label>
-                                <input type="url" name="facebook" id="facebook" value="{{ old('facebook', $settings['facebook'] ?? '') }}"
-                                    class="w-full px-4 py-2.5 bg-gray-50/50 dark:bg-surface-900/50 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all dark:text-white"
-                                    placeholder="https://facebook.com/yourpage">
-                                <x-input-error :messages="$errors->get('facebook')" class="mt-2" />
-                            </div>
-
-                            <!-- Twitter -->
-                            <div>
-                                <label for="twitter" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Twitter URL</label>
-                                <input type="url" name="twitter" id="twitter" value="{{ old('twitter', $settings['twitter'] ?? '') }}"
-                                    class="w-full px-4 py-2.5 bg-gray-50/50 dark:bg-surface-900/50 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all dark:text-white"
-                                    placeholder="https://twitter.com/yourhandle">
-                                <x-input-error :messages="$errors->get('twitter')" class="mt-2" />
-                            </div>
-
-                            <!-- LinkedIn -->
-                            <div>
-                                <label for="linkedin" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">LinkedIn URL</label>
-                                <input type="url" name="linkedin" id="linkedin" value="{{ old('linkedin', $settings['linkedin'] ?? '') }}"
-                                    class="w-full px-4 py-2.5 bg-gray-50/50 dark:bg-surface-900/50 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all dark:text-white"
-                                    placeholder="https://linkedin.com/company/yourcompany">
-                                <x-input-error :messages="$errors->get('linkedin')" class="mt-2" />
-                            </div>
-
-                            <!-- YouTube -->
-                            <div>
-                                <label for="youtube" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">YouTube URL</label>
-                                <input type="url" name="youtube" id="youtube" value="{{ old('youtube', $settings['youtube'] ?? '') }}"
-                                    class="w-full px-4 py-2.5 bg-gray-50/50 dark:bg-surface-900/50 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all dark:text-white"
-                                    placeholder="https://youtube.com/@yourchannel">
-                                <x-input-error :messages="$errors->get('youtube')" class="mt-2" />
+                                <label for="footer_company_description" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Company Description</label>
+                                <textarea name="footer_company_description" id="footer_company_description" rows="3"
+                                    class="w-full px-4 py-2.5 bg-gray-50/50 dark:bg-surface-900/50 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all dark:text-white resize-none"
+                                    placeholder="Enter company description for footer">{{ old('footer_company_description', $footerData['company_description'] ?? '') }}</textarea>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">This appears below the logo in the footer.</p>
+                                <x-input-error :messages="$errors->get('footer_company_description')" class="mt-2" />
                             </div>
                         </div>
                     </div>
 
-                    <!-- Footer Settings -->
+                    <!-- Footer Social Media Links -->
                     <div class="glass-card p-6 sm:p-8 space-y-6">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white font-outfit">Footer Settings</h3>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white font-outfit">Footer Social Media Links</h3>
 
                         <div class="space-y-4">
-                            <!-- Footer Text -->
-                            <div>
-                                <label for="footer_text" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Footer Description</label>
-                                <textarea name="footer_text" id="footer_text" rows="3"
-                                    class="w-full px-4 py-2.5 bg-gray-50/50 dark:bg-surface-900/50 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all dark:text-white resize-none"
-                                    placeholder="Brief company description for footer">{{ old('footer_text', $settings['footer_text'] ?? '') }}</textarea>
-                                <x-input-error :messages="$errors->get('footer_text')" class="mt-2" />
-                            </div>
+                            @for($i = 1; $i <= 3; $i++)
+                                <div class="bg-gray-50/50 dark:bg-surface-900/50 border border-gray-200 dark:border-white/10 rounded-xl p-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label for="footer_social_media_{{ $i }}_platform" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Platform {{ $i }}</label>
+                                            <select
+                                                id="footer_social_media_{{ $i }}_platform"
+                                                name="footer_social_media_{{ $i }}_platform"
+                                                class="w-full px-4 py-2.5 bg-gray-50 dark:bg-surface-900/50 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none dark:text-white"
+                                            >
+                                                <option value="">Select platform</option>
+                                                <option value="facebook" {{ ($footerData['social_media'][$i-1]['platform'] ?? '') === 'facebook' ? 'selected' : '' }}>Facebook</option>
+                                                <option value="linkedin" {{ ($footerData['social_media'][$i-1]['platform'] ?? '') === 'linkedin' ? 'selected' : '' }}>LinkedIn</option>
+                                                <option value="youtube" {{ ($footerData['social_media'][$i-1]['platform'] ?? '') === 'youtube' ? 'selected' : '' }}>YouTube</option>
+                                                <option value="twitter" {{ ($footerData['social_media'][$i-1]['platform'] ?? '') === 'twitter' ? 'selected' : '' }}>Twitter</option>
+                                                <option value="instagram" {{ ($footerData['social_media'][$i-1]['platform'] ?? '') === 'instagram' ? 'selected' : '' }}>Instagram</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label for="footer_social_media_{{ $i }}_url" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Profile URL {{ $i }}</label>
+                                            <input
+                                                type="url"
+                                                id="footer_social_media_{{ $i }}_url"
+                                                name="footer_social_media_{{ $i }}_url"
+                                                value="{{ $footerData['social_media'][$i-1]['url'] ?? '' }}"
+                                                class="w-full px-4 py-2.5 bg-gray-50/50 dark:bg-surface-900/50 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all dark:text-white"
+                                                placeholder="https://{{ $footerData['social_media'][$i-1]['platform'] ?? 'facebook' }}.com/yourpage"
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            @endfor
+                        </div>
+                    </div>
 
+                    <!-- Footer Bottom Bar -->
+                    <div class="glass-card p-6 sm:p-8 space-y-6">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white font-outfit">Footer Bottom Bar</h3>
+
+                        <div class="space-y-4">
                             <!-- Copyright Text -->
                             <div>
-                                <label for="copyright_text" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Copyright Text</label>
-                                <input type="text" name="copyright_text" id="copyright_text" value="{{ old('copyright_text', $settings['copyright_text'] ?? '') }}"
+                                <label for="footer_copyright_text" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Copyright Text</label>
+                                <input type="text" name="footer_copyright_text" id="footer_copyright_text" value="{{ old('footer_copyright_text', $footerData['copyright_text'] ?? '') }}"
                                     class="w-full px-4 py-2.5 bg-gray-50/50 dark:bg-surface-900/50 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all dark:text-white"
-                                    placeholder="© 2026 Your Company. All rights reserved.">
-                                <x-input-error :messages="$errors->get('copyright_text')" class="mt-2" />
+                                    placeholder="© 2026 INFLUX GROUP ENGINEERING. All rights reserved.">
+                                <x-input-error :messages="$errors->get('footer_copyright_text')" class="mt-2" />
+                            </div>
+
+                            <!-- ISO Certification -->
+                            <div>
+                                <label for="footer_iso_certification" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">ISO Certification</label>
+                                <input type="text" name="footer_iso_certification" id="footer_iso_certification" value="{{ old('footer_iso_certification', $footerData['iso_certification'] ?? '') }}"
+                                    class="w-full px-4 py-2.5 bg-gray-50/50 dark:bg-surface-900/50 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all dark:text-white"
+                                    placeholder="ISO 9001:2015">
+                                <x-input-error :messages="$errors->get('footer_iso_certification')" class="mt-2" />
+                            </div>
+
+                            <!-- Show ISO Badge -->
+                            <div>
+                                <div class="flex items-center gap-3">
+                                    <input
+                                        type="checkbox"
+                                        id="show_iso_badge"
+                                        name="show_iso_badge"
+                                        value="1"
+                                        {{ $footerData['show_iso_badge'] ? 'checked' : '' }}
+                                        class="w-4 h-4 text-brand-500 rounded focus:ring-brand-500"
+                                    >
+                                    <label for="show_iso_badge" class="text-sm text-gray-700 dark:text-gray-300">
+                                        Show ISO 9001:2015 badge in footer
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>

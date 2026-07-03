@@ -82,4 +82,7 @@ export const API_ENDPOINTS = {
 
   // CMS Contact Section
   CONTACT_SECTION: '/cms/contact',
+
+  // Website Settings
+  SETTINGS: '/cms/settings',
 }

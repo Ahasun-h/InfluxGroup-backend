@@ -90,9 +90,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::put('/testimonials/{id}', [\App\Http\Controllers\Admin\TestimonialController::class, 'updateTestimonial'])->name('testimonials.update-testimonial');
     Route::delete('/testimonials/{id}', [\App\Http\Controllers\Admin\TestimonialController::class, 'destroy'])->name('testimonials.destroy');
 
-    // Footer Routes
-    Route::get('/footer', [\App\Http\Controllers\Admin\FooterController::class, 'index'])->name('footer.index');
-    Route::put('/footer', [\App\Http\Controllers\Admin\FooterController::class, 'update'])->name('footer.update');
+    // Footer Routes - Redirect to settings (merged functionality)
+    Route::redirect('/footer', '/settings', 301)->name('footer.index');
 
     // CMS Section Routes
     Route::prefix('cms-section')->name('cms-section.')->group(function () {

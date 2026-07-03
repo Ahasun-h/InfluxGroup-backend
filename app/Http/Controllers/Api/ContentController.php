@@ -963,38 +963,39 @@ class ContentController extends Controller
      */
     public function getWebsiteSettings()
     {
-        $settingsPath = storage_path('app/settings.json');
+        // Fetch settings from database
+        $settingsItems = ContentManagement::where('section_name', 'settings')
+            ->get()
+            ->keyBy('section_item_name');
 
-        if (file_exists($settingsPath)) {
-            $settings = json_decode(file_get_contents($settingsPath), true);
-            $settings = $settings ?: [];
-        } else {
-            // Default settings
-            $settings = [
-                'company_name' => 'Influx Group Engineering',
-                'tagline' => 'Power Infrastructure Solutions',
-                'phone' => '+880 2 987 6543',
-                'email' => 'info@influxgroup.com',
-                'address' => 'Dhaka, Bangladesh',
-                'facebook' => '',
-                'twitter' => '',
-                'linkedin' => '',
-                'youtube' => '',
-                'footer_text' => 'Bangladesh\'s premier engineering conglomerate specializing in high-voltage infrastructure and renewable grid systems.',
-                'copyright_text' => '© 2026 INFLUX GROUP ENGINEERING. ALL RIGHTS RESERVED. ISO 9001:2015 CERTIFIED.',
-                'meta_title' => 'Influx Group - Power Infrastructure Solutions',
-                'meta_description' => 'Leading engineering conglomerate specializing in high-voltage infrastructure and renewable grid systems in Bangladesh.',
-                'meta_keywords' => 'power infrastructure, engineering, transformers, renewable energy, Bangladesh',
-            ];
+        // Default settings
+        $settings = [
+            'company_name' => 'Influx Group Engineering',
+            'tagline' => 'Power Infrastructure Solutions',
+            'phone' => '+880 2 987 6543',
+            'email' => 'info@influxgroup.com',
+            'address' => 'Dhaka, Bangladesh',
+            'meta_title' => 'Influx Group - Power Infrastructure Solutions',
+            'meta_description' => 'Leading engineering conglomerate specializing in high-voltage infrastructure and renewable grid systems in Bangladesh.',
+            'meta_keywords' => 'power infrastructure, engineering, transformers, renewable energy, Bangladesh',
+        ];
+
+        // Override with database values
+        foreach ($settings as $key => $default) {
+            if (isset($settingsItems[$key])) {
+                $settings[$key] = $settingsItems[$key]->section_content;
+            }
         }
 
-        // Add full URLs for images
-        if (isset($settings['header_logo']) && $settings['header_logo']) {
-            $settings['header_logo_url'] = asset('storage/' . $settings['header_logo']);
+        // Handle file fields
+        if (isset($settingsItems['header_logo']) && $settingsItems['header_logo']->section_content) {
+            $settings['header_logo'] = $settingsItems['header_logo']->section_content;
+            $settings['header_logo_url'] = asset('storage/' . $settingsItems['header_logo']->section_content);
         }
 
-        if (isset($settings['favicon']) && $settings['favicon']) {
-            $settings['favicon_url'] = asset('storage/' . $settings['favicon']);
+        if (isset($settingsItems['favicon']) && $settingsItems['favicon']->section_content) {
+            $settings['favicon'] = $settingsItems['favicon']->section_content;
+            $settings['favicon_url'] = asset('storage/' . $settingsItems['favicon']->section_content);
         }
 
         return response()->json([

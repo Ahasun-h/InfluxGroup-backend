@@ -492,6 +492,26 @@ export const footerService = {
 }
 
 /**
+ * Settings Service
+ */
+export const settingsService = {
+  /**
+   * Get website settings data
+   */
+  async getSettingsData() {
+    try {
+      console.log('settingsService: Fetching from', API_ENDPOINTS.SETTINGS)
+      const response = await api.get(API_ENDPOINTS.SETTINGS)
+      console.log('settingsService: Settings response received', response)
+      return response
+    } catch (error) {
+      console.error('settingsService: Error fetching settings data', error)
+      throw error
+    }
+  },
+}
+
+/**
  * Contact Section Service
  */
 export const contactSectionService = {
@@ -534,6 +554,7 @@ const contentService = {
   careerCta: careerCtaService,
   contactSection: contactSectionService,
   footer: footerService,
+  settings: settingsService,
 }
 
 // Export the combined contentService as default export

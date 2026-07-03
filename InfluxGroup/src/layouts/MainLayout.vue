@@ -21,7 +21,7 @@ import {
 import FloatingQuoteButton from '../components/FloatingQuoteButton.vue'
 import logoWhite from '@/assets/logo.png'
 import logoBlack from '@/assets/logo-black.png'
-import { pageService, footerService } from '../services/content'
+import { pageService, footerService, settingsService } from '../services/content'
 
 const router = useRouter()
 const route = useRoute()
@@ -38,6 +38,9 @@ const pagesData = ref(null)
 
 // Footer data
 const footerData = ref(null)
+
+// Website settings data
+const settingsData = ref(null)
 
 // Route name mapping for breadcrumb
 const routeNameMap = {
@@ -148,12 +151,22 @@ const quickActions = [
   { name: 'Support', path: '/contact?type=support', icon: Settings }
 ]
 
-// Contact info
-const contactInfo = {
-  phone: '+880 2 987 6543',
-  email: 'info@influxgroup.com',
-  address: 'Dhaka, Bangladesh'
-}
+// Contact info - computed from settings data
+const contactInfo = computed(() => {
+  if (settingsData.value) {
+    return {
+      phone: settingsData.value.phone || '+880 2 987 6543',
+      email: settingsData.value.email || 'info@influxgroup.com',
+      address: settingsData.value.address || 'Dhaka, Bangladesh'
+    }
+  }
+  // Default fallback values
+  return {
+    phone: '+880 2 987 6543',
+    email: 'info@influxgroup.com',
+    address: 'Dhaka, Bangladesh'
+  }
+})
 
 // Languages
 const languages = [
@@ -290,14 +303,35 @@ const fetchFooterData = async () => {
   }
 }
 
+// Fetch website settings data
+const fetchSettingsData = async () => {
+  try {
+    console.log('Fetching settings data from API...')
+    const response = await settingsService.getSettingsData()
+    console.log('Settings data response:', response)
+
+    if (response && response.success && response.data) {
+      settingsData.value = response.data
+      console.log('Settings data loaded successfully:', settingsData.value)
+    } else {
+      console.warn('No settings data found or invalid response')
+      settingsData.value = null
+    }
+  } catch (error) {
+    console.error('Failed to fetch settings data:', error)
+    settingsData.value = null
+  }
+}
+
 // Lifecycle
 onMounted(() => {
   // Initial screen size detection
   updateNavigationForScreenSize()
 
-  // Fetch data for footer
+  // Fetch data for footer and settings
   fetchPages()
   fetchFooterData()
+  fetchSettingsData()
 
   window.addEventListener('scroll', handleScroll, { passive: true })
   window.addEventListener('resize', updateNavigationForScreenSize)
@@ -347,7 +381,7 @@ onUnmounted(() => {
             </a>
 
             <!-- Secondary Links -->
-            <a href="/contact?type=career" class="hidden sm:flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors">
+            <a href="/career-opportunities" class="hidden sm:flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors">
               <Users class="w-3.5 h-3.5" />
               Careers
             </a>
@@ -391,6 +425,13 @@ onUnmounted(() => {
             @click="navigateTo('/')"
           >
             <img
+              v-if="settingsData?.header_logo_url"
+              :src="settingsData.header_logo_url"
+              alt="INFLUX GROUP"
+              class="h-10 lg:h-12 w-auto object-contain"
+            />
+            <img
+              v-else
               :src="scrolled ? logoBlack : logoWhite"
               alt="INFLUX GROUP"
               class="h-10 lg:h-12 w-auto object-contain"
@@ -728,14 +769,20 @@ onUnmounted(() => {
           <div class="lg:col-span-1">
             <div class="mb-6">
               <img
-                v-if="!footerData?.company_info?.logo"
-                :src="logoWhite"
+                v-if="settingsData?.header_logo_url"
+                :src="settingsData.header_logo_url"
+                alt="INFLUX GROUP"
+                class="h-10 w-auto object-contain"
+              />
+              <img
+                v-else-if="footerData?.company_info?.logo"
+                :src="footerData.company_info.logo"
                 alt="INFLUX GROUP"
                 class="h-10 w-auto object-contain"
               />
               <img
                 v-else
-                :src="footerData?.company_info?.logo || logoWhite"
+                :src="logoWhite"
                 alt="INFLUX GROUP"
                 class="h-10 w-auto object-contain"
               />

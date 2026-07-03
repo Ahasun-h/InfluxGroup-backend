@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ContentManagement;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -16,7 +17,9 @@ class SettingsController extends Controller
     public function index(): View
     {
         $settings = $this->getSettings();
-        return view('admin.settings.index', compact('settings'));
+        $footerData = $this->getFooterData();
+
+        return view('admin.settings.index', compact('settings', 'footerData'));
     }
 
     /**
@@ -36,15 +39,19 @@ class SettingsController extends Controller
             'email' => 'nullable|email|max:255',
             'address' => 'nullable|string|max:500',
 
-            // Social Links
-            'facebook' => 'nullable|url|max:255',
-            'twitter' => 'nullable|url|max:255',
-            'linkedin' => 'nullable|url|max:255',
-            'youtube' => 'nullable|url|max:255',
-
             // Footer Settings
-            'footer_text' => 'nullable|string|max:1000',
-            'copyright_text' => 'nullable|string|max:500',
+            'footer_company_description' => 'nullable|string|max:1000',
+            'footer_copyright_text' => 'nullable|string|max:500',
+            'footer_iso_certification' => 'nullable|string|max:255',
+            'show_iso_badge' => 'nullable',
+
+            // Footer Social Media
+            'footer_social_media_1_platform' => 'nullable|string|max:50',
+            'footer_social_media_1_url' => 'nullable|url|max:255',
+            'footer_social_media_2_platform' => 'nullable|string|max:50',
+            'footer_social_media_2_url' => 'nullable|url|max:255',
+            'footer_social_media_3_platform' => 'nullable|string|max:50',
+            'footer_social_media_3_url' => 'nullable|url|max:255',
 
             // SEO Settings
             'meta_title' => 'nullable|string|max:255',
@@ -52,104 +59,198 @@ class SettingsController extends Controller
             'meta_keywords' => 'nullable|string|max:500',
         ]);
 
-        $settings = [];
-
         // Handle file uploads
         if ($request->hasFile('header_logo')) {
             $headerLogo = $request->file('header_logo');
             $headerLogoPath = $headerLogo->store('settings', 'public');
-            $settings['header_logo'] = $headerLogoPath;
+            $this->updateOrCreateSetting('header_logo', $headerLogoPath);
 
             // Delete old logo if exists
-            if (file_exists(public_path('storage/' . $request->old_header_logo))) {
-                unlink(public_path('storage/' . $request->old_header_logo));
+            $oldLogo = ContentManagement::where('section_name', 'settings')
+                ->where('section_item_name', 'old_header_logo')
+                ->first();
+            if ($oldLogo && file_exists(public_path('storage/' . $oldLogo->section_content))) {
+                unlink(public_path('storage/' . $oldLogo->section_content));
             }
         }
 
         if ($request->hasFile('favicon')) {
             $favicon = $request->file('favicon');
             $faviconPath = $favicon->store('settings', 'public');
-            $settings['favicon'] = $faviconPath;
+            $this->updateOrCreateSetting('favicon', $faviconPath);
 
             // Copy favicon to root for browser recognition
             $favicon->move(public_path(), 'favicon.ico');
 
             // Delete old favicon if exists
-            if (file_exists(public_path('storage/' . $request->old_favicon))) {
-                unlink(public_path('storage/' . $request->old_favicon));
+            $oldFavicon = ContentManagement::where('section_name', 'settings')
+                ->where('section_item_name', 'old_favicon')
+                ->first();
+            if ($oldFavicon && file_exists(public_path('storage/' . $oldFavicon->section_content))) {
+                unlink(public_path('storage/' . $oldFavicon->section_content));
             }
         }
 
-        // Text fields
-        $textFields = [
+        // Update text settings
+        $settingsFields = [
             'company_name', 'tagline', 'phone', 'email', 'address',
-            'facebook', 'twitter', 'linkedin', 'youtube',
-            'footer_text', 'copyright_text', 'meta_title', 'meta_description', 'meta_keywords'
+            'meta_title', 'meta_description', 'meta_keywords'
         ];
 
-        foreach ($textFields as $field) {
+        foreach ($settingsFields as $field) {
             if ($request->has($field)) {
-                $settings[$field] = $request->input($field);
+                $this->updateOrCreateSetting($field, $request->input($field));
             }
         }
 
-        // Save settings to file or database
-        $this->saveSettings($settings);
+        // Update footer settings
+        $footerFields = [
+            'footer_company_description' => 'footer_company_description',
+            'footer_copyright_text' => 'footer_copyright_text',
+            'footer_iso_certification' => 'footer_iso_certification'
+        ];
+
+        foreach ($footerFields as $dbField => $requestField) {
+            $value = $request->input($requestField, '');
+            $this->updateOrCreateFooterItem($dbField, $value);
+        }
+
+        // Update ISO badge visibility
+        $showIsoBadge = isset($request->show_iso_badge) && $request->show_iso_badge === '1' ? 'true' : 'false';
+        $this->updateOrCreateFooterItem('footer_show_iso_badge', $showIsoBadge);
+
+        // Update footer social media links
+        for ($i = 1; $i <= 3; $i++) {
+            $platform = $request->input("footer_social_media_{$i}_platform");
+            $url = $request->input("footer_social_media_{$i}_url");
+
+            if ($platform && $url) {
+                $socialMediaData = [
+                    'platform' => $platform,
+                    'url' => $url,
+                    'label' => ucfirst($platform),
+                ];
+                $this->updateOrCreateFooterItem("footer_social_media_{$i}", json_encode($socialMediaData));
+            } else {
+                // Remove empty social media entries
+                ContentManagement::where('section_name', 'footer_section')
+                    ->where('section_item_name', "footer_social_media_{$i}")
+                    ->delete();
+            }
+        }
 
         return redirect()->back()
             ->with('success', 'Settings updated successfully.');
     }
 
     /**
-     * Get current settings.
+     * Get current settings from database.
      */
     private function getSettings(): array
     {
-        // Try to get from JSON file first
-        $settingsPath = storage_path('app/settings.json');
+        $settingsItems = ContentManagement::where('section_name', 'settings')
+            ->get()
+            ->keyBy('section_item_name');
 
-        if (file_exists($settingsPath)) {
-            $settings = json_decode(file_get_contents($settingsPath), true);
-            return $settings ?: [];
-        }
-
-        // Default settings
-        return [
+        $defaultSettings = [
             'company_name' => 'Influx Group Engineering',
             'tagline' => 'Power Infrastructure Solutions',
             'phone' => '+880 2 987 6543',
             'email' => 'info@influxgroup.com',
             'address' => 'Dhaka, Bangladesh',
-            'facebook' => '',
-            'twitter' => '',
-            'linkedin' => '',
-            'youtube' => '',
-            'footer_text' => 'Bangladesh\'s premier engineering conglomerate specializing in high-voltage infrastructure and renewable grid systems.',
-            'copyright_text' => '© 2026 INFLUX GROUP ENGINEERING. ALL RIGHTS RESERVED. ISO 9001:2015 CERTIFIED.',
             'meta_title' => 'Influx Group - Power Infrastructure Solutions',
             'meta_description' => 'Leading engineering conglomerate specializing in high-voltage infrastructure and renewable grid systems in Bangladesh.',
             'meta_keywords' => 'power infrastructure, engineering, transformers, renewable energy, Bangladesh',
         ];
+
+        foreach ($defaultSettings as $key => $default) {
+            if (isset($settingsItems[$key])) {
+                $defaultSettings[$key] = $settingsItems[$key]->section_content;
+            }
+        }
+
+        // Handle file fields separately
+        if (isset($settingsItems['header_logo'])) {
+            $defaultSettings['header_logo'] = $settingsItems['header_logo']->section_content;
+        }
+        if (isset($settingsItems['favicon'])) {
+            $defaultSettings['favicon'] = $settingsItems['favicon']->section_content;
+        }
+
+        return $defaultSettings;
     }
 
     /**
-     * Save settings to file.
+     * Get footer data from database.
      */
-    private function saveSettings(array $newSettings): void
+    private function getFooterData(): array
     {
-        $settingsPath = storage_path('app/settings.json');
+        $footerItems = ContentManagement::where('section_name', 'footer_section')
+            ->get()
+            ->keyBy('section_item_name');
 
-        // Get existing settings
-        $existingSettings = [];
-        if (file_exists($settingsPath)) {
-            $existingSettings = json_decode(file_get_contents($settingsPath), true) ?: [];
+        $socialMedia = [];
+        for ($i = 1; $i <= 3; $i++) {
+            $item = $footerItems->get("footer_social_media_{$i}");
+            if ($item) {
+                $data = json_decode($item->section_content, true);
+                if ($data && isset($data['platform']) && isset($data['url'])) {
+                    $socialMedia[] = [
+                        'platform' => $data['platform'],
+                        'url' => $data['url'],
+                        'label' => $data['label'] ?? ucfirst($data['platform']),
+                    ];
+                }
+            }
         }
 
-        // Merge settings
-        $settings = array_merge($existingSettings, $newSettings);
+        return [
+            'company_description' => $footerItems->get('footer_company_description')->section_content ?? '',
+            'copyright_text' => $footerItems->get('footer_copyright_text')->section_content ?? '',
+            'iso_certification' => $footerItems->get('footer_iso_certification')->section_content ?? '',
+            'show_iso_badge' => filter_var($footerItems->get('footer_show_iso_badge')->section_content ?? 'true', FILTER_VALIDATE_BOOLEAN),
+            'social_media' => $socialMedia,
+        ];
+    }
 
-        // Save to file
-        file_put_contents($settingsPath, json_encode($settings, JSON_PRETTY_PRINT));
+    /**
+     * Update or create a setting item.
+     */
+    private function updateOrCreateSetting($itemName, $content)
+    {
+        $item = ContentManagement::where('section_name', 'settings')
+            ->where('section_item_name', $itemName)
+            ->first();
+
+        if ($item) {
+            $item->update(['section_content' => $content]);
+        } else {
+            ContentManagement::create([
+                'section_name' => 'settings',
+                'section_item_name' => $itemName,
+                'section_content' => $content,
+            ]);
+        }
+    }
+
+    /**
+     * Update or create a footer item.
+     */
+    private function updateOrCreateFooterItem($itemName, $content)
+    {
+        $item = ContentManagement::where('section_name', 'footer_section')
+            ->where('section_item_name', $itemName)
+            ->first();
+
+        if ($item) {
+            $item->update(['section_content' => $content]);
+        } else {
+            ContentManagement::create([
+                'section_name' => 'footer_section',
+                'section_item_name' => $itemName,
+                'section_content' => $content,
+            ]);
+        }
     }
 
     /**
@@ -157,14 +258,17 @@ class SettingsController extends Controller
      */
     public function deleteLogo(): RedirectResponse
     {
-        $settings = $this->getSettings();
+        $logoItem = ContentManagement::where('section_name', 'settings')
+            ->where('section_item_name', 'header_logo')
+            ->first();
 
-        if (isset($settings['header_logo']) && file_exists(public_path('storage/' . $settings['header_logo']))) {
-            unlink(public_path('storage/' . $settings['header_logo']));
+        if ($logoItem && file_exists(public_path('storage/' . $logoItem->section_content))) {
+            unlink(public_path('storage/' . $logoItem->section_content));
         }
 
-        $settings['header_logo'] = null;
-        $this->saveSettings($settings);
+        if ($logoItem) {
+            $logoItem->update(['section_content' => '']);
+        }
 
         return redirect()->back()
             ->with('success', 'Logo deleted successfully.');
@@ -175,14 +279,17 @@ class SettingsController extends Controller
      */
     public function deleteFavicon(): RedirectResponse
     {
-        $settings = $this->getSettings();
+        $faviconItem = ContentManagement::where('section_name', 'settings')
+            ->where('section_item_name', 'favicon')
+            ->first();
 
-        if (isset($settings['favicon']) && file_exists(public_path('storage/' . $settings['favicon']))) {
-            unlink(public_path('storage/' . $settings['favicon']));
+        if ($faviconItem && file_exists(public_path('storage/' . $faviconItem->section_content))) {
+            unlink(public_path('storage/' . $faviconItem->section_content));
         }
 
-        $settings['favicon'] = null;
-        $this->saveSettings($settings);
+        if ($faviconItem) {
+            $faviconItem->update(['section_content' => '']);
+        }
 
         // Delete root favicon if exists
         if (file_exists(public_path('favicon.ico'))) {
