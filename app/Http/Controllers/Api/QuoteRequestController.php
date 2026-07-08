@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Lead;
 use App\Models\QuoteRequest;
 use App\Models\Quotation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
@@ -40,6 +42,34 @@ class QuoteRequestController extends Controller
             'requirements' => $request->requirements,
             'status' => 'pending',
         ]);
+
+        // Also create as a lead for centralized lead management
+        try {
+            $lead = Lead::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'subject' => 'projects', // Quote requests are project inquiries
+                'message' => $request->company
+                    ? "Company: {$request->company}\n\nRequirements: {$request->requirements}"
+                    : $request->requirements,
+                'status' => 'new',
+                'notes' => 'Submitted via Quote Request form (ID: ' . $quoteRequest->id . ')',
+            ]);
+
+            Log::info('Lead created from quote request:', [
+                'lead_id' => $lead->id,
+                'quote_request_id' => $quoteRequest->id,
+                'name' => $lead->name,
+                'email' => $lead->email
+            ]);
+        } catch (\Exception $leadException) {
+            Log::error('Failed to create lead from quote request:', [
+                'quote_request_id' => $quoteRequest->id,
+                'error' => $leadException->getMessage()
+            ]);
+            // Continue execution - lead creation failure shouldn't prevent quote request
+        }
 
         // Send notification email to admin
         try {

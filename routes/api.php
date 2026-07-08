@@ -48,6 +48,17 @@ Route::get('/content/company-info', [ContentController::class, 'getCompanyInfo']
 // Quote requests (public API)
 Route::post('quote-requests/submit', [\App\Http\Controllers\Api\QuoteRequestController::class, 'submit']);
 
+// Contact form (public API)
+Route::post('contact/submit', [\App\Http\Controllers\Api\ContactController::class, 'submit']);
+
+// Leads management (admin API - protected)
+Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
+    Route::get('/leads', [\App\Http\Controllers\Api\ContactController::class, 'index']);
+    Route::get('/leads/{id}', [\App\Http\Controllers\Api\ContactController::class, 'show']);
+    Route::put('/leads/{id}/status', [\App\Http\Controllers\Api\ContactController::class, 'updateStatus']);
+    Route::delete('/leads/{id}', [\App\Http\Controllers\Api\ContactController::class, 'destroy']);
+});
+
 // Admin-only content management endpoints
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/content/homepage', [ContentController::class, 'updateHomepageContent']);
@@ -65,6 +76,11 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::prefix('pages')->group(function () {
     Route::get('/', [ContentController::class, 'getPages']);
     Route::get('/{slug}', [ContentController::class, 'getPageBySlug']);
+});
+
+// Careers API
+Route::prefix('careers')->group(function () {
+    Route::get('/jobs', [ContentController::class, 'getCareers']);
 });
 
 // CMS Section APIs

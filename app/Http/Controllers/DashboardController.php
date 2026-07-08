@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\News;
+use App\Models\Gallery;
+use App\Models\CareerOpportunitie;
 
 class DashboardController extends Controller
 {
@@ -20,6 +23,9 @@ class DashboardController extends Controller
             ],
             'products' => Product::count(),
             'categories' => Category::count(),
+            'news' => News::count(),
+            'testimonials' => 0, // Placeholder - can be updated later
+            'gallery' => Gallery::count(),
         ];
 
         // Get recent projects

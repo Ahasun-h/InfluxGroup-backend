@@ -151,7 +151,7 @@ onMounted(async () => {
 
             <!-- Content -->
             <div class="p-6">
-              <h3 class="text-xl font-display font-black uppercase italic mb-3 group-hover:text-industrial-blue transition-colors">
+              <h3 class="text-xl font-display text-industrial-dark uppercase italic mb-3 group-hover:text-industrial-blue transition-colors">
                 {{ project.title }}
               </h3>
 
@@ -170,14 +170,14 @@ onMounted(async () => {
               <div class="grid grid-cols-2 gap-4 mb-6">
                 <div>
                   <div class="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Status / Completion</div>
-                  <div class="flex items-center gap-2 text-sm font-bold">
+                  <div class="flex items-center gap-2 text-sm font-bold text-industrial-dark">
                     <Calendar class="w-4 h-4 text-industrial-blue" />
                     {{ project.completion || project.status }}
                   </div>
                 </div>
                 <div>
                   <div class="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Client</div>
-                  <div class="text-sm font-bold truncate">{{ project.client || 'N/A' }}</div>
+                  <div class="text-sm font-bold truncate text-industrial-dark">{{ project.client || 'N/A' }}</div>
                 </div>
               </div>
 

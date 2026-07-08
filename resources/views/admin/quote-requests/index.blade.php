@@ -10,7 +10,7 @@
         </div>
 
         <!-- Stats Cards -->
-        <div class="grid grid-flow-col auto-cols-max gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div class="glass-card p-6">
                 <div class="flex items-center justify-between">
                     <div>

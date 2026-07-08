@@ -370,40 +370,11 @@ onUnmounted(() => {
 
           <!-- Quick Links & CTA -->
           <div class="flex items-center gap-4">
-            <!-- Prominent Get Quote Button -->
-            <a
-              href="/contact?type=quote"
-              class="flex items-center gap-2 bg-industrial-blue hover:bg-industrial-red text-white px-5 py-2 rounded-sm font-black uppercase tracking-wider text-[10px] transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
-            >
-              <Briefcase class="w-3.5 h-3.5" />
-              Get a Quote
-              <ArrowRight class="w-3.5 h-3.5" />
-            </a>
-
             <!-- Secondary Links -->
             <a href="/career-opportunities" class="hidden sm:flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors">
               <Users class="w-3.5 h-3.5" />
               Careers
             </a>
-
-            <!-- Language Selector -->
-            <div class="relative group">
-              <button class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors">
-                <Globe class="w-3 h-3" />
-                {{ languages.find(l => l.code === currentLanguage)?.name }}
-                <ChevronDown class="w-3 h-3" />
-              </button>
-              <div class="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <button
-                  v-for="lang in languages"
-                  :key="lang.code"
-                  @click="currentLanguage = lang.code"
-                  class="w-full px-4 py-2 text-left text-xs font-bold text-industrial-dark hover:bg-industrial-light transition-colors first:rounded-t-lg last:rounded-b-lg"
-                >
-                  {{ lang.name }}
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -764,7 +735,7 @@ onUnmounted(() => {
     <!-- Footer -->
     <footer class="bg-industrial-dark text-white border-t border-industrial-blue/20">
       <div class="max-w-7xl mx-auto px-6 py-16">
-        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 border-b border-white/10 pb-16 mb-12">
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 pb-8 mb-8">
           <!-- Company Info -->
           <div class="lg:col-span-1">
             <div class="mb-6">
@@ -855,6 +826,11 @@ onUnmounted(() => {
                   {{ page.title }}
                 </a>
               </li>
+
+                <li><a @click="navigateTo('/career-opportunities')" class="hover:text-white transition-colors cursor-pointer flex items-center gap-2">
+                    <ChevronRight class="w-3.5 h-3.5" />Careers</a>
+                </li>
+
             </ul>
             <ul v-else class="space-y-3 text-xs font-medium text-slate-300">
               <li><a @click="navigateTo('/services-and-solutions')" class="hover:text-white transition-colors cursor-pointer flex items-center gap-2"><ChevronRight class="w-3.5 h-3.5" /> EPC Solutions</a></li>

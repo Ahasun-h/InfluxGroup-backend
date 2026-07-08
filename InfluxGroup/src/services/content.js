@@ -105,32 +105,79 @@ export const newsService = {
    * Get all news articles with optional filtering
    */
   async getNews(params = {}) {
-    const { data, pagination } = await api.get(API_ENDPOINTS.NEWS, params)
-    return { articles: data, pagination }
+    try {
+      console.log('newsService: Fetching news from', API_ENDPOINTS.NEWS)
+      const response = await api.get(API_ENDPOINTS.NEWS, params)
+      console.log('newsService: News response received', response)
+
+      // Handle Laravel paginator response
+      let articles = []
+      let pagination = null
+
+      if (response && response.data) {
+        if (Array.isArray(response.data)) {
+          // Direct array response
+          articles = response.data
+        } else if (response.data.data && Array.isArray(response.data.data)) {
+          // Laravel paginator: { data: { data: [...], ... } }
+          articles = response.data.data
+          pagination = {
+            total: response.data.total,
+            page: response.data.current_page,
+            limit: response.data.per_page,
+            totalPages: response.data.last_page
+          }
+        }
+      } else if (Array.isArray(response)) {
+        // Direct array response (fallback)
+        articles = response
+      }
+
+      return { articles, pagination }
+    } catch (error) {
+      console.error('newsService: Error fetching news', error)
+      throw error
+    }
   },
 
   /**
    * Get featured news
    */
   async getFeaturedNews(params = {}) {
-    const { data } = await api.get(API_ENDPOINTS.FEATURED_NEWS, params)
-    return data
+    try {
+      const response = await api.get(API_ENDPOINTS.FEATURED_NEWS, params)
+      // Handle both array and object responses
+      return Array.isArray(response) ? response : (response.data || [])
+    } catch (error) {
+      console.error('newsService: Error fetching featured news', error)
+      throw error
+    }
   },
 
   /**
    * Get article by slug
    */
   async getArticleBySlug(slug) {
-    const { data } = await api.get(API_ENDPOINTS.ARTICLE_BY_SLUG(slug))
-    return data
+    try {
+      const response = await api.get(API_ENDPOINTS.ARTICLE_BY_SLUG(slug))
+      return response.data || response
+    } catch (error) {
+      console.error('newsService: Error fetching article by slug', error)
+      throw error
+    }
   },
 
   /**
    * Get news categories
    */
   async getCategories() {
-    const { data } = await api.get(API_ENDPOINTS.NEWS_CATEGORIES)
-    return data
+    try {
+      const response = await api.get(API_ENDPOINTS.NEWS_CATEGORIES)
+      return Array.isArray(response) ? response : (response.data || [])
+    } catch (error) {
+      console.error('newsService: Error fetching news categories', error)
+      throw error
+    }
   },
 }
 

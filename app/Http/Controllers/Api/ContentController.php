@@ -9,8 +9,11 @@ use App\Models\ServiceAndSolution;
 use App\Models\Category;
 use App\Models\Page;
 use App\Models\News;
+use App\Models\Job;
+use App\Models\CareerOpportunitie;
 use App\Models\ContentManagement;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class ContentController extends Controller
 {
@@ -417,7 +420,96 @@ class ContentController extends Controller
 
     // Legacy support - old methods (deprecated)
     public function getLegacyTestimonials() { return response()->json(['success' => true, 'data' => []]); }
-    public function getJobs() { return response()->json(['success' => true, 'data' => []]); }
+
+    /**
+     * Get all active job openings from career_opportunities table
+     */
+    public function getJobs()
+    {
+        try {
+            // Use CareerOpportunitie model to fetch active jobs
+            $jobs = CareerOpportunitie::where('is_active', true)
+                ->whereNull('deleted_at')  // Only get active, non-deleted jobs
+                ->orderBy('order', 'asc')
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($job) {
+                    return [
+                        'id' => $job->id,
+                        'title' => $job->title,
+                        'department' => $job->department,
+                        'location' => $job->location,
+                        'type' => $job->type,
+                        'posted_date' => $job->posted_date ?? 'Recently posted',
+                        'expiry_date' => $job->expiry_date ? \Carbon\Carbon::parse($job->expiry_date)->format('Y-m-d') : null,
+                        'experience' => $job->experience,
+                        'salary' => $job->salary,
+                        'description' => $job->description,
+                        'requirements' => $job->requirements ?? [],
+                        'responsibilities' => $job->responsibilities ?? [],
+                        'benefits' => $job->benefits ?? [],
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'data' => $jobs
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching jobs: ' . $e->getMessage());
+            return response()->json([
+                'success' => true,
+                'data' => []
+            ]);
+        }
+    }
+
+    /**
+     * Get all active careers for public website
+     * This method specifically matches the /api/careers/jobs endpoint
+     */
+    public function getCareers()
+    {
+        try {
+            // Fetch active, non-deleted career opportunities
+            $careers = CareerOpportunitie::where('is_active', true)
+                ->whereNull('deleted_at')
+                ->orderBy('order', 'asc')
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($career) {
+                    return [
+                        'id' => $career->id,
+                        'title' => $career->title,
+                        'department' => $career->department,
+                        'location' => $career->location,
+                        'type' => $career->type,
+                        'posted_date' => $career->posted_date ?? 'Recently posted',
+                        'expiry_date' => $career->expiry_date ? \Carbon\Carbon::parse($career->expiry_date)->format('Y-m-d') : null,
+                        'experience' => $career->experience,
+                        'salary' => $career->salary,
+                        'description' => $career->description,
+                        'requirements' => is_array($career->requirements) ? $career->requirements : [],
+                        'responsibilities' => is_array($career->responsibilities) ? $career->responsibilities : [],
+                        'benefits' => is_array($career->benefits) ? $career->benefits : [],
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'data' => $careers
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching careers: ' . $e->getMessage());
+            \Log::error('Stack trace:', ['trace' => $e->getTraceAsString()]);
+
+            // Return empty data on error to prevent frontend crashes
+            return response()->json([
+                'success' => true,
+                'data' => []
+            ]);
+        }
+    }
     public function getGallery() { return response()->json(['success' => true, 'data' => []]); }
 
     public function updateHomepageContent(Request $request)

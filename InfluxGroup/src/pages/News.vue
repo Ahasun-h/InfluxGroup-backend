@@ -1,75 +1,103 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { Calendar, User, ArrowRight, Newspaper } from 'lucide-vue-next'
+import contentService from '@/services/content'
+import { API_CONFIG } from '@/config/api'
 
-const newsItems = [
-  {
-    id: 1,
-    title: 'Influx Group Successfully Commissions 1200 MW Power Plant',
-    excerpt: 'Major milestone achieved with successful commissioning of country\'s largest ultra-super critical thermal power plant at Matarbari.',
-    date: 'January 15, 2026',
-    author: 'Corporate Communications',
-    category: 'Project Milestone',
-    image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800',
-    featured: true,
-    readTime: '5 min read'
-  },
-  {
-    id: 2,
-    title: 'Strategic Partnership Signed with Global Technology Leader',
-    excerpt: 'Influx Group enters into strategic partnership with leading European technology company for advanced grid automation solutions.',
-    date: 'January 10, 2026',
-    author: 'Business Development',
-    category: 'Partnership',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800',
-    featured: false,
-    readTime: '3 min read'
-  },
-  {
-    id: 3,
-    title: 'Expanding Renewable Energy Portfolio with 50 MW Solar Project',
-    excerpt: 'Company launches new solar energy division and announces first utility-scale solar project in northern region.',
-    date: 'January 5, 2026',
-    author: 'Renewable Energy Division',
-    category: 'Renewable Energy',
-    image: 'https://images.unsplash.com/photo-1509391366360-fe5bb658589d?auto=format&fit=crop&q=80&w=800',
-    featured: false,
-    readTime: '4 min read'
-  },
-  {
-    id: 4,
-    title: 'Influx Group Receives ISO 45001:2018 Certification',
-    excerpt: 'Company achieves highest international standard for occupational health and safety management systems.',
-    date: 'December 28, 2025',
-    author: 'Quality Assurance',
-    category: 'Certification',
-    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800',
-    featured: false,
-    readTime: '3 min read'
-  },
-  {
-    id: 5,
-    title: 'Annual Technical Seminar 2025 Concludes Successfully',
-    excerpt: 'Over 200 engineers from across Bangladesh participated in company\'s flagship technical knowledge sharing event.',
-    date: 'December 20, 2025',
-    author: 'Training & Development',
-    category: 'Events',
-    image: 'https://images.unsplash.com/photo-1544531586-fde5298cdd40?auto=format&fit=crop&q=80&w=800',
-    featured: false,
-    readTime: '4 min read'
-  },
-  {
-    id: 6,
-    title: 'New Manufacturing Facility Inaugurated',
-    excerpt: 'State-of-the-art transformer manufacturing facility inaugurated, boosting production capacity by 200%.',
-    date: 'December 15, 2025',
-    author: 'Operations',
-    category: 'Expansion',
-    image: 'https://images.unsplash.com/photo-1565514020125-11d9590b5c7b?auto=format&fit=crop&q=80&w=800',
-    featured: false,
-    readTime: '5 min read'
+const newsItems = ref([])
+const loading = ref(true)
+const error = ref(null)
+
+// Transform image URL to full path (following Projects.vue pattern)
+const getImageUrl = (path) => {
+  if (!path) return 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800'
+  if (path.startsWith('http')) return path
+  return `${API_CONFIG.baseURL.replace('/api', '')}${path}`
+}
+
+// Transform API data to match expected format
+const transformNewsItem = (item) => ({
+  id: item.id,
+  title: item.title,
+  slug: item.slug,
+  excerpt: item.excerpt || '',
+  date: formatDate(item.publication_date || item.published_at),
+  author: item.author || 'Influx Group',
+  category: item.category || 'News',
+  image: getImageUrl(item.image),
+  featured: item.featured || false,
+  readTime: item.read_time ? `${item.read_time} min read` : '3 min read'
+})
+
+// Format date to readable format
+const formatDate = (dateString) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
+
+// Get featured news (first item)
+const featuredNews = computed(() => {
+  if (newsItems.value.length === 0) return null
+  const featured = newsItems.value.find(item => item.featured) || newsItems.value[0]
+  return featured
+})
+
+// Get regular news items (excluding featured)
+const regularNews = computed(() => {
+  if (newsItems.value.length === 0) return []
+  const featuredId = featuredNews.value?.id
+  return newsItems.value.filter(item => item.id !== featuredId)
+})
+
+// Fetch news data
+const fetchNews = async () => {
+  try {
+    loading.value = true
+    error.value = null
+
+    const response = await contentService.news.getNews({ limit: 10 })
+
+    console.log('News API response:', response)
+
+    // Handle different response structures
+    let articles = []
+
+    if (response && response.articles) {
+      // From newsService: { articles: data, pagination }
+      articles = response.articles
+    } else if (Array.isArray(response)) {
+      // Direct array response
+      articles = response
+    } else if (response && response.data) {
+      // Handle Laravel paginator: { data: { data: [...] } }
+      if (Array.isArray(response.data)) {
+        articles = response.data
+      } else if (response.data.data && Array.isArray(response.data.data)) {
+        articles = response.data.data
+      }
+    }
+
+    newsItems.value = articles.map(transformNewsItem)
+
+    if (newsItems.value.length === 0) {
+      console.warn('No news articles found')
+    }
+  } catch (err) {
+    console.error('Error fetching news:', err)
+    error.value = 'Failed to load news. Please try again later.'
+  } finally {
+    loading.value = false
   }
-]
+}
+
+onMounted(() => {
+  fetchNews()
+})
 </script>
 
 <template>
@@ -96,99 +124,126 @@ const newsItems = [
     <!-- Featured News -->
     <section class="py-20 bg-white">
       <div class="max-w-7xl mx-auto px-6">
-        <div
-          class="rounded-lg overflow-hidden shadow-2xl mb-16 group cursor-pointer"
-          v-motion-slide-visible-bottom
-        >
-          <div class="grid md:grid-cols-2">
-            <div class="relative h-96">
-              <img
-                :src="newsItems[0].image"
-                :alt="newsItems[0].title"
-                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-              />
-              <div class="absolute top-4 left-4 bg-industrial-blue text-white px-4 py-2 rounded-sm text-xs font-bold uppercase">
-                Featured
-              </div>
-            </div>
-            <div class="p-12 flex flex-col justify-center">
-              <div class="flex items-center gap-4 mb-4">
-                <span class="bg-industrial-light text-industrial-dark px-3 py-1 rounded text-xs font-bold uppercase">
-                  {{ newsItems[0].category }}
-                </span>
-                <div class="flex items-center gap-2 text-slate-500 text-sm">
-                  <Calendar class="w-4 h-4" />
-                  {{ newsItems[0].date }}
-                </div>
-              </div>
-              <h2 class="text-3xl font-display font-black uppercase italic mb-4 group-hover:text-industrial-blue transition-colors">
-                {{ newsItems[0].title }}
-              </h2>
-              <p class="text-slate-600 mb-6 leading-relaxed">
-                {{ newsItems[0].excerpt }}
-              </p>
-              <div class="flex items-center gap-4">
-                <div class="flex items-center gap-2 text-sm text-slate-500">
-                  <User class="w-4 h-4" />
-                  {{ newsItems[0].author }}
-                </div>
-                <div class="text-sm text-slate-500">{{ newsItems[0].readTime }}</div>
-              </div>
-              <button class="mt-6 text-industrial-blue font-bold uppercase text-xs tracking-wider flex items-center gap-2 group-hover:gap-4 transition-all">
-                Read Full Story <ArrowRight class="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+        <!-- Loading State -->
+        <div v-if="loading" class="text-center py-20">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-industrial-blue border-t-transparent"></div>
+          <p class="mt-4 text-slate-600">Loading latest news...</p>
         </div>
 
-        <!-- News Grid -->
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Error State -->
+        <div v-else-if="error" class="text-center py-20">
+          <p class="text-red-600">{{ error }}</p>
+          <button @click="fetchNews" class="mt-4 text-industrial-blue hover:text-industrial-red font-semibold">
+            Try Again
+          </button>
+        </div>
+
+        <!-- News Content -->
+        <template v-else>
+          <!-- Featured Article -->
           <div
-            v-for="(news, index) in newsItems.slice(1)"
-            :key="news.id"
-            class="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 group cursor-pointer"
+            v-if="featuredNews"
+            class="rounded-lg overflow-hidden shadow-2xl mb-16 group cursor-pointer"
             v-motion-slide-visible-bottom
-            :delay="index * 100"
+            @click="$router.push(`/news/${featuredNews.slug}`)"
           >
-            <div class="relative h-48 overflow-hidden">
-              <img
-                :src="news.image"
-                :alt="news.title"
-                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-              />
-              <div class="absolute top-4 left-4 bg-industrial-red text-white px-3 py-1 rounded text-xs font-bold uppercase">
-                {{ news.category }}
-              </div>
-            </div>
-
-            <div class="p-6">
-              <div class="flex items-center gap-2 text-slate-500 text-xs mb-3">
-                <Calendar class="w-3 h-3" />
-                {{ news.date }}
-              </div>
-
-              <h3 class="text-lg font-display font-black uppercase italic mb-3 group-hover:text-industrial-blue transition-colors line-clamp-2">
-                {{ news.title }}
-              </h3>
-
-              <p class="text-slate-600 text-sm mb-4 line-clamp-3">
-                {{ news.excerpt }}
-              </p>
-
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2 text-xs text-slate-500">
-                  <User class="w-3 h-3" />
-                  {{ news.author }}
+            <div class="grid md:grid-cols-2">
+              <div class="relative h-96">
+                <img
+                  :src="featuredNews.image"
+                  :alt="featuredNews.title"
+                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                />
+                <div class="absolute top-4 left-4 bg-industrial-blue text-white px-4 py-2 rounded-sm text-xs font-bold uppercase">
+                  Featured
                 </div>
-                <div class="text-xs text-slate-500">{{ news.readTime }}</div>
               </div>
-
-              <button class="mt-4 text-industrial-blue font-bold uppercase text-xs tracking-wider flex items-center gap-2 group-hover:gap-4 transition-all">
-                Read More <ArrowRight class="w-3 h-3" />
-              </button>
+              <div class="p-12 flex flex-col justify-center">
+                <div class="flex items-center gap-4 mb-4">
+                  <span class="bg-industrial-light text-industrial-dark px-3 py-1 rounded text-xs font-bold uppercase">
+                    {{ featuredNews.category }}
+                  </span>
+                  <div class="flex items-center gap-2 text-slate-500 text-sm">
+                    <Calendar class="w-4 h-4" />
+                    {{ featuredNews.date }}
+                  </div>
+                </div>
+                <h2 class="text-3xl font-display text-industrial-dark uppercase italic mb-4 group-hover:text-industrial-blue transition-colors">
+                  {{ featuredNews.title }}
+                </h2>
+                <p class="text-slate-600 mb-6 leading-relaxed">
+                  {{ featuredNews.excerpt }}
+                </p>
+                <div class="flex items-center gap-4">
+                  <div class="flex items-center gap-2 text-sm text-slate-500">
+                    <User class="w-4 h-4" />
+                    {{ featuredNews.author }}
+                  </div>
+                  <div class="text-sm text-slate-500">{{ featuredNews.readTime }}</div>
+                </div>
+                <button class="mt-6 text-industrial-blue font-bold uppercase text-xs tracking-wider flex items-center gap-2 group-hover:gap-4 transition-all">
+                  Read Full Story <ArrowRight class="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+
+          <!-- News Grid -->
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div
+              v-for="(news, index) in regularNews"
+              :key="news.id"
+              class="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 group cursor-pointer"
+              v-motion-slide-visible-bottom
+              :delay="index * 100"
+              @click="$router.push(`/news/${news.slug}`)"
+            >
+              <div class="relative h-48 overflow-hidden">
+                <img
+                  :src="news.image"
+                  :alt="news.title"
+                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                />
+                <div class="absolute top-4 left-4 bg-industrial-red text-white px-3 py-1 rounded text-xs font-bold uppercase">
+                  {{ news.category }}
+                </div>
+              </div>
+
+              <div class="p-6">
+                <div class="flex items-center gap-2 text-slate-500 text-xs mb-3">
+                  <Calendar class="w-3 h-3" />
+                  {{ news.date }}
+                </div>
+
+                <h3 class="text-lg font-display text-industrial-dark uppercase italic mb-3 group-hover:text-industrial-blue transition-colors line-clamp-2">
+                  {{ news.title }}
+                </h3>
+
+                <p class="text-slate-600 text-sm mb-4 line-clamp-3">
+                  {{ news.excerpt }}
+                </p>
+
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2 text-xs text-slate-500">
+                    <User class="w-3 h-3" />
+                    {{ news.author }}
+                  </div>
+                  <div class="text-xs text-slate-500">{{ news.readTime }}</div>
+                </div>
+
+                <button class="mt-4 text-industrial-blue font-bold uppercase text-xs tracking-wider flex items-center gap-2 group-hover:gap-4 transition-all">
+                  Read More <ArrowRight class="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- No News State -->
+          <div v-if="newsItems.length === 0" class="text-center py-20">
+            <Newspaper class="w-16 h-16 text-slate-300 mx-auto mb-4" />
+            <p class="text-slate-600">No news articles available yet.</p>
+          </div>
+        </template>
       </div>
     </section>
 

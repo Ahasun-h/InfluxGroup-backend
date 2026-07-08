@@ -32,6 +32,24 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::post('news/upload-trix-image', [\App\Http\Controllers\Admin\NewsController::class, 'uploadTrixImage'])->name('news.upload-trix-image');
     Route::resource('pages', \App\Http\Controllers\Admin\PageController::class);
 
+    // Career Opportunities management (user-friendly URL)
+    Route::resource('careers', \App\Http\Controllers\Admin\CareersController::class)->parameters([
+        'careers' => 'career'
+    ]);
+    Route::post('careers/update-order', [\App\Http\Controllers\Admin\CareersController::class, 'updateOrder'])->name('careers.update-order');
+    Route::post('careers/{career}/toggle-status', [\App\Http\Controllers\Admin\CareersController::class, 'toggleStatus'])->name('careers.toggle-status');
+    Route::post('careers/{career}/restore', [\App\Http\Controllers\Admin\CareersController::class, 'restore'])->name('careers.restore');
+    Route::get('careers-debug', [\App\Http\Controllers\Admin\CareersController::class, 'debug'])->name('careers.debug');
+
+    // Test routes for debugging (remove after fixing)
+    Route::get('test-career-update/{id?}', function($id = 2) {
+        $job = \App\Models\CareerOpportunitie::find($id);
+        if (!$job) {
+            return redirect('/admin/careers')->with('error', 'Job not found');
+        }
+        return view('simple_test_update', ['job' => $job]);
+    })->name('test.career.update');
+
     // Quotations management
     Route::resource('quotations', \App\Http\Controllers\Admin\QuotationController::class);
     Route::post('quotations/{quotation}/status', [\App\Http\Controllers\Admin\QuotationController::class, 'updateStatus'])->name('quotations.update-status');
@@ -43,6 +61,9 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('quote-requests/{quoteRequest}/convert', [\App\Http\Controllers\Admin\QuoteRequestController::class, 'convert'])->name('quote-requests.convert');
     Route::post('quote-requests/{quoteRequest}/convert', [\App\Http\Controllers\Admin\QuoteRequestController::class, 'storeQuotation'])->name('quote-requests.store-quotation');
     Route::put('quote-requests/{quoteRequest}/status', [\App\Http\Controllers\Admin\QuoteRequestController::class, 'updateStatus'])->name('quote-requests.update-status');
+
+    // Leads management
+    Route::resource('leads', \App\Http\Controllers\Admin\LeadsController::class)->only(['index', 'show', 'update', 'destroy']);
 
     // Settings management
     Route::get('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');

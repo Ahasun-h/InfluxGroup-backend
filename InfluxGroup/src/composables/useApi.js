@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { contentService } from '@/services/content'
+import contentService from '@/services/content'
 
 /**
  * Vue 3 Composable for API calls with loading and error states

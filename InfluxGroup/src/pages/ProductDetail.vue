@@ -225,7 +225,7 @@ onMounted(fetchProduct)
 
           <!-- Overview Tab -->
           <div v-if="activeTab === 'overview'" class="max-w-4xl">
-            <h2 class="text-3xl font-display font-black uppercase italic mb-8">
+            <h2 class="text-3xl font-display text-industrial-dark uppercase italic mb-8">
               Product <span class="text-industrial-blue">Overview</span>
             </h2>
 
@@ -246,7 +246,7 @@ onMounted(fetchProduct)
 
             <!-- Key Features -->
             <div v-if="product.features && product.features.length" class="mt-12">
-              <h3 class="text-xl font-bold mb-6">Key Features</h3>
+              <h3 class="text-xl font-bold mb-6 text-industrial-dark">Key Features</h3>
               <div class="grid md:grid-cols-2 gap-4">
                 <div
                   v-for="(feature, index) in product.features"
@@ -262,7 +262,7 @@ onMounted(fetchProduct)
 
           <!-- Specifications Tab -->
           <div v-if="activeTab === 'specifications'" class="max-w-4xl">
-            <h2 class="text-3xl font-display font-black uppercase italic mb-8">
+            <h2 class="text-3xl font-display text-industrial-dark uppercase italic mb-8">
               Technical <span class="text-industrial-blue">Specifications</span>
             </h2>
 
@@ -286,7 +286,7 @@ onMounted(fetchProduct)
 
           <!-- Features Tab -->
           <div v-if="activeTab === 'features'" class="max-w-4xl">
-            <h2 class="text-3xl font-display font-black uppercase italic mb-8">
+            <h2 class="text-3xl font-display text-industrial-dark uppercase italic mb-8">
               Product <span class="text-industrial-blue">Features</span>
             </h2>
 
@@ -317,7 +317,7 @@ onMounted(fetchProduct)
 
           <!-- Applications Tab -->
           <div v-if="activeTab === 'applications'" class="max-w-4xl">
-            <h2 class="text-3xl font-display font-black uppercase italic mb-8">
+            <h2 class="text-3xl font-display text-industrial-dark uppercase italic mb-8">
               Typical <span class="text-industrial-blue">Applications</span>
             </h2>
 

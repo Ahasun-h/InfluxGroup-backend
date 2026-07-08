@@ -160,7 +160,7 @@ onMounted(async () => {
             <!-- Content -->
             <div class="p-6">
               <h3
-                class="text-xl font-display font-black uppercase italic mb-3 group-hover:text-industrial-blue transition-colors cursor-pointer"
+                class="text-xl font-display text-industrial-dark uppercase italic mb-3 group-hover:text-industrial-blue transition-colors cursor-pointer"
                 @click="router.push(`/products/${product.slug}`)"
               >
                 {{ product.name }}

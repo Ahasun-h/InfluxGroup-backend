@@ -3,12 +3,20 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { Calendar, User, Clock, Share2, ArrowLeft, ArrowRight } from 'lucide-vue-next'
 import { newsService } from '../services/content'
+import { API_CONFIG } from '@/config/api'
 
 const route = useRoute()
 const article = ref(null)
 const loading = ref(true)
 const error = ref(null)
 const currentImageIndex = ref(0)
+
+// Transform image URL to full path (following Projects.vue pattern)
+const getImageUrl = (path) => {
+  if (!path) return 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800'
+  if (path.startsWith('http')) return path
+  return `${API_CONFIG.baseURL.replace('/api', '')}${path}`
+}
 
 const formattedDate = computed(() => {
   if (!article.value?.publication_date) return ''
@@ -21,7 +29,13 @@ const formattedDate = computed(() => {
 
 const currentGalleryImage = computed(() => {
   if (!article.value?.gallery?.length) return null
-  return article.value.gallery[currentImageIndex.value]
+  return getImageUrl(article.value.gallery[currentImageIndex.value])
+})
+
+// Get main image URL
+const mainImageUrl = computed(() => {
+  if (!article.value?.image) return 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800'
+  return getImageUrl(article.value.image)
 })
 
 const nextImage = () => {
@@ -58,6 +72,12 @@ onMounted(async () => {
   try {
     const slug = route.params.slug
     const data = await newsService.getArticleBySlug(slug)
+
+    // Transform image URLs in gallery
+    if (data?.gallery && Array.isArray(data.gallery)) {
+      data.gallery = data.gallery.map(img => getImageUrl(img))
+    }
+
     article.value = data
   } catch (err) {
     error.value = 'Failed to load article'
@@ -130,9 +150,9 @@ onMounted(async () => {
     <!-- Featured Image -->
     <section v-if="article.image" class="bg-white">
       <div class="max-w-7xl mx-auto px-6">
-        <div class="relative -mt-20 mb-16">
+        <div class="relative -mt-20">
           <img
-            :src="article.image"
+            :src="mainImageUrl"
             :alt="article.title"
             class="w-full h-[500px] object-cover rounded-lg shadow-2xl"
           />
@@ -224,7 +244,7 @@ onMounted(async () => {
               :class="currentImageIndex === index ? 'border-industrial-blue' : 'border-transparent'"
             >
               <img
-                :src="image"
+                :src="getImageUrl(image)"
                 :alt="`${article.title} - Thumbnail ${index + 1}`"
                 class="w-full h-full object-cover"
               />
