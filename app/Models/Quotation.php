@@ -31,6 +31,7 @@ class Quotation extends Model
         'items',
         'currency',
         'created_by',
+        'customer_id',
     ];
 
     protected $casts = [
@@ -51,6 +52,14 @@ class Quotation extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Get the customer for the quotation.
+     */
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
     }
 
     /**

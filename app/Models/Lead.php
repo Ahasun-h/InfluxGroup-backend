@@ -25,6 +25,8 @@ class Lead extends Model
         'notes',
         'assigned_to',
         'contacted_at',
+        'customer_id',
+        'converted_to_customer_at',
     ];
 
     /**
@@ -37,6 +39,7 @@ class Lead extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
+        'converted_to_customer_at' => 'datetime',
     ];
 
     /**
@@ -45,6 +48,14 @@ class Lead extends Model
     public function assignedTo()
     {
         return $this->belongsTo(\App\Models\User::class, 'assigned_to');
+    }
+
+    /**
+     * Get the customer that the lead converted to.
+     */
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
     }
 
     /**
@@ -76,7 +87,7 @@ class Lead extends Model
      */
     public function scopeConverted($query)
     {
-        return $query->where('status', 'converted');
+        return $query->whereNotNull('customer_id');
     }
 
     /**
@@ -108,6 +119,6 @@ class Lead extends Model
      */
     public function isConverted(): bool
     {
-        return $this->status === 'converted';
+        return $this->customer_id !== null;
     }
 }

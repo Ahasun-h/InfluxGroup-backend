@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\ContentController;
+use App\Http\Controllers\Api\AnalyticsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -126,4 +127,17 @@ Route::prefix('cms')->group(function () {
 
     // Service Categories
     Route::get('/service-categories', [ContentController::class, 'getServiceCategories']);
+});
+
+// Analytics API (Public endpoints)
+Route::prefix('analytics')->group(function () {
+    // Tracking endpoint for Vue frontend
+    Route::post('/track', [\App\Http\Controllers\Api\AnalyticsTrackingController::class, 'trackPageView']);
+
+    // Dashboard endpoints
+    Route::get('/dashboard', [AnalyticsController::class, 'getDashboardData']);
+    Route::get('/website', [AnalyticsController::class, 'getWebsiteAnalytics']);
+    Route::get('/business', [AnalyticsController::class, 'getBusinessAnalytics']);
+    Route::get('/content', [AnalyticsController::class, 'getContentAnalytics']);
+    Route::get('/api/chart-data', [AnalyticsController::class, 'getChartData']);
 });

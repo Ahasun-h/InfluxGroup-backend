@@ -1,6 +1,10 @@
 <script setup>
 import MainLayout from './layouts/MainLayout.vue'
-import { onMounted } from 'vue'
+import { onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import analyticsTracking from './services/analyticsTracking'
+
+const route = useRoute()
 
 onMounted(() => {
   // Add smooth scroll behavior
@@ -12,7 +16,20 @@ onMounted(() => {
   if (typeof document !== 'undefined' && document.body) {
     document.body.classList.add('page-transitions-enabled')
   }
+
+  // Track initial page view
+  analyticsTracking.trackPageView(window.location.pathname, document.title)
 })
+
+// Track route changes
+watch(
+  () => route.path,
+  (newPath) => {
+    // Track page view when route changes
+    const title = route.meta.title || document.title
+    analyticsTracking.trackPageView(newPath, title)
+  }
+)
 </script>
 
 <template>

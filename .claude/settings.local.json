@@ -53,7 +53,9 @@
       "Bash(cd D:\\\\Herd\\\\InfluxGroup-backend\\\\resources\\\\views\\\\admin\\\\cms-section:*)",
       "Bash(cd D:\\\\Herd\\\\InfluxGroup-backend\\\\resources\\\\views:*)",
       "Bash(\"C:\\\\Users\\\\habib\\\\.config\\\\herd\\\\bin\\\\php.bat\" D:\\\\Herd\\\\InfluxGroup-backend\\\\artisan:*)",
-      "Bash(echo Searching for PHP executable...:*)"
+      "Bash(echo Searching for PHP executable...:*)",
+      "Bash(php artisan migrate --force 2>&1 || /mnt/c/Users/habib/.config/herd/bin/php.bat artisan migrate --force 2>&1 || php8.2 artisan migrate --force 2>&1)",
+      "Bash(cmd.exe:*)"
     ]
   }
 }

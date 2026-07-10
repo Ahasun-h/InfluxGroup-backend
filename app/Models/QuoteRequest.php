@@ -20,6 +20,7 @@ class QuoteRequest extends Model
         'admin_notes',
         'contacted_at',
         'quoted_at',
+        'customer_id',
     ];
 
     protected $casts = [
@@ -33,6 +34,14 @@ class QuoteRequest extends Model
     public function quotation()
     {
         return $this->belongsTo(Quotation::class);
+    }
+
+    /**
+     * Get the customer for this quote request.
+     */
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
     }
 
     /**

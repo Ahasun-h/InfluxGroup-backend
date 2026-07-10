@@ -11,6 +11,13 @@ Route::get('/', function () {
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+    // Analytics management
+    Route::get('analytics', [\App\Http\Controllers\Admin\AnalyticsController::class, 'index'])->name('analytics.index');
+    Route::get('analytics/website', [\App\Http\Controllers\Admin\AnalyticsController::class, 'website'])->name('analytics.website');
+    Route::get('analytics/business', [\App\Http\Controllers\Admin\AnalyticsController::class, 'business'])->name('analytics.business');
+    Route::get('analytics/content', [\App\Http\Controllers\Admin\AnalyticsController::class, 'content'])->name('analytics.content');
+    Route::get('analytics/api/chart-data', [\App\Http\Controllers\Admin\AnalyticsController::class, 'apiChartData'])->name('analytics.api.chart-data');
+
     Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
     Route::post('categories/update-order', [\App\Http\Controllers\Admin\CategoryController::class, 'updateOrder'])->name('categories.update-order');
 
@@ -64,6 +71,11 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
     // Leads management
     Route::resource('leads', \App\Http\Controllers\Admin\LeadsController::class)->only(['index', 'show', 'update', 'destroy']);
+
+    // Customers management (CRM)
+    Route::resource('customers', \App\Http\Controllers\Admin\CustomersController::class);
+    Route::post('customers/{customer}/interactions', [\App\Http\Controllers\Admin\CustomersController::class, 'addInteraction'])->name('customers.add-interaction');
+    Route::post('leads/{lead}/convert-to-customer', [\App\Http\Controllers\Admin\CustomersController::class, 'convertLead'])->name('leads.convert-to-customer');
 
     // Settings management
     Route::get('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');

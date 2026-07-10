@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue Analytics Tracking Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background: #e7f3ff;
+            border-left: 4px solid #007bff;
+        }
+        .success {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+        .error {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Vue Analytics Tracking Test</h1>
+
+        <p>This page demonstrates the analytics tracking that will be integrated into your Vue frontend.</p>
+
+        <div style="margin: 20px 0;">
+            <button class="button" onclick="trackPage('/')">Track Home Page</button>
+            <button class="button" onclick="trackPage('/about')">Track About Page</button>
+            <button class="button" onclick="trackPage('/products')">Track Products Page</button>
+            <button class="button" onclick="trackPage('/projects')">Track Projects Page</button>
+        </div>
+
+        <div id="status" class="status">
+            <strong>Status:</strong> Click a button to test analytics tracking
+        </div>
+
+        <div class="info">
+            <h3>📊 How it works:</h3>
+            <ol>
+                <li>Each button simulates a page visit on your Vue frontend</li>
+                <li>The tracking service sends data to Laravel backend API</li>
+                <li>Laravel stores visitor and page view information</li>
+                <li>View collected data at <code>/admin/analytics/website</code></li>
+            </ol>
+
+            <h3>🔧 Integration in Vue Project:</h3>
+            <ul>
+                <li><code>src/services/analyticsTracking.js</code> - Core tracking service</li>
+                <li><code>src/composables/useAnalytics.js</code> - Vue composable for easy use</li>
+                <li><code>src/App.vue</code> - Automatic route tracking enabled</li>
+                <li><code>API_CONFIG.baseURL</code> - Points to Laravel backend</li>
+            </ul>
+
+            <h3>🚀 Next Steps:</h3>
+            <ol>
+                <li>Start Vue development server: <code>npm run dev</code></li>
+                <li>Visit different pages in your Vue application</li>
+                <li>Check <code>/admin/analytics/website</code> for collected data</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Generate session ID
+        function getSessionId() {
+            let sessionId = localStorage.getItem('analytics_session_id');
+            if (!sessionId) {
+                sessionId = 'test_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('analytics_session_id', sessionId);
+            }
+            return sessionId;
+        }
+
+        // Track page view
+        async function trackPage(url) {
+            const sessionId = getSessionId();
+            const title = 'Page: ' + url;
+
+            const statusDiv = document.getElementById('status');
+
+            try {
+                const response = await fetch('http://influxgroup-backend.test/api/analytics/track', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        url: url,
+                        title: title,
+                        referer: document.referrer || null,
+                        user_agent: navigator.userAgent,
+                    }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    statusDiv.className = 'status success';
+                    statusDiv.innerHTML = `
+                        <strong>✓ Success!</strong><br>
+                        Tracked: ${url}<br>
+                        Session: ${sessionId}<br>
+                        Visitor ID: ${data.data.visitor_id}<br>
+                        Page View ID: ${data.data.page_view_id}
+                    `;
+                } else {
+                    throw new Error('Failed to track');
+                }
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = `<strong>✗ Error:</strong> ${error.message}`;
+            }
+        }
+
+        // Auto-track page load
+        window.addEventListener('load', () => {
+            trackPage(window.location.pathname);
+        });
+    </script>
+</body>
+</html>
