@@ -1,0 +1,61 @@
+# Root .htaccess for Laravel Shared Hosting
+# This file should be in your project root (one level above public/)
+
+# =================================================================
+# Redirect all requests to public directory
+# =================================================================
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Redirect to public directory
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ /public/$1 [L]
+</IfModule>
+
+# =================================================================
+# Security - Protect sensitive directories
+# =================================================================
+
+# Prevent access to sensitive directories
+RedirectMatch 403 /^(\.git|\.env|node_modules|vendor|storage|tests)/
+
+# Protect hidden files
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Allow access to well-known directory (for Let's Encrypt, etc.)
+<DirectoryMatch "\.well-known">
+    Order allow,deny
+    Allow from all
+</DirectoryMatch>
+
+# =================================================================
+# Optional: HTTPS Redirect (uncomment if you have SSL certificate)
+# =================================================================
+
+# <IfModule mod_rewrite.c>
+#     RewriteEngine On
+#     RewriteCond %{HTTPS} off
+#     RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# </IfModule>
+
+# =================================================================
+# Optional: Force or Remove WWW prefix
+# =================================================================
+
+# # Force www (uncomment and change domain)
+# <IfModule mod_rewrite.c>
+#     RewriteEngine On
+#     RewriteCond %{HTTP_HOST} ^yourdomain\.com [NC]
+#     RewriteRule ^(.*)$ https://www.yourdomain.com/$1 [L,R=301]
+# </IfModule>
+
+# # Remove www (uncomment and change domain)
+# <IfModule mod_rewrite.c>
+#     RewriteEngine On
+#     RewriteCond %{HTTP_HOST} ^www\.yourdomain\.com [NC]
+#     RewriteRule ^(.*)$ https://yourdomain.com/$1 [L,R=301]
+# </IfModule>

@@ -16,24 +16,43 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans text-gray-900 dark:text-gray-100 antialiased selection:bg-brand-500 selection:text-white relative overflow-hidden bg-gray-50 dark:bg-surface-900 min-h-screen flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8">
-    
+
     <!-- Background Gradient Effects -->
     <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <div class="absolute -top-[30%] -right-[10%] w-[70%] h-[70%] rounded-full bg-brand-500/10 blur-[120px] animate-[float_6s_ease-in-out_infinite_alternate]"></div>
         <div class="absolute -bottom-[20%] -left-[10%] w-[60%] h-[60%] rounded-full bg-purple-500/10 blur-[100px] animate-[float_8s_ease-in-out_infinite_alternate-reverse]"></div>
     </div>
 
+    <?php
+        $headerLogoDark = \App\Models\ContentManagement::where('section_name', 'settings')
+            ->where('section_item_name', 'header_logo_dark')
+            ->where('section_content', '!=', '')
+            ->first();
+
+        $logoPathDark = $headerLogoDark ? asset('storage/' . $headerLogoDark->section_content) : null;
+    ?>
+
     <div class="relative z-10 w-full max-w-md animate-[fadeInUp_0.5s_ease-out]">
         <div class="mb-8 flex justify-center">
             <a href="/" class="flex items-center gap-2">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
-                </div>
-                <span class="text-3xl font-bold font-outfit text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-brand-400 dark:from-brand-300 dark:to-brand-500">
-                    Influx
-                </span>
+                @if($logoPathDark)
+                    <div class="rounded-xl from-brand-400 to-brand-600 flex items-center justify-center text-white">
+                        <!-- Dynamic Logo Image -->
+                        <img src="{{ $logoPathDark }}"
+                             alt="Influx Group"
+                             class=" shadow-lg group-hover:scale-105 transition-all duration-300" style="width: 56%">
+                    </div>
+                @else
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <span class="text-3xl font-bold font-outfit text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-brand-400 dark:from-brand-300 dark:to-brand-500">
+                        Influx
+                    </span>
+                @endif
+
             </a>
         </div>
 

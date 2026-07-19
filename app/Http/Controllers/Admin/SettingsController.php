@@ -30,6 +30,7 @@ class SettingsController extends Controller
         $request->validate([
             // Header Settings
             'header_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'header_logo_dark' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'favicon' => 'nullable|image|mimes:ico,png,jpg,svg|max:1024',
             'company_name' => 'nullable|string|max:255',
             'tagline' => 'nullable|string|max:255',
@@ -71,6 +72,20 @@ class SettingsController extends Controller
                 ->first();
             if ($oldLogo && file_exists(public_path('storage/' . $oldLogo->section_content))) {
                 unlink(public_path('storage/' . $oldLogo->section_content));
+            }
+        }
+
+        if ($request->hasFile('header_logo_dark')) {
+            $headerLogoDark = $request->file('header_logo_dark');
+            $headerLogoDarkPath = $headerLogoDark->store('settings', 'public');
+            $this->updateOrCreateSetting('header_logo_dark', $headerLogoDarkPath);
+
+            // Delete old dark logo if exists
+            $oldLogoDark = ContentManagement::where('section_name', 'settings')
+                ->where('section_item_name', 'old_header_logo_dark')
+                ->first();
+            if ($oldLogoDark && file_exists(public_path('storage/' . $oldLogoDark->section_content))) {
+                unlink(public_path('storage/' . $oldLogoDark->section_content));
             }
         }
 
@@ -172,6 +187,9 @@ class SettingsController extends Controller
         // Handle file fields separately
         if (isset($settingsItems['header_logo'])) {
             $defaultSettings['header_logo'] = $settingsItems['header_logo']->section_content;
+        }
+        if (isset($settingsItems['header_logo_dark'])) {
+            $defaultSettings['header_logo_dark'] = $settingsItems['header_logo_dark']->section_content;
         }
         if (isset($settingsItems['favicon'])) {
             $defaultSettings['favicon'] = $settingsItems['favicon']->section_content;
@@ -298,5 +316,26 @@ class SettingsController extends Controller
 
         return redirect()->back()
             ->with('success', 'Favicon deleted successfully.');
+    }
+
+    /**
+     * Delete dark header logo.
+     */
+    public function deleteLogoDark(): RedirectResponse
+    {
+        $logoDarkItem = ContentManagement::where('section_name', 'settings')
+            ->where('section_item_name', 'header_logo_dark')
+            ->first();
+
+        if ($logoDarkItem && file_exists(public_path('storage/' . $logoDarkItem->section_content))) {
+            unlink(public_path('storage/' . $logoDarkItem->section_content));
+        }
+
+        if ($logoDarkItem) {
+            $logoDarkItem->update(['section_content' => '']);
+        }
+
+        return redirect()->back()
+            ->with('success', 'Dark logo deleted successfully.');
     }
 }

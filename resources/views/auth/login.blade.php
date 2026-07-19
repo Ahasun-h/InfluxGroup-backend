@@ -56,10 +56,10 @@
         <button type="submit" class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-lg shadow-brand-500/30 text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-all transform active:scale-[0.98]">
             Sign in
         </button>
-        
-        <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
-            Don't have an account? 
-            <a href="{{ route('register') }}" class="font-semibold text-brand-600 hover:text-brand-500 dark:text-brand-400 transition-colors">Sign up</a>
-        </p>
+
+        {{--        <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">--}}
+        {{--            Don't have an account? --}}
+        {{--            <a href="{{ route('register') }}" class="font-semibold text-brand-600 hover:text-brand-500 dark:text-brand-400 transition-colors">Sign up</a>--}}
+        {{--        </p>--}}
     </form>
 </x-guest-layout>

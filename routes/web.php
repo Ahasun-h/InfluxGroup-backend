@@ -81,6 +81,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');
     Route::post('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
     Route::post('settings/delete-logo', [\App\Http\Controllers\Admin\SettingsController::class, 'deleteLogo'])->name('settings.delete-logo');
+    Route::post('settings/delete-logo-dark', [\App\Http\Controllers\Admin\SettingsController::class, 'deleteLogoDark'])->name('settings.delete-logo-dark');
     Route::post('settings/delete-favicon', [\App\Http\Controllers\Admin\SettingsController::class, 'deleteFavicon'])->name('settings.delete-favicon');
 
     // Hero section management (now using content_management system)

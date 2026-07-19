@@ -181,6 +181,22 @@ const currentNavigation = ref(laptopNavigation)
 // Computed
 const currentPath = computed(() => route.path)
 
+// Computed property to determine which logo to show
+const logoToShow = computed(() => {
+  // If dark logo exists in settings, prefer it when not scrolled
+  if (settingsData.value?.header_logo_dark_url && !scrolled.value) {
+    return settingsData.value.header_logo_dark_url
+  }
+  // Otherwise fall back to main logo
+  return settingsData.value?.header_logo_url || null
+})
+
+// Computed property for footer logo (prioritize dark mode alternative logo for dark background)
+const footerLogoToShow = computed(() => {
+  // For dark footer background, prioritize the dark mode alternative logo (light version)
+  return settingsData.value?.header_logo_dark_url || settingsData.value?.header_logo_url || null
+})
+
 // Update currentNavigation based on screen size
 const updateNavigationForScreenSize = () => {
   const width = window.innerWidth
@@ -250,18 +266,16 @@ const performSearch = () => {
 const handleScroll = () => {
   const currentScrollY = window.scrollY
 
-  // Add scrolled class with better threshold
-  scrolled.value = currentScrollY > 100
+  // Add scrolled class when scrolled past 50px
+  scrolled.value = currentScrollY > 50
 
-  // Improved hide/show logic with better thresholds and debounce
-  if (currentScrollY > lastScrollY.value && currentScrollY > 300 && Math.abs(currentScrollY - lastScrollY.value) > 5) {
-    // Only hide when scrolling down significantly
+  // Hide/show header based on scroll direction
+  // Hide when scrolling down, show when scrolling up
+  if (currentScrollY > lastScrollY.value && currentScrollY > 100) {
+    // Scrolling down - hide header (after 100px to avoid hiding at top)
     isHeaderHidden.value = true
-  } else if (currentScrollY < lastScrollY.value && currentScrollY < 100) {
-    // Only show when near top
-    isHeaderHidden.value = false
-  } else if (currentScrollY < lastScrollY.value && Math.abs(currentScrollY - lastScrollY.value) > 10) {
-    // Show when scrolling up significantly
+  } else if (currentScrollY < lastScrollY.value) {
+    // Scrolling up - show header
     isHeaderHidden.value = false
   }
 
@@ -333,32 +347,37 @@ onMounted(() => {
   // Initial screen size detection
   updateNavigationForScreenSize()
 
+  // Initial scroll check
+  handleScroll()
+
   // Fetch data for footer and settings
   fetchPages()
   fetchFooterData()
   fetchSettingsData()
 
-  // Add scroll listener with throttling for better performance
-  let scrollTimeout
-  const throttledHandleScroll = () => {
-    if (scrollTimeout) return
-    scrollTimeout = setTimeout(() => {
-      handleScroll()
-      scrollTimeout = null
-    }, 10)
+  // Add scroll listener with requestAnimationFrame for smooth performance
+  let ticking = false
+  const onScroll = () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        handleScroll()
+        ticking = false
+      })
+      ticking = true
+    }
   }
 
-  window.addEventListener('scroll', throttledHandleScroll, { passive: true })
+  window.addEventListener('scroll', onScroll, { passive: true })
   window.addEventListener('resize', updateNavigationForScreenSize)
 
-  // Store throttled function for cleanup
-  window._throttledHandleScroll = throttledHandleScroll
+  // Store function for cleanup
+  window._scrollHandler = onScroll
 })
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', window._throttledHandleScroll)
+  window.removeEventListener('scroll', window._scrollHandler)
   window.removeEventListener('resize', updateNavigationForScreenSize)
-  delete window._throttledHandleScroll
+  delete window._scrollHandler
 })
 </script>
 
@@ -366,8 +385,8 @@ onUnmounted(() => {
   <div class="min-h-screen bg-industrial-dark text-slate-100">
     <!-- Top Bar -->
     <div
-      class="hidden xl:block bg-industrial-dark border-b border-white/10 py-2 transition-all duration-500 ease-in-out"
-      :class="scrolled ? 'opacity-0 -translate-y-full' : 'opacity-100 translate-y-0'"
+      class="hidden bg-industrial-dark border-b border-white/10 py-2 transition-all duration-500 ease-in-out"
+      :class="scrolled ? 'opacity-0 -translate-y-full' : 'opacity-100 translate-y-0 xl:block'"
     >
       <div class="max-w-7xl mx-auto px-6">
         <div class="flex items-center justify-between">
@@ -415,7 +434,13 @@ onUnmounted(() => {
             @click="navigateTo('/')"
           >
             <img
-              v-if="settingsData?.header_logo_url"
+              v-if="logoToShow"
+              :src="logoToShow"
+              alt="INFLUX GROUP"
+              class="h-10 lg:h-12 w-auto object-contain"
+            />
+            <img
+              v-else-if="settingsData?.header_logo_url"
               :src="settingsData.header_logo_url"
               alt="INFLUX GROUP"
               class="h-10 lg:h-12 w-auto object-contain"
@@ -759,7 +784,13 @@ onUnmounted(() => {
           <div class="lg:col-span-1">
             <div class="mb-6">
               <img
-                v-if="settingsData?.header_logo_url"
+                v-if="footerLogoToShow"
+                :src="footerLogoToShow"
+                alt="INFLUX GROUP"
+                class="h-10 w-auto object-contain"
+              />
+              <img
+                v-else-if="settingsData?.header_logo_url"
                 :src="settingsData.header_logo_url"
                 alt="INFLUX GROUP"
                 class="h-10 w-auto object-contain"

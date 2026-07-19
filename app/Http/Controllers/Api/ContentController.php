@@ -1085,6 +1085,11 @@ class ContentController extends Controller
             $settings['header_logo_url'] = asset('storage/' . $settingsItems['header_logo']->section_content);
         }
 
+        if (isset($settingsItems['header_logo_dark']) && $settingsItems['header_logo_dark']->section_content) {
+            $settings['header_logo_dark'] = $settingsItems['header_logo_dark']->section_content;
+            $settings['header_logo_dark_url'] = asset('storage/' . $settingsItems['header_logo_dark']->section_content);
+        }
+
         if (isset($settingsItems['favicon']) && $settingsItems['favicon']->section_content) {
             $settings['favicon'] = $settingsItems['favicon']->section_content;
             $settings['favicon_url'] = asset('storage/' . $settingsItems['favicon']->section_content);

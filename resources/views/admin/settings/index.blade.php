@@ -81,7 +81,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <!-- Header Logo -->
                             <div class="md:col-span-2">
-                                <label for="header_logo" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Header Logo</label>
+                                <label for="header_logo" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Header Logo (Light Mode)</label>
                                 <input type="file" name="header_logo" id="header_logo" class="dropify" accept="image/*"
                                     @if($settings['header_logo'] ?? null) data-default-file="{{ asset('storage/' . $settings['header_logo']) }}" @endif />
                                 <input type="hidden" name="old_header_logo" value="{{ $settings['header_logo'] ?? '' }}" />
@@ -90,6 +90,21 @@
                                 <form action="{{ route('admin.settings.delete-logo') }}" method="POST" class="mt-3">
                                     @csrf
                                     <button type="submit" class="text-sm text-red-500 hover:text-red-600">Remove current logo</button>
+                                </form>
+                                @endif
+                            </div>
+
+                            <!-- Header Logo Dark -->
+                            <div class="md:col-span-2">
+                                <label for="header_logo_dark" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Header Logo (Dark Mode Alternative)</label>
+                                <input type="file" name="header_logo_dark" id="header_logo_dark" class="dropify" accept="image/*"
+                                    @if($settings['header_logo_dark'] ?? null) data-default-file="{{ asset('storage/' . $settings['header_logo_dark']) }}" @endif />
+                                <input type="hidden" name="old_header_logo_dark" value="{{ $settings['header_logo_dark'] ?? '' }}" />
+                                <x-input-error :messages="$errors->get('header_logo_dark')" class="mt-2" />
+                                @if($settings['header_logo_dark'] ?? null)
+                                <form action="{{ route('admin.settings.delete-logo-dark') }}" method="POST" class="mt-3">
+                                    @csrf
+                                    <button type="submit" class="text-sm text-red-500 hover:text-red-600">Remove current dark logo</button>
                                 </form>
                                 @endif
                             </div>

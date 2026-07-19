@@ -1,3 +1,18 @@
+<?php
+    // Fetch header logos dynamically from database
+    $headerLogo = \App\Models\ContentManagement::where('section_name', 'settings')
+        ->where('section_item_name', 'header_logo')
+        ->where('section_content', '!=', '')
+        ->first();
+
+    $headerLogoDark = \App\Models\ContentManagement::where('section_name', 'settings')
+        ->where('section_item_name', 'header_logo_dark')
+        ->where('section_content', '!=', '')
+        ->first();
+
+    $logoPath = $headerLogo ? asset('storage/' . $headerLogo->section_content) : null;
+    $logoPathDark = $headerLogoDark ? asset('storage/' . $headerLogoDark->section_content) : null;
+?>
 <aside
     class="fixed inset-y-0 left-0 z-50 w-64 h-full bg-white dark:bg-surface-800 border-r border-gray-100 dark:border-surface-700 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:flex md:flex-col shadow-2xl md:shadow-none"
     :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
@@ -14,18 +29,30 @@
             </button>
 
             <!-- Logo Area -->
-            <div class="flex items-center px-2 mb-8">
+            <div class="flex items-center px-2 mb-8" x-data="{
+                logoLight: '{{ $logoPath ?? '' }}',
+                logoDark: '{{ $logoPathDark ?? '' }}'
+            }">
                 <div class="flex items-center gap-3 group cursor-pointer">
-                    <div
-                        class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white shadow-lg shadow-brand-500/40 group-hover:scale-105 transition-all duration-300">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
-                    </div>
-                    <span class="text-xl font-bold font-outfit text-gray-900 dark:text-white">
-                        Influx<span class="text-brand-500">.</span>
-                    </span>
+                    @if($logoPath || $logoPathDark)
+                        <!-- Dynamic Logo Image with Theme Detection -->
+                        <img :src="document.documentElement.classList.contains('dark') && logoDark ? logoDark : logoLight"
+                             alt="Influx Group"
+                             class="object-contain rounded-xl group-hover:scale-105 transition-all duration-300">
+                    @else
+                        <!-- Default Fallback Logo -->
+                        <div
+                            class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white shadow-lg shadow-brand-500/40 group-hover:scale-105 transition-all duration-300">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-xl font-bold font-outfit text-gray-900 dark:text-white">
+                            Influx<span class="text-brand-500">.</span>
+                        </span>
+                    @endif
+
                 </div>
             </div>
 

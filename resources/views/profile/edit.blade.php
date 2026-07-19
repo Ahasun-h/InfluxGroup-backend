@@ -27,7 +27,7 @@
             <!-- Right Column: Danger Zone -->
             <div class="space-y-8">
                 <div class="glass-card p-6 sm:p-8 border-red-100 dark:border-red-900/30">
-                    <div class="max-w-xl text-red-600">
+                    <div class="max-w-xl text-red-600 dark:text-red-400">
                         <h3 class="text-lg font-bold font-outfit mb-4">Danger Zone</h3>
                         @include('profile.partials.delete-user-form')
                     </div>
