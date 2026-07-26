@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Project;
-use App\Models\Service;
 use App\Models\News;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -133,32 +132,22 @@ class CategoryController extends Controller
     public function destroy(Category $category): RedirectResponse
     {
         // Check if category has related content
-        $hasContent = false;
-        $contentTypes = [];
+        $contentCounts = [
+            'products' => $category->products()->count(),
+            'projects' => $category->projects()->count(),
+            'services' => $category->services()->count(),
+            'news articles' => $category->news()->count(),
+        ];
 
-        if ($category->products()->count() > 0) {
-            $hasContent = true;
-            $contentTypes[] = 'products';
-        }
+        $contentTypes = array_filter($contentCounts, fn ($count) => $count > 0);
 
-        if ($category->projects()->count() > 0) {
-            $hasContent = true;
-            $contentTypes[] = 'projects';
-        }
+        if (!empty($contentTypes)) {
+            $details = collect($contentTypes)
+                ->map(fn ($count, $type) => "{$count} {$type}")
+                ->implode(', ');
 
-        if ($category->services()->count() > 0) {
-            $hasContent = true;
-            $contentTypes[] = 'services';
-        }
-
-        if ($category->news()->count() > 0) {
-            $hasContent = true;
-            $contentTypes[] = 'news articles';
-        }
-
-        if ($hasContent) {
             return redirect()->route('admin.categories.index', ['area' => $category->service_area])
-                ->with('error', 'Cannot delete category with ' . implode(', ', $contentTypes) . '. Please reassign content first.');
+                ->with('error', "Cannot delete \"{$category->name}\" because it contains {$details}. Please reassign or delete them first.");
         }
 
         $category->delete();
