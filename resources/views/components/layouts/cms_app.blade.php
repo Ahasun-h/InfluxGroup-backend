@@ -536,16 +536,21 @@
             font-size: 0.875rem;
         }
 
-        .browser-content {
+        .browser-content,
+        .browser-frame-container {
             flex: 1;
             background: white;
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 500px;
         }
 
         .browser-iframe {
             width: 100%;
             height: 100%;
+            flex: 1;
             border: none;
         }
 
@@ -936,14 +941,16 @@
             submitBtn.disabled = true;
 
             // Get the appropriate action URL based on section
-            const actionUrls = {
-                'hero': '/admin/hero',
-                'brand-statements': '/admin/brand-statements',
-                'mission-vision': '/admin/mission-vision',
-                'core-values': '/admin/core-values'
-            };
-
-            const actionUrl = actionUrls[sectionName] || '/admin/hero';
+            let actionUrl = form.getAttribute('action');
+            if (!actionUrl) {
+                const actionUrls = {
+                    'hero': '/admin/hero',
+                    'brand-statements': '/admin/brand-statements',
+                    'mission-vision': '/admin/mission-vision',
+                    'core-values': '/admin/core-values'
+                };
+                actionUrl = actionUrls[sectionName] || '/admin/hero';
+            }
 
             // Prepare form data
             const formData = new FormData(form);
@@ -1548,6 +1555,9 @@
 
         // Fallback: Check periodically for jQuery/Dropify availability
         function checkForLibraries() {
+            if (typeof $ === 'undefined' || $('.dropify, .dropify-brand').length === 0) {
+                return; // Skip if jQuery is not loaded or no dropify elements on page
+            }
             const maxAttempts = 20;
             let attempts = 0;
 
@@ -1558,7 +1568,7 @@
                     console.log('Dropify initialized via fallback');
                 } else if (attempts >= maxAttempts) {
                     clearInterval(interval);
-                    console.error('Failed to initialize Dropify after multiple attempts');
+                    console.warn('Dropify not initialized (jQuery/Dropify library optional for this page)');
                 }
             }, 500);
         }

@@ -53,28 +53,6 @@ Route::post('quote-requests/submit', [\App\Http\Controllers\Api\QuoteRequestCont
 // Contact form (public API)
 Route::post('contact/submit', [\App\Http\Controllers\Api\ContactController::class, 'submit']);
 
-// Leads management (admin API - protected)
-Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
-    Route::get('/leads', [\App\Http\Controllers\Api\ContactController::class, 'index']);
-    Route::get('/leads/{id}', [\App\Http\Controllers\Api\ContactController::class, 'show']);
-    Route::put('/leads/{id}/status', [\App\Http\Controllers\Api\ContactController::class, 'updateStatus']);
-    Route::delete('/leads/{id}', [\App\Http\Controllers\Api\ContactController::class, 'destroy']);
-});
-
-// Admin-only content management endpoints
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/content/homepage', [ContentController::class, 'updateHomepageContent']);
-
-    // Quote requests management (admin only)
-    Route::prefix('admin/quote-requests')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Api\QuoteRequestController::class, 'index']);
-        Route::get('/{quoteRequest}', [\App\Http\Controllers\Api\QuoteRequestController::class, 'show']);
-        Route::put('/{quoteRequest}/status', [\App\Http\Controllers\Api\QuoteRequestController::class, 'updateStatus']);
-        Route::post('/{quoteRequest}/convert', [\App\Http\Controllers\Api\QuoteRequestController::class, 'convertToQuotation']);
-        Route::delete('/{quoteRequest}', [\App\Http\Controllers\Api\QuoteRequestController::class, 'destroy']);
-    });
-});
-
 Route::prefix('pages')->group(function () {
     Route::get('/', [ContentController::class, 'getPages']);
     Route::get('/{slug}', [ContentController::class, 'getPageBySlug']);
@@ -159,17 +137,20 @@ Route::prefix('cms')->group(function () {
     Route::prefix('services')->group(function () {
         Route::get('/hero', [PagesCmsController::class, 'getServicesHeroSection']);
     });
+
+    // News Page APIs
+    Route::prefix('news')->group(function () {
+        Route::get('/hero', [PagesCmsController::class, 'getNewsHeroSection']);
+    });
+
+    // Career Page APIs
+    Route::prefix('career')->group(function () {
+        Route::get('/hero', [PagesCmsController::class, 'getCareerHeroSection']);
+        Route::get('/contact-cta', [PagesCmsController::class, 'getCareerContactCtaSection']);
+    });
 });
 
-// Analytics API (Public endpoints)
+// Analytics API (Public tracking endpoint)
 Route::prefix('analytics')->group(function () {
-    // Tracking endpoint for Vue frontend
     Route::post('/track', [\App\Http\Controllers\Api\AnalyticsTrackingController::class, 'trackPageView']);
-
-    // Dashboard endpoints
-    Route::get('/dashboard', [AnalyticsController::class, 'getDashboardData']);
-    Route::get('/website', [AnalyticsController::class, 'getWebsiteAnalytics']);
-    Route::get('/business', [AnalyticsController::class, 'getBusinessAnalytics']);
-    Route::get('/content', [AnalyticsController::class, 'getContentAnalytics']);
-    Route::get('/api/chart-data', [AnalyticsController::class, 'getChartData']);
 });

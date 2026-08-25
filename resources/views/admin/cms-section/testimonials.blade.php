@@ -19,45 +19,59 @@
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background: rgba(0, 0, 0, 0.5);
+                background: rgba(15, 23, 42, 0.7);
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
                 display: none;
                 align-items: center;
                 justify-content: center;
                 z-index: 9999;
-                padding: 1rem;
+                padding: 1.5rem;
+                opacity: 0;
+                transition: opacity 0.25s ease;
             }
 
             .modal-overlay.active {
                 display: flex;
+                opacity: 1;
             }
 
             .modal-content {
-                background: white;
-                dark:bg-surface-800;
-                border-radius: 1rem;
-                padding: 2rem;
-                max-width: 600px;
+                border-radius: 1.25rem;
+                padding: 2.25rem;
+                max-width: 640px;
                 width: 100%;
                 max-height: 90vh;
                 overflow-y: auto;
                 position: relative;
                 z-index: 10000;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+                transform: scale(0.95);
+                transition: transform 0.25s ease;
+            }
+
+            .modal-overlay.active .modal-content {
+                transform: scale(1);
             }
 
             .rating-star {
                 cursor: pointer;
-                transition: color 0.2s;
+                transition: all 0.2s ease;
             }
 
             .rating-star.active {
                 color: #fbbf24;
+                transform: scale(1.1);
             }
 
             .rating-star:not(.active) {
-                color: #d1d5db;
+                color: #94a3b8;
             }
 
             .rating-star:hover {
+                color: #f59e0b;
+                transform: scale(1.15);
+            }
                 color: #fbbf24;
             }
 
@@ -239,11 +253,18 @@
 
     <!-- Add/Edit Modal -->
     <div id="testimonialModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white" id="modalTitle">Add Testimonial</h2>
-                <button onclick="window.closeModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="modal-content bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 text-gray-900 dark:text-white">
+            <div class="flex justify-between items-center pb-5 mb-6 border-b border-gray-100 dark:border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-brand-500/10 text-brand-500 flex items-center justify-center font-bold">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-extrabold text-gray-900 dark:text-white tracking-tight" id="modalTitle">Add Testimonial</h2>
+                </div>
+                <button onclick="window.closeModal()" class="w-9 h-9 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
@@ -253,36 +274,36 @@
                 @csrf
                 <input type="hidden" id="testimonialId" name="testimonial_id" value="">
 
-                <div class="space-y-4">
+                <div class="space-y-5">
                     <div>
-                        <label for="content" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Testimonial Content</label>
-                        <textarea name="content" id="content" rows="4" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all resize-none" required placeholder="Enter testimonial text..."></textarea>
+                        <label for="content" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-slate-400 mb-2">Testimonial Content</label>
+                        <textarea name="content" id="content" rows="4" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition-all resize-none text-sm placeholder-gray-400 dark:placeholder-slate-600" required placeholder="Enter client feedback or recommendation..."></textarea>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="name" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Client Name</label>
-                            <input type="text" name="name" id="name" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all" required placeholder="John Doe">
+                            <label for="name" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-slate-400 mb-2">Client Name</label>
+                            <input type="text" name="name" id="name" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition-all text-sm placeholder-gray-400 dark:placeholder-slate-600" required placeholder="John Doe">
                         </div>
 
                         <div>
-                            <label for="position" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Position</label>
-                            <input type="text" name="position" id="position" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all" required placeholder="CEO">
+                            <label for="position" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-slate-400 mb-2">Position</label>
+                            <input type="text" name="position" id="position" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition-all text-sm placeholder-gray-400 dark:placeholder-slate-600" required placeholder="Managing Director">
                         </div>
                     </div>
 
                     <div>
-                        <label for="company" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Company</label>
-                        <input type="text" name="company" id="company" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all" required placeholder="Company Name">
+                        <label for="company" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-slate-400 mb-2">Company</label>
+                        <input type="text" name="company" id="company" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition-all text-sm placeholder-gray-400 dark:placeholder-slate-600" required placeholder="Influx Energy Systems">
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Rating</label>
-                        <div class="flex gap-2 items-center" id="ratingStars">
+                    <div class="pt-2">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-slate-400 mb-2">Rating</label>
+                        <div class="flex gap-2 items-center bg-gray-50 dark:bg-slate-950 p-3 rounded-xl border border-gray-200 dark:border-slate-800 w-fit" id="ratingStars">
                             @for($i = 1; $i <= 5; $i++)
                                 <input type="radio" name="rating" id="rating{{ $i }}" value="{{ $i }}" class="hidden" {{ $i === 5 ? 'checked' : '' }}>
                                 <label for="rating{{ $i }}" class="rating-star text-2xl" data-rating="{{ $i }}">
-                                    <svg class="w-8 h-8 fill-current" viewBox="0 0 20 20">
+                                    <svg class="w-7 h-7 fill-current" viewBox="0 0 20 20">
                                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                     </svg>
                                 </label>
@@ -291,11 +312,11 @@
                     </div>
                 </div>
 
-                <div class="mt-6 flex justify-end gap-3">
-                    <button type="button" onclick="window.closeModal()" class="px-6 py-3 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-surface-700 transition-all">
+                <div class="mt-8 pt-5 border-t border-gray-100 dark:border-slate-800 flex justify-end gap-3">
+                    <button type="button" onclick="window.closeModal()" class="px-5 py-2.5 rounded-xl border border-gray-200 dark:border-slate-800 text-gray-700 dark:text-slate-300 font-semibold hover:bg-gray-100 dark:hover:bg-slate-800 transition-all text-sm">
                         Cancel
                     </button>
-                    <button type="submit" class="bg-brand-500 hover:bg-brand-600 text-white px-6 py-3 rounded-xl font-semibold transition-all shadow-lg shadow-brand-500/30">
+                    <button type="submit" class="bg-brand-500 hover:bg-brand-600 text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-brand-500/25 text-sm hover:-translate-y-0.5 active:translate-y-0">
                         Save Testimonial
                     </button>
                 </div>
